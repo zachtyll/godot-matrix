@@ -188,9 +188,12 @@ func _format_chat(content) -> String:
 			"m.room.history_visibility":
 				print("TODO : Implement m.room.history_visibility")
 				print(content.get("content"))
+				message_line += "Message history set to: "
+				message_line += content.get("content").get("history_visibility")
 			"m.room.join_rules":
-				print("TODO : Implement m.room.join_rules")
-				print(content.get("content"))
+				# TODO : Fix the formatting to be like natural language.
+				message_line += "Join rule set to: "
+				message_line += content.get("content").get("join_rule")
 			"m.room.canonical_alias":
 				print("TODO : Implement m.room.canonical_alias")
 				print(content.get("content"))
@@ -206,6 +209,11 @@ func _format_chat(content) -> String:
 			"m.room.power_levels":
 				print("TODO : Implement m.room.power_levels")
 				print(content.get("content"))
+			"m.room.encryption":
+				# TODO : Figure out wether this statement is actually
+				#	completely true.
+				message_line += "Messages are encrypted with "
+				message_line += content.get("content").get("algorithm")
 			"m.room.encrypted":
 				# TODO : Figure out how to solve decryption.
 				#	Maybe this shouldn't even be decrypted?
