@@ -156,6 +156,8 @@ func _update_chat_window(messages : Dictionary) -> void:
 				chat_history_list.add_item(message_string)
 
 
+# Formats the received content block for display.
+# TODO : Move this code into a message factory node.
 func _format_chat(content : Dictionary) -> String:
 	var message_line := ""
 	if not content == null:
@@ -176,7 +178,6 @@ func _format_chat(content : Dictionary) -> String:
 					print("Unexpected content block:")
 					print(content.get("content"))
 			"m.room.member":
-				
 					message_line += content.get("content").get("displayname")
 					message_line += " "
 					message_line += content.get("content").get("membership")
