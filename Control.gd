@@ -20,12 +20,11 @@ onready var topic := $Screen/MidSection/TopBarMid/TopBarMidHbox/ChannelLabels/To
 onready var chat_history_list := $Screen/MidSection/ItemList
 onready var room_list := $Screen/LeftSection/ItemList
 onready var chat_line := $Screen/MidSection/ChatInput/LineEdit
+onready var chat_window := $Screen/MidSection/ChatWindow
 
 
 # Sends a message to the given room
 func _on_Button2_pressed() -> void:
-	if input_text.empty():
-		return
 	_send_message()
 
 
