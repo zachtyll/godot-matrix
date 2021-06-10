@@ -134,7 +134,7 @@ func _on_Button_toggled(button_pressed):
 func _on_room_list_item_selected(index):
 	chat_history_list.clear()
 	current_room = joined_rooms[index]
-	channel_name.text = room_list.get_item_text(index)
+#	channel_name.text = room_list.get_item_text(index)
 #	room_id : String,
 #	from : String = next_batch,
 #	to : String = "",
@@ -150,10 +150,12 @@ func _update_chat_window(messages : Dictionary) -> void:
 	if messages.has("chunk"):
 		messages.get("chunk").invert()
 		for content in messages.get("chunk"):
-			chat_history_list.add_item(_format_chat(content))
+			var message_string := _format_chat(content)
+			if not message_string.empty():
+				chat_history_list.add_item(message_string)
 
 
-func _format_chat(content) -> String:
+func _format_chat(content : Dictionary) -> String:
 	var message_line := ""
 	if not content == null:
 		match(content.get("type")):
@@ -174,7 +176,7 @@ func _format_chat(content) -> String:
 					print(content.get("content"))
 			"m.room.member":
 				if content.get("content").has("room_alias_name"):
-					channel_name.text = content.get("content").get("room_alias_name")
+#					channel_name.text = content.get("content").get("room_alias_name")
 					
 					message_line += content.get("content").get("displayname")
 					message_line += " "
@@ -183,11 +185,10 @@ func _format_chat(content) -> String:
 					message_line += content.get("content").get("room_alias_name")
 				
 			"m.room.create":
-				print("TODO : Implement m.room.create")
-				print(content.get("content"))
+				message_line += content.get("content").get("creator")
+				message_line += " created the room. Room version: "
+				message_line += content.get("content").get("room_version")
 			"m.room.history_visibility":
-				print("TODO : Implement m.room.history_visibility")
-				print(content.get("content"))
 				message_line += "Message history set to: "
 				message_line += content.get("content").get("history_visibility")
 			"m.room.join_rules":
@@ -204,8 +205,9 @@ func _format_chat(content) -> String:
 					message_line += "The topic was set to: "
 					message_line += content.get("content").get("topic")
 			"m.room.name":
-				print("TODO : Implement m.room.name")
-				print(content.get("content"))
+				message_line += "Room name set to: "
+				message_line += content.get("content").get("name")
+				channel_name.set_text(content.get("content").get("name"))
 			"m.room.power_levels":
 				print("TODO : Implement m.room.power_levels")
 				print(content.get("content"))
