@@ -140,7 +140,7 @@ func get_room_aliases(room_id : String) -> void:
 # Gets messages from room "room_id". Batch "from" to batch "to" with max "limit" messages.
 # "dir" handles the direction to paginate. ("b"ackwards or "f"orwards).
 # TODO : Figure out how "filter" works.
-func get_messages(room_id : String, from : String, to : String = "", dir : String = "b", limit : int = 10, filter : String = ""):
+func get_messages(room_id : String, from : String = "", to : String = "", dir : String = "b", limit : int = 10, filter : String = ""):
 	var url := "https://matrix.org/_matrix/client/r0/rooms/" + room_id + "/messages?from=" + from + "&to=" + to + "&dir=" + dir + "&limit=" + str(limit) +  "&filter=" + filter + "&access_token=" + access_token
 	_make_get_request(url, "_get_messages_completed")
 

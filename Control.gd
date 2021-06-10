@@ -36,9 +36,6 @@ func _send_message() -> void:
 		return
 	mp.send_message(current_room, input_text)
 	chat_line.clear()
-	# We need to yield here, so that we catch the newly sent message.
-	yield(mp, "send_message_completed")
-	mp.get_messages(current_room, next_batch, "", "b", 1, "")
 
 
 # Allows the user to join a room.
@@ -159,6 +156,7 @@ func _update_chat_window(messages : Dictionary) -> void:
 			var message_string := _format_chat(content)
 			if not message_string.empty():
 				chat_history_list.add_item(message_string)
+	next_batch = messages.get("start")
 
 
 # Formats the received content block for display.
@@ -247,10 +245,9 @@ func _on_Timer_timeout():
 		return
 	elif previous_batch == next_batch:
 		return
-	print(next_batch)
-	print(previous_batch)
 	
-	mp.get_messages(current_room, next_batch, "", "b", 1, "")
+	
+	mp.get_messages(current_room, previous_batch, next_batch, "b", 1, "")
 
 
 func _ready():
