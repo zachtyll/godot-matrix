@@ -5,14 +5,15 @@ const matrix_protocol = preload( "Matrix.gd" )
 export(String) var user_username
 export(String) var user_password
 
-var access_token = ""
-var login : bool = false
+var access_token := ""
+var login := false
 var input_text := ""
 var mp : MatrixProtocol
 var room_counter := 0
 var joined_rooms := []
 var current_room = ""
 var next_batch := ""
+var previous_batch := ""
 
 onready var channel_name := $Screen/MidSection/TopBarMid/TopBarMidHbox/ChannelLabels/ChannelName
 onready var topic := $Screen/MidSection/TopBarMid/TopBarMidHbox/ChannelLabels/Topic
@@ -64,7 +65,9 @@ func _on_Button5_pressed():
 func update_list(response) -> void:
 	if not response.has("next_batch"):
 		return
+	previous_batch = next_batch
 	# Set next message batch to be expected
+	print(response.get("next_batch"))
 	next_batch = response.get("next_batch")
 	# Ugly algo to get message text only
 	var rooms = response["rooms"].get("join").keys()
@@ -107,6 +110,7 @@ func _on_login_completed(success):
 	if success:
 		mp.get_joined_rooms()
 		mp.sync_events('filter={"room":{"timeline":{"limit":10}}}', next_batch)
+		$Timer.start()
 	elif not success:
 		print("Invalid login!")
 	else:
@@ -127,6 +131,7 @@ func _on_Button_toggled(button_pressed):
 		room_list.clear()
 		room_counter = 0
 		chat_history_list.clear()
+		$Timer.stop()
 
 
 # Updates which room we act upon via the left sidebar
@@ -235,6 +240,17 @@ func _format_chat(content : Dictionary) -> String:
 func _input(event):
 	if event.is_action_pressed("Enter"):
 		_send_message()
+
+
+func _on_Timer_timeout():
+	if current_room.empty():
+		return
+	elif previous_batch == next_batch:
+		return
+	print(next_batch)
+	print(previous_batch)
+	
+	mp.get_messages(current_room, next_batch, "", "b", 1, "")
 
 
 func _ready():
