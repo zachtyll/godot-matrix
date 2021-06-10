@@ -2,6 +2,9 @@ extends Control
 
 const matrix_protocol = preload( "Matrix.gd" )
 
+export(String) var user_username
+export(String) var user_password
+
 var access_token = ""
 var login : bool = false
 var input_text := ""
@@ -118,11 +121,7 @@ func _on_LineEdit_text_changed(new_text):
 # Login and logout
 func _on_Button_toggled(button_pressed):
 	if button_pressed:
-		mp.login("zactyl", "GeMigMatrixNu!")
-#			"user": "zactyl"
-#			"user": "kungpost"
-#			"password": "GeMigMatrixNu!",
-#			"password": "kungpost123",
+		mp.login(user_username, user_password)
 	else:
 		mp.logout()
 		room_list.clear()
