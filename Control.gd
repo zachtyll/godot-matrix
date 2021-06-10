@@ -146,6 +146,7 @@ func _on_room_list_item_selected(index):
 
 
 # Updates the chat window when we click on a room in the left sidebar
+# Unrecognized and unhandled messages are not added.
 func _update_chat_window(messages : Dictionary) -> void:
 	if messages.has("chunk"):
 		messages.get("chunk").invert()
@@ -175,15 +176,13 @@ func _format_chat(content : Dictionary) -> String:
 					print("Unexpected content block:")
 					print(content.get("content"))
 			"m.room.member":
-				if content.get("content").has("room_alias_name"):
-#					channel_name.text = content.get("content").get("room_alias_name")
-					
+				
 					message_line += content.get("content").get("displayname")
 					message_line += " "
 					message_line += content.get("content").get("membership")
-					message_line += " "
-					message_line += content.get("content").get("room_alias_name")
-				
+					if content.get("content").has("room_alias_name"):
+						message_line += " "
+						message_line += content.get("content").get("room_alias_name")
 			"m.room.create":
 				message_line += content.get("content").get("creator")
 				message_line += " created the room. Room version: "
