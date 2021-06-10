@@ -142,7 +142,7 @@ func _on_room_list_item_selected(index):
 #	limit : int = 10,
 #	filter : String = ""
 #	mp.get_messages(current_room, next_batch, "", "b", 10, "")
-	mp.get_messages(current_room, next_batch, "", "b", 10, "")
+	mp.get_messages(current_room, next_batch, "", "b", 100, "")
 
 
 # Updates the chat window when we click on a room in the left sidebar
@@ -166,15 +166,22 @@ func _format_chat(content) -> String:
 						print("Can only handle text right now!")
 						print("This is a: " + str(content.get("msgtype")))
 			"m.room.guest_access":
-				print("TODO : Implement m.room.guest_access")
-				print(content.get("content"))
+				if content.get("content").has("guest_access"):
+					message_line += "Guest access set to: "
+					message_line += content.get("content").get("guest_access")
+				else:
+					print("Unexpected content block:")
+					print(content.get("content"))
 			"m.room.member":
-				print("TODO : Implement m.room.member")
-				print(content.get("content"))
-				print(content.get("content").get("room_alias_name") is String)
-				
 				if content.get("content").has("room_alias_name"):
 					channel_name.text = content.get("content").get("room_alias_name")
+					
+					message_line += content.get("content").get("displayname")
+					message_line += " "
+					message_line += content.get("content").get("membership")
+					message_line += " "
+					message_line += content.get("content").get("room_alias_name")
+				
 			"m.room.create":
 				print("TODO : Implement m.room.create")
 				print(content.get("content"))
@@ -189,21 +196,27 @@ func _format_chat(content) -> String:
 				print(content.get("content"))
 			"m.room.topic":
 				print("TODO : Implement m.room.topic")
-#				topic.text = content.get("content").get("topic")
+				if content.get("content").has("topic"):
+					topic.text = content.get("content").get("topic")
+					message_line += "The topic was set to: "
+					message_line += content.get("content").get("topic")
 			"m.room.name":
 				print("TODO : Implement m.room.name")
 				print(content.get("content"))
 			"m.room.power_levels":
-#				print("TODO : Implement m.room.power_levels")
+				print("TODO : Implement m.room.power_levels")
 				print(content.get("content"))
 			"m.room.encrypted":
-#				print("TODO : Implement m.room.encrypted")
-				pass
+				# TODO : Figure out how to solve decryption.
+				#	Maybe this shouldn't even be decrypted?
+				#	Spec is a little unclear.
+				message_line += "This message is encrypted."
 			"m.reaction":
-				pass
+				print("TODO : Implement m.reation")
+				print(content.get("content"))
 			"m.room.redaction":
-#				print(content.get("content"))
-				pass
+				print("TODO : Implement m.redaction")
+				print(content.get("content"))
 			_:
 				push_warning("Unhandled message in content block: " + str(content.get("type")))
 	return message_line

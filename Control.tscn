@@ -11,6 +11,8 @@ script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
+user_username = "kungpost"
+user_password = "kungpost123"
 
 [node name="Screen" type="HBoxContainer" parent="."]
 anchor_right = 1.0
@@ -63,14 +65,16 @@ size_flags_vertical = 3
 
 [node name="MidSection" type="VBoxContainer" parent="Screen"]
 margin_left = 204.0
-margin_right = 804.0
+margin_right = 1020.0
 margin_bottom = 606.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="TopBarMid" type="Panel" parent="Screen/MidSection"]
-margin_right = 600.0
+margin_right = 816.0
 margin_bottom = 70.0
 rect_min_size = Vector2( 600, 70 )
 size_flags_horizontal = 3
@@ -106,18 +110,18 @@ text = "Topic"
 
 [node name="ItemList" type="ItemList" parent="Screen/MidSection"]
 margin_top = 74.0
-margin_right = 600.0
+margin_right = 816.0
 margin_bottom = 474.0
 rect_min_size = Vector2( 600, 400 )
 size_flags_vertical = 3
 
 [node name="ChatInput" type="MarginContainer" parent="Screen/MidSection"]
 margin_top = 478.0
-margin_right = 600.0
+margin_right = 816.0
 margin_bottom = 502.0
 
 [node name="LineEdit" type="LineEdit" parent="Screen/MidSection/ChatInput"]
-margin_right = 600.0
+margin_right = 816.0
 margin_bottom = 24.0
 placeholder_text = "Write message here."
 __meta__ = {
@@ -126,14 +130,15 @@ __meta__ = {
 
 [node name="Buttons" type="CenterContainer" parent="Screen/MidSection"]
 margin_top = 506.0
-margin_right = 600.0
+margin_right = 816.0
 margin_bottom = 606.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Screen/MidSection/Buttons"]
-margin_right = 600.0
+margin_left = 108.0
+margin_right = 708.0
 margin_bottom = 100.0
 rect_min_size = Vector2( 600, 100 )
 size_flags_horizontal = 3
@@ -143,44 +148,31 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Button4" type="Button" parent="Screen/MidSection/Buttons/HBoxContainer"]
-margin_left = 99.0
-margin_right = 191.0
-margin_bottom = 100.0
-text = "Sample_Text"
-
 [node name="Button" type="Button" parent="Screen/MidSection/Buttons/HBoxContainer"]
-margin_left = 195.0
-margin_right = 241.0
+margin_left = 183.0
+margin_right = 229.0
 margin_bottom = 100.0
 toggle_mode = true
 text = "Login"
 
 [node name="Button3" type="Button" parent="Screen/MidSection/Buttons/HBoxContainer"]
-margin_left = 245.0
-margin_right = 321.0
+margin_left = 233.0
+margin_right = 309.0
 margin_bottom = 100.0
 text = "Join Room"
 
 [node name="Button2" type="Button" parent="Screen/MidSection/Buttons/HBoxContainer"]
-margin_left = 325.0
-margin_right = 429.0
+margin_left = 313.0
+margin_right = 417.0
 margin_bottom = 100.0
 text = "Send message"
 
-[node name="Button5" type="Button" parent="Screen/MidSection/Buttons/HBoxContainer"]
-margin_left = 433.0
-margin_right = 500.0
-margin_bottom = 100.0
-text = "Get Stuff"
-
 [node name="RightSection" type="VBoxContainer" parent="Screen"]
-margin_left = 808.0
-margin_right = 808.0
+margin_left = 1024.0
+margin_right = 1024.0
 margin_bottom = 606.0
 [connection signal="item_selected" from="Screen/LeftSection/ItemList" to="." method="_on_room_list_item_selected"]
 [connection signal="text_changed" from="Screen/MidSection/ChatInput/LineEdit" to="." method="_on_LineEdit_text_changed"]
 [connection signal="toggled" from="Screen/MidSection/Buttons/HBoxContainer/Button" to="." method="_on_Button_toggled"]
 [connection signal="pressed" from="Screen/MidSection/Buttons/HBoxContainer/Button3" to="." method="_on_Button3_pressed"]
 [connection signal="pressed" from="Screen/MidSection/Buttons/HBoxContainer/Button2" to="." method="_on_Button2_pressed"]
-[connection signal="pressed" from="Screen/MidSection/Buttons/HBoxContainer/Button5" to="." method="_on_Button5_pressed"]
