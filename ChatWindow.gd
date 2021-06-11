@@ -16,6 +16,7 @@ func clear() -> void:
 		message_box.queue_free()
 
 
+# warning-ignore:unused_argument
 func _compose_message_box(message_type : String, content : Dictionary):
 	var message_box = null
 	match(content.get("type")):
@@ -29,13 +30,16 @@ func _compose_message_box(message_type : String, content : Dictionary):
 				_:
 					print("Can only handle text right now!")
 					print("This is a: " + str(content.get("msgtype")))
-#		"m.room.guest_access":
-#			if content.get("content").has("guest_access"):
-#				message_line += "Guest access set to: "
-#				message_line += content.get("content").get("guest_access")
-#			else:
-#				print("Unexpected content block:")
-#				print(content.get("content"))
+		"m.room.guest_access":
+			if content.get("content").has("guest_access"):
+				message_box = m_text.instance()
+				message_box.sender = ""
+				message_box.body += "Guest access set to: "
+				message_box.body += content.get("content").get("guest_access")
+				return message_box
+			else:
+				print("Unexpected content block:")
+				print(content.get("content"))
 #		"m.room.member":
 #				message_line += content.get("content").get("displayname")
 #				message_line += " "

@@ -1,15 +1,16 @@
 extends Panel
 
+const HEADER_SIZE := 50
+const TEXT_SIZE := 16
 
-export(String) var body
-export(String) var sender
+var body := ""
+var sender := ""
+
+onready var sender_name := $Padding/VBoxContainer/HBoxContainer/SenderName as RichTextLabel
+onready var message_body := $Padding/VBoxContainer/MessageBody as RichTextLabel
 
 
-# Called when the node enters the scene tree for the first time.
 func _ready():
-	pass # Replace with function body.
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
+#	sender_name.append_bbcode(sender)
+	message_body.print_bbcode_message(body)
+	set_custom_minimum_size(Vector2(0, (message_body.get_line_count() * TEXT_SIZE) + HEADER_SIZE))
