@@ -6,10 +6,6 @@ const m_text = preload("res://MessageBoxes/MessagePanel.tscn")
 onready var timeline := $TimeLine
 
 
-func add_message(message_type : String, content : Dictionary):
-	timeline.add_child(_compose_message_box(message_type, content))
-
-
 func clear() -> void:
 	var message_boxes := timeline.get_children()
 	for message_box in message_boxes:
@@ -17,7 +13,8 @@ func clear() -> void:
 
 
 # warning-ignore:unused_argument
-func _compose_message_box(message_type : String, content : Dictionary):
+# Returns an enumeration. 0: OK, 1: Fail.
+func add_message(message_type : String, content : Dictionary) -> int:
 	var message_box = m_text.instance()
 	match(content.get("type")):
 		"m.room.message":
@@ -45,9 +42,11 @@ func _compose_message_box(message_type : String, content : Dictionary):
 					)
 		"m.room.member":
 				message_box.sender = ""
+#				message_box.message_body.append_bbcode("")
 				message_box.body = (
-					"{displayname} {membership}".format(content.get("content"))
+					"[wave amp=50 freq=2] {displayname} {membership} [/wave]".format(content.get("content"))
 					)
+#				message_box.message_body.append_bbcode("[/wave]")
 				if content.get("content").has("room_alias_name"):
 					message_box.body += " {room_alias_name}.".format(content.get("content"))
 		"m.room.create":
@@ -110,4 +109,9 @@ func _compose_message_box(message_type : String, content : Dictionary):
 		_:
 			message_box = null
 			push_warning("Unhandled message in content block: " + str(content.get("type")))
-	return message_box
+	
+	if message_box == null:
+		return FAILED
+	else:
+		timeline.add_child(message_box)
+		return OK

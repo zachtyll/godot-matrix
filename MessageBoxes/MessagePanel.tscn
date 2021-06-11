@@ -4,10 +4,11 @@
 [ext_resource path="res://MessageBoxes/MessagePanel.gd" type="Script" id=2]
 
 [node name="MessagePanel" type="Panel"]
-margin_right = 1024.0
-margin_bottom = 200.0
+anchor_right = 1.0
+anchor_bottom = 1.0
 rect_min_size = Vector2( 0, 200 )
 size_flags_horizontal = 3
+size_flags_vertical = 3
 script = ExtResource( 2 )
 __meta__ = {
 "_edit_use_anchors_": false
@@ -28,7 +29,7 @@ __meta__ = {
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Padding"]
 margin_right = 984.0
-margin_bottom = 160.0
+margin_bottom = 560.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 __meta__ = {
@@ -38,6 +39,7 @@ __meta__ = {
 [node name="HBoxContainer" type="HBoxContainer" parent="Padding/VBoxContainer"]
 margin_right = 984.0
 margin_bottom = 20.0
+size_flags_horizontal = 3
 
 [node name="SenderName" type="RichTextLabel" parent="Padding/VBoxContainer/HBoxContainer"]
 margin_right = 490.0
@@ -61,13 +63,12 @@ text = "11:05"
 [node name="MessageBody" type="RichTextLabel" parent="Padding/VBoxContainer"]
 margin_top = 24.0
 margin_right = 984.0
-margin_bottom = 160.0
-focus_mode = 2
+margin_bottom = 560.0
+rect_clip_content = false
 size_flags_horizontal = 3
 size_flags_vertical = 3
 bbcode_enabled = true
 scroll_active = false
-selection_enabled = true
 script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
