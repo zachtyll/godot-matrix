@@ -163,11 +163,12 @@ func _update_chat_window(messages : Dictionary) -> void:
 # Formats the received content block for display.
 # TODO : Move this code into a message factory node.
 func _format_chat(content : Dictionary) -> String:
+	chat_window.add_message(content.get("type"), content)
 	var message_line := ""
 	if not content == null:
 		match(content.get("type")):
 			"m.room.message":
-				chat_window.add_message("m.room.message", content)
+#				chat_window.add_message("m.room.message", content)
 				match(content.get("content").get("msgtype")):
 					"m.text":
 						message_line += content.get("sender") + ": "

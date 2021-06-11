@@ -46,8 +46,6 @@ rect_min_size = Vector2( 100, 20 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
 bbcode_enabled = true
-bbcode_text = "[b]Kungpost[/b]"
-text = "Kungpost"
 scroll_active = false
 
 [node name="TimeStamp" type="RichTextLabel" parent="Padding/VBoxContainer/HBoxContainer"]

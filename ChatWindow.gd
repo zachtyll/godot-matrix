@@ -18,77 +18,96 @@ func clear() -> void:
 
 # warning-ignore:unused_argument
 func _compose_message_box(message_type : String, content : Dictionary):
-	var message_box = null
+	var message_box = m_text.instance()
 	match(content.get("type")):
 		"m.room.message":
 			match(content.get("content").get("msgtype")):
 				"m.text":
-					message_box = m_text.instance()
 					message_box.sender = content.get("sender")
-					message_box.body = content.get("content").get("body")
-					return message_box
+					message_box.body = (
+						"{body}".format(content.get("content"))
+						)
 				_:
-					print("Can only handle text right now!")
-					print("This is a: " + str(content.get("msgtype")))
+					message_box.body = (
+						"This is a: {msgtype}".format(content.get("msgtype"))
+					)
 		"m.room.guest_access":
 			if content.get("content").has("guest_access"):
-				message_box = m_text.instance()
 				message_box.sender = ""
-				message_box.body += "Guest access set to: "
-				message_box.body += content.get("content").get("guest_access")
-				return message_box
+				message_box.body = (
+					"Guest access set to: {guest_access}!".format(content.get("content"))
+					)
+				
 			else:
-				print("Unexpected content block:")
-				print(content.get("content"))
-#		"m.room.member":
-#				message_line += content.get("content").get("displayname")
-#				message_line += " "
-#				message_line += content.get("content").get("membership")
-#				if content.get("content").has("room_alias_name"):
-#					message_line += " "
-#					message_line += content.get("content").get("room_alias_name")
-#		"m.room.create":
-#			message_line += content.get("content").get("creator")
-#			message_line += " created the room. Room version: "
-#			message_line += content.get("content").get("room_version")
-#		"m.room.history_visibility":
-#			message_line += "Message history set to: "
-#			message_line += content.get("content").get("history_visibility")
-#		"m.room.join_rules":
-#			# TODO : Fix the formatting to be like natural language.
-#			message_line += "Join rule set to: "
-#			message_line += content.get("content").get("join_rule")
-#		"m.room.canonical_alias":
-#			print("TODO : Implement m.room.canonical_alias")
-#			print(content.get("content"))
-#		"m.room.topic":
-#			print("TODO : Implement m.room.topic")
-#			if content.get("content").has("topic"):
+				message_box.sender = "WARNING: Unexpected message"
+				message_box.body = (
+					"Unexpected content block: {content}!".format(content.get("content"))
+					)
+		"m.room.member":
+				message_box.sender = ""
+				message_box.body = (
+					"{displayname} {membership}".format(content.get("content"))
+					)
+				if content.get("content").has("room_alias_name"):
+					message_box.body += " {room_alias_name}.".format(content.get("content"))
+		"m.room.create":
+			message_box.body = (
+				"{creator} created the room. Version: {room_version}".format(content.get("content"))
+			)
+		"m.room.history_visibility":
+			message_box.body = (
+				"Message history set to: {history_visibility}".format(content.get("content"))
+			)
+		"m.room.join_rules":
+			# TODO : Fix the formatting to be like natural language.
+			message_box.body = (
+				"Join rule set to: {join_rule}.".format(content.get("content"))
+			)
+		"m.room.canonical_alias":
+			message_box.sender = "TODO : Implement m.room.canonical_alias"
+			message_box.body = (
+				"{content}".format(content)
+			)
+		"m.room.topic":
+			if content.get("content").has("topic"):
 #				topic.text = content.get("content").get("topic")
-#				message_line += "The topic was set to: "
-#				message_line += content.get("content").get("topic")
-#		"m.room.name":
-#			message_line += "Room name set to: "
-#			message_line += content.get("content").get("name")
+				message_box.body = (
+					"The topic was set to: {topic}".format(content.get("content"))
+				)
+		"m.room.name":
+			message_box.body = (
+					"Room name set to: {name}".format(content.get("content"))
+				)
 #			channel_name.set_text(content.get("content").get("name"))
-#		"m.room.power_levels":
-#			print("TODO : Implement m.room.power_levels")
-#			print(content.get("content"))
-#		"m.room.encryption":
-#			# TODO : Figure out wether this statement is actually
-#			#	completely true.
-#			message_line += "Messages are encrypted with "
-#			message_line += content.get("content").get("algorithm")
-#		"m.room.encrypted":
-#			# TODO : Figure out how to solve decryption.
-#			#	Maybe this shouldn't even be decrypted?
-#			#	Spec is a little unclear.
-#			message_line += "This message is encrypted."
-#		"m.reaction":
-#			print("TODO : Implement m.reation")
-#			print(content.get("content"))
-#		"m.room.redaction":
-#			print("TODO : Implement m.redaction")
-#			print(content.get("content"))
+		"m.room.power_levels":
+			message_box.sender = "TODO : Implement m.room.power_levels"
+			message_box.body = (
+				"{content}".format(content)
+			)
+		"m.room.encryption":
+			# TODO : Figure out wether this statement is actually
+			#	completely true.
+			message_box.body = (
+					"Messages are encrypted with: {algorithm}".format(content.get("content"))
+				)
+		"m.room.encrypted":
+			# TODO : Figure out how to solve decryption.
+			#	Maybe this shouldn't even be decrypted?
+			#	Spec is a little unclear.
+			message_box.body = (
+					"This message is encrypted."
+				)
+		"m.reaction":
+			message_box.sender = "TODO : Implement m.reation"
+			message_box.body = (
+				"{content}".format(content)
+			)
+		"m.room.redaction":
+			message_box.sender = "TODO : Implement m.redaction"
+			message_box.body = (
+				"{content}".format(content)
+			)
 		_:
+			message_box = null
 			push_warning("Unhandled message in content block: " + str(content.get("type")))
+	return message_box
