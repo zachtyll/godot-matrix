@@ -103,7 +103,6 @@ margin_bottom = 14.0
 text = "Channel Name"
 
 [node name="Topic" type="Label" parent="Screen/MidSection/TopBarMid/TopBarMidHbox/ChannelLabels"]
-visible = false
 margin_top = 18.0
 margin_right = 93.0
 margin_bottom = 32.0
@@ -114,10 +113,12 @@ anchor_right = 0.0
 anchor_bottom = 0.0
 margin_top = 74.0
 margin_right = 600.0
-margin_bottom = 74.0
+margin_bottom = 269.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
 
 [node name="ItemList" type="ItemList" parent="Screen/MidSection"]
-margin_top = 78.0
+margin_top = 273.0
 margin_right = 600.0
 margin_bottom = 468.0
 rect_min_size = Vector2( 600, 60 )

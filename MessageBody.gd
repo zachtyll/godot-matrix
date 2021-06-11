@@ -3,12 +3,13 @@ extends RichTextLabel
 const HEADER_SIZE := 50
 const TEXT_SIZE := 16
 
-export(String) var message
-
+# TODO : Make this node use the parent message variable.
+var message : String
 
 onready var parent := owner as Panel
 
 func _ready():
+	message = parent.body
 	_print_bbcode_message(message)
 	_print_bbcode_message("END OF MESSAGE")
 	
@@ -29,6 +30,3 @@ func _print_bbcode_message(message : String):
 		if word_count >= 10:#parent.get_rect().size.x:
 			word_count = 0
 			newline()
-	
-	print(get_line_count())
-	print(get_size())

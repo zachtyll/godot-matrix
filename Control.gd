@@ -127,6 +127,7 @@ func _on_Button_toggled(button_pressed):
 		room_list.clear()
 		room_counter = 0
 		chat_history_list.clear()
+		chat_window.clear()
 		$Timer.stop()
 
 
@@ -134,6 +135,7 @@ func _on_Button_toggled(button_pressed):
 # TODO : Fix so that we can see old and new messages at the same time.
 func _on_room_list_item_selected(index):
 	chat_history_list.clear()
+	chat_window.clear()
 	current_room = joined_rooms[index]
 #	channel_name.text = room_list.get_item_text(index)
 #	room_id : String,
@@ -165,6 +167,7 @@ func _format_chat(content : Dictionary) -> String:
 	if not content == null:
 		match(content.get("type")):
 			"m.room.message":
+				chat_window.add_message("m.room.message", content)
 				match(content.get("content").get("msgtype")):
 					"m.text":
 						message_line += content.get("sender") + ": "

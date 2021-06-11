@@ -9,12 +9,18 @@
 config_version=4
 
 _global_script_classes=[ {
+"base": "ScrollContainer",
+"class": "ChatWindow",
+"language": "GDScript",
+"path": "res://ChatWindow.gd"
+}, {
 "base": "Node",
 "class": "MatrixProtocol",
 "language": "GDScript",
 "path": "res://Matrix.gd"
 } ]
 _global_script_class_icons={
+"ChatWindow": "",
 "MatrixProtocol": ""
 }
 
