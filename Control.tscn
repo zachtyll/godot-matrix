@@ -114,17 +114,6 @@ anchor_bottom = 0.0
 margin_top = 74.0
 margin_right = 600.0
 margin_bottom = 468.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="ItemList" type="ItemList" parent="Screen/MidSection"]
-visible = false
-margin_top = 273.0
-margin_right = 600.0
-margin_bottom = 468.0
-rect_min_size = Vector2( 600, 60 )
-size_flags_horizontal = 3
-size_flags_vertical = 3
 
 [node name="ChatInput" type="MarginContainer" parent="Screen/MidSection"]
 margin_top = 472.0

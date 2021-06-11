@@ -1,6 +1,5 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=2 format=2]
 
-[ext_resource path="res://MessageBody.gd" type="Script" id=1]
 [ext_resource path="res://MessageBoxes/MessagePanel.gd" type="Script" id=2]
 
 [node name="MessagePanel" type="Panel"]
@@ -69,7 +68,6 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 bbcode_enabled = true
 scroll_active = false
-script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }

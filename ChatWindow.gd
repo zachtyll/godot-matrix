@@ -38,13 +38,13 @@ func add_message(message_type : String, content : Dictionary) -> int:
 			else:
 				message_box.sender = "WARNING: Unexpected message"
 				message_box.body = (
-					"Unexpected content block: {content}!".format(content.get("content"))
+					"Unexpected content block: {content}!".format(content)
 					)
 		"m.room.member":
 				message_box.sender = ""
 #				message_box.message_body.append_bbcode("")
 				message_box.body = (
-					"[wave amp=50 freq=2] {displayname} {membership} [/wave]".format(content.get("content"))
+					"[center] {displayname} {membership} [/center]".format(content.get("content"))
 					)
 #				message_box.message_body.append_bbcode("[/wave]")
 				if content.get("content").has("room_alias_name"):
