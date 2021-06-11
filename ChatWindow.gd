@@ -25,14 +25,17 @@ func add_message(message_type : String, content : Dictionary) -> int:
 						"{body}".format(content.get("content"))
 						)
 				_:
-					message_box.body = (
+					message_box.sender = (
 						"This is a: {msgtype}".format(content.get("msgtype"))
+					)
+					message_box.body = (
+						"{body}".format(content.get("content"))
 					)
 		"m.room.guest_access":
 			if content.get("content").has("guest_access"):
 				message_box.sender = ""
 				message_box.body = (
-					"Guest access set to: {guest_access}!".format(content.get("content"))
+					"[center]Guest access set to: {guest_access}![/center]".format(content.get("content"))
 					)
 				
 			else:
@@ -42,25 +45,26 @@ func add_message(message_type : String, content : Dictionary) -> int:
 					)
 		"m.room.member":
 				message_box.sender = ""
-#				message_box.message_body.append_bbcode("")
-				message_box.body = (
-					"[center] {displayname} {membership} [/center]".format(content.get("content"))
+				message_box.body += "[center]"
+				message_box.body += (
+					"{displayname} {membership}".format(content.get("content"))
 					)
-#				message_box.message_body.append_bbcode("[/wave]")
 				if content.get("content").has("room_alias_name"):
-					message_box.body += " {room_alias_name}.".format(content.get("content"))
+					message_box.body += " {room_alias_name}.[/center]".format(content.get("content"))
+				else:
+					message_box.body += "[/center]"
 		"m.room.create":
 			message_box.body = (
-				"{creator} created the room. Version: {room_version}".format(content.get("content"))
+				"[center]{creator} created the room. Version: {room_version}[/center]".format(content.get("content"))
 			)
 		"m.room.history_visibility":
 			message_box.body = (
-				"Message history set to: {history_visibility}".format(content.get("content"))
+				"[center]Message history set to: {history_visibility}[/center]".format(content.get("content"))
 			)
 		"m.room.join_rules":
 			# TODO : Fix the formatting to be like natural language.
 			message_box.body = (
-				"Join rule set to: {join_rule}.".format(content.get("content"))
+				"[center]Join rule set to: {join_rule}.[/center]".format(content.get("content"))
 			)
 		"m.room.canonical_alias":
 			message_box.sender = "TODO : Implement m.room.canonical_alias"
@@ -71,13 +75,12 @@ func add_message(message_type : String, content : Dictionary) -> int:
 			if content.get("content").has("topic"):
 #				topic.text = content.get("content").get("topic")
 				message_box.body = (
-					"The topic was set to: {topic}".format(content.get("content"))
+					"[center]The topic was set to: {topic}[/center]".format(content.get("content"))
 				)
 		"m.room.name":
 			message_box.body = (
-					"Room name set to: {name}".format(content.get("content"))
+					"[center]Room name set to: {name}.[/center]".format(content.get("content"))
 				)
-#			channel_name.set_text(content.get("content").get("name"))
 		"m.room.power_levels":
 			message_box.sender = "TODO : Implement m.room.power_levels"
 			message_box.body = (
@@ -87,14 +90,14 @@ func add_message(message_type : String, content : Dictionary) -> int:
 			# TODO : Figure out wether this statement is actually
 			#	completely true.
 			message_box.body = (
-					"Messages are encrypted with: {algorithm}".format(content.get("content"))
+					"[center]Messages are encrypted with: {algorithm}.[/center]".format(content.get("content"))
 				)
 		"m.room.encrypted":
 			# TODO : Figure out how to solve decryption.
 			#	Maybe this shouldn't even be decrypted?
 			#	Spec is a little unclear.
 			message_box.body = (
-					"This message is encrypted."
+					"[center]This message is encrypted.[/center]"
 				)
 		"m.reaction":
 			message_box.sender = "TODO : Implement m.reation"

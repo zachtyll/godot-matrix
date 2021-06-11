@@ -123,21 +123,18 @@ func _on_Button_toggled(button_pressed):
 	if button_pressed:
 		mp.login(user_username, user_password)
 	else:
+		$Timer.stop()
 		mp.logout()
 		room_list.clear()
 		room_counter = 0
-#		chat_history_list.clear()
 		chat_window.clear()
-		$Timer.stop()
 
 
 # Updates which room we act upon via the left sidebar
-# TODO : Fix so that we can see old and new messages at the same time.
 func _on_room_list_item_selected(index):
-#	chat_history_list.clear()
 	chat_window.clear()
 	current_room = joined_rooms[index]
-#	channel_name.text = room_list.get_item_text(index)
+	channel_name.text = room_list.get_item_text(index)
 #	room_id : String,
 #	from : String = next_batch,
 #	to : String = "",
@@ -154,88 +151,12 @@ func _update_chat_window(messages : Dictionary) -> void:
 		messages.get("chunk").invert()
 		for content in messages.get("chunk"):
 			_format_chat(content)
-#			if not message_string.empty():
-#				chat_history_list.add_item(message_string)
 	next_batch = messages.get("start")
 
 
 # Formats the received content block for display.
-# TODO : Move this code into a message factory node.
-# TODO : This is legacy code. Needs to be removed.
 func _format_chat(content : Dictionary) -> void:
 	chat_window.add_message(content.get("type"), content)
-#	var message_line := ""
-#	if not content == null:
-#		match(content.get("type")):
-#			"m.room.message":
-##				chat_window.add_message("m.room.message", content)
-#				match(content.get("content").get("msgtype")):
-#					"m.text":
-#						message_line += content.get("sender") + ": "
-#						message_line += content.get("content").get("body")
-#					_:
-#						print("Can only handle text right now!")
-#						print("This is a: " + str(content.get("msgtype")))
-#			"m.room.guest_access":
-#				if content.get("content").has("guest_access"):
-#					message_line += "Guest access set to: "
-#					message_line += content.get("content").get("guest_access")
-#				else:
-#					print("Unexpected content block:")
-#					print(content.get("content"))
-#			"m.room.member":
-#					message_line += content.get("content").get("displayname")
-#					message_line += " "
-#					message_line += content.get("content").get("membership")
-#					if content.get("content").has("room_alias_name"):
-#						message_line += " "
-#						message_line += content.get("content").get("room_alias_name")
-#			"m.room.create":
-#				message_line += content.get("content").get("creator")
-#				message_line += " created the room. Room version: "
-#				message_line += content.get("content").get("room_version")
-#			"m.room.history_visibility":
-#				message_line += "Message history set to: "
-#				message_line += content.get("content").get("history_visibility")
-#			"m.room.join_rules":
-#				# TODO : Fix the formatting to be like natural language.
-#				message_line += "Join rule set to: "
-#				message_line += content.get("content").get("join_rule")
-#			"m.room.canonical_alias":
-#				print("TODO : Implement m.room.canonical_alias")
-#				print(content.get("content"))
-#			"m.room.topic":
-#				print("TODO : Implement m.room.topic")
-#				if content.get("content").has("topic"):
-#					topic.text = content.get("content").get("topic")
-#					message_line += "The topic was set to: "
-#					message_line += content.get("content").get("topic")
-#			"m.room.name":
-#				message_line += "Room name set to: "
-#				message_line += content.get("content").get("name")
-#				channel_name.set_text(content.get("content").get("name"))
-#			"m.room.power_levels":
-#				print("TODO : Implement m.room.power_levels")
-#				print(content.get("content"))
-#			"m.room.encryption":
-#				# TODO : Figure out wether this statement is actually
-#				#	completely true.
-#				message_line += "Messages are encrypted with "
-#				message_line += content.get("content").get("algorithm")
-#			"m.room.encrypted":
-#				# TODO : Figure out how to solve decryption.
-#				#	Maybe this shouldn't even be decrypted?
-#				#	Spec is a little unclear.
-#				message_line += "This message is encrypted."
-#			"m.reaction":
-#				print("TODO : Implement m.reation")
-#				print(content.get("content"))
-#			"m.room.redaction":
-#				print("TODO : Implement m.redaction")
-#				print(content.get("content"))
-#			_:
-#				push_warning("Unhandled message in content block: " + str(content.get("type")))
-#	return message_line
 
 
 func _input(event):
@@ -248,7 +169,6 @@ func _on_Timer_timeout():
 		return
 	elif previous_batch == next_batch:
 		return
-	
 	
 	mp.get_messages(current_room, previous_batch, next_batch, "b", 1, "")
 
