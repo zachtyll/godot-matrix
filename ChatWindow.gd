@@ -112,7 +112,7 @@ func add_message(message_type : String, content : Dictionary) -> int:
 		_:
 			message_box = null
 			push_warning("Unhandled message in content block: " + str(content.get("type")))
-	
+
 	if message_box == null:
 		return FAILED
 	else:

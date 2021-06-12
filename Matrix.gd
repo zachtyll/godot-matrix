@@ -195,7 +195,7 @@ func _logout_completed(result : int, response_code : int, _headers : PoolStringA
 # Sets the "next_batch" parameter that is used to paginate the server.
 func _sync_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray):
 	var _err_result = _check_result(result)
-	var response: Dictionary = parse_json(body.get_string_from_ascii())
+	var response: Dictionary = parse_json(body.get_string_from_utf8())
 	match(response_code):
 		200:
 			print("Sync success")
@@ -215,7 +215,7 @@ func _send_message_completed(result : int, _response_code : int, _headers : Pool
 # TODO : Figure out if we actually need this signal to be emitted.
 func _join_room_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
 	var _err_result = _check_result(result)
-	var response: Dictionary = parse_json(body.get_string_from_ascii())
+	var response: Dictionary = parse_json(body.get_string_from_utf8())
 	match(response_code):
 		200:
 			print("Join room success")
@@ -232,7 +232,7 @@ func _join_room_completed(result : int, response_code : int, _headers : PoolStri
 # Runs when get members completes
 func _get_members_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
 	var _err_result = _check_result(result)
-	var response: Dictionary = parse_json(body.get_string_from_ascii())
+	var response: Dictionary = parse_json(body.get_string_from_utf8())
 	match(response_code):
 		200:
 			print("Get members success")

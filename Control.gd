@@ -59,7 +59,7 @@ func _on_Button5_pressed():
 # Legacy content getter.
 # TODO : Make this sync only on startup and filter less data.
 func update_list(response) -> void:
-#	chat_window.add_message("", response)
+	chat_window.add_message("", response)
 	
 	print(JSON.print(response, "\t"))
 
