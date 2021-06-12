@@ -100,6 +100,8 @@ func _sync_to_server(sync_data : Dictionary) -> void:
 # Add rooms to our room list in the left navbar
 # TODO : Make room naming according to Spec §13.1.1(ish)
 # TODO : Make this also inlude "leave" and "invite" rooms.
+# NOTE : Might want to make it so that all rooms are added
+#	at once and not for each.
 func _update_room_list() -> void:
 	var response : Dictionary
 	for room_id in joined_rooms:
@@ -109,7 +111,7 @@ func _update_room_list() -> void:
 			room_list.add_item("TODO: Canonical Alias")
 		else:
 			room_list.add_item(response.get("name"))
-
+	
 
 # OS notification when we recieve a message and not in focus on screen
 func _notify_user() -> void:
@@ -132,14 +134,14 @@ func _on_login_completed(success):
 func _update_chat_window(messages : Dictionary) -> void:
 	if messages.has("chunk"):
 		messages.get("chunk").invert()
-		for content in messages.get("chunk"):
-			_format_chat(content)
+		for chunk in messages.get("chunk"):
+			_format_chat(chunk)
 	next_batch = messages.get("start")
 
 
 # Formats the received content block for display.
-func _format_chat(content : Dictionary) -> void:
-	chat_window.add_message(content.get("type"), content)
+func _format_chat(chunk : Dictionary) -> void:
+	chat_window.add_message(chunk.get("type"), chunk)
 
 
 func _input(event):
