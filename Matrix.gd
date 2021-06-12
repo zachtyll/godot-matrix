@@ -72,8 +72,10 @@ func send_message(room : String, message : String):
 # Syncs client state with server state.
 # NOTE : Should be used only on startup.
 # NOTE : Heavy workload.
-func sync_events(filter : String = "", next_batch : String = ""):
-	var url := "https://matrix.org/_matrix/client/r0/sync?" + filter + "&" + "since=" + next_batch + "&access_token=" + access_token
+func sync_events(filter : String = (""),  since : String = "s0", full_state : bool = false , set_presence : String = "offline", timeout : int = 0):
+	var url := "https://matrix.org/_matrix/client/r0/sync?{0}&since={1}&full_state={2}&set_presence={3}&timeout={4}&access_token={5}".format([filter, since, (str(full_state).to_lower()), set_presence, timeout, access_token])
+	print(url.http_escape())
+#	sync?filter=%7B%22contains_url%22%3Afalse%7D&since=s0&full_state=false&set_presence=offline&timeout=30000&access_token=syt_a3VuZ3Bvc3Q_CqVqcPkKTJIllrwHFYgH_4HvHnU
 	_make_get_request(url, "_sync_completed")
 
 
@@ -153,6 +155,7 @@ func get_room_name_by_room_id(room_id : String) -> void:
 	var url := "https://matrix.org/_matrix/client/r0/rooms/" + room_id + "/state/m.room.name/?access_token=" + access_token
 	_make_get_request(url, "_get_room_name_by_room_id_completed")
 
+
 # Called when the login request is completed.
 # Sets the access token that is used for all interactions with the server.
 # NOTE : Prints "response" for debugging via API playground at matrix.org
@@ -162,22 +165,19 @@ func _login_completed(result : int, response_code : int, _headers : PoolStringAr
 	match(response_code):
 		400:
 			push_warning("Part of the request was invalid. For example, the login type may not be recognised.")
-			emit_signal("login_completed", false)
 		403:
 			push_warning("The login attempt failed. This can include one of the following error codes:")
-			emit_signal("login_completed", false)
 		429:
 			push_warning("This request was rate-limited.")
-			emit_signal("login_completed", false)
 		200:
-			print("Success!")
+			print("Login success!")
 			# NOTE : access_token must be set before emitting signal.
 			print(JSON.print(response, "\t"))
 			access_token = response.get("access_token")
-			emit_signal("login_completed", true)
+			print(JSON.print(response.get("access_token"), "\t"))
 		_:
 			push_error("something unexpected happened: " + str(response_code))
-	
+	emit_signal("login_completed", response)
 
 # Runs when the logout request completes.
 # Requires an access token to know who is logging out.
