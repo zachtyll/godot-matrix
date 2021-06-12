@@ -59,21 +59,26 @@ func _on_Button5_pressed():
 # Legacy content getter.
 # TODO : Make this sync only on startup and filter less data.
 func update_list(response) -> void:
-	if not response.has("next_batch"):
-		return
-	previous_batch = next_batch
-	# Set next message batch to be expected
-	next_batch = response.get("next_batch")
-	# Ugly algo to get message text only
-	var rooms = response["rooms"].get("join").keys()
-	var event_array = []
-	for key in rooms:
-		# TODO : Refactor this algo.
-		event_array.append(response["rooms"].get("join").get(key).get("timeline").get("events"))
-		var something = response["rooms"].get("join").get(key).get("timeline").get("events")
-		for i in something.size():
-			if something[i].get("content").get("body") is String:
-				chat_history_list.add_item(something[i].get("content").get("body"))
+#	chat_window.add_message("", response)
+	
+	print(JSON.print(response, "\t"))
+
+#	chat_history_list.add_item(JSON.print(response, "\t"))
+#	if not response.has("next_batch"):
+#		return
+#	previous_batch = next_batch
+#	# Set next message batch to be expected
+#	next_batch = response.get("next_batch")
+#	# Ugly algo to get message text only
+#	var rooms = response["rooms"].get("join").keys()
+#	var event_array = []
+#	for key in rooms:
+#		# TODO : Refactor this algo.
+#		event_array.append(response["rooms"].get("join").get(key).get("timeline").get("events"))
+#		var something = response["rooms"].get("join").get(key).get("timeline").get("events")
+#		for i in something.size():
+#			if something[i].get("content").get("body") is String:
+#				chat_history_list.add_item(something[i].get("content").get("body"))
 
 
 # Add rooms to our room list in the left navbar
@@ -95,7 +100,7 @@ func _translate_room_id(rooms : Dictionary):
 		mp.get_room_name_by_room_id(room_id)
 		
 		test = yield(mp, "get_room_name_by_room_id_completed")
-#		print("Test is: %s" % test)
+		print("Test is: %s" % test)
 		print(JSON.print(test, "\t"))
 
 
@@ -107,13 +112,12 @@ func _notify_user() -> void:
 
 # Triggers when a login call has completed.
 func _on_login_completed(success):
-	if success:
-#		mp.get_joined_rooms()
-#		mp.sync_events('filter={"room":{"timeline":{"limit":10}}}', next_batch)
+	if success.has("error"):
+		# TODO : Make a popup window instead of a print.
+		print(JSON.print(success.get("error"), "\t"))
+	elif not success.has("error"):
 		mp.sync_events()
 		$Timer.start()
-	elif not success:
-		print("Invalid login!")
 	else:
 		push_error("Unknown login error!")
 

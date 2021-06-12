@@ -74,8 +74,6 @@ func send_message(room : String, message : String):
 # NOTE : Heavy workload.
 func sync_events(filter : String = (""),  since : String = "s0", full_state : bool = false , set_presence : String = "offline", timeout : int = 0):
 	var url := "https://matrix.org/_matrix/client/r0/sync?{0}&since={1}&full_state={2}&set_presence={3}&timeout={4}&access_token={5}".format([filter, since, (str(full_state).to_lower()), set_presence, timeout, access_token])
-	print(url.http_escape())
-#	sync?filter=%7B%22contains_url%22%3Afalse%7D&since=s0&full_state=false&set_presence=offline&timeout=30000&access_token=syt_a3VuZ3Bvc3Q_CqVqcPkKTJIllrwHFYgH_4HvHnU
 	_make_get_request(url, "_sync_completed")
 
 
@@ -203,8 +201,6 @@ func _sync_completed(result : int, response_code : int, _headers : PoolStringArr
 			print("Sync success")
 		401:
 			push_warning("Missing access token")
-	print("------------------- JSON SYNC PRETTY ------------------")
-	print(JSON.print(response, "\t"))
 	emit_signal("sync_completed", response)
 
 
