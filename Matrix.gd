@@ -125,7 +125,7 @@ func get_joined_rooms():
 
 # Gets a room id by reading an alias.
 func get_room_id_by_alias(alias : String, homeserver : String = "matrix.org") -> void:
-	var url := "https://matrix.org/_matrix/client/r0/directory/room/" + alias + homeserver + "?access_token=" + access_token
+	var url := "https://matrix.org/_matrix/client/r0/directory/room/" + alias + ":" + homeserver + "?access_token=" + access_token
 	_make_get_request(url, "_get_room_id_by_alias_completed")
 
 
@@ -150,7 +150,7 @@ func get_state_by_room_id(room_id : String) -> void:
 
 
 func get_room_name_by_room_id(room_id : String) -> void:
-	var url := "https://matrix.org/_matrix/client/r0/rooms/" + room_id + "/state/m.room.name/?access_token=" + access_token
+	var url := "https://matrix.org/_matrix/client/r0/rooms/" + room_id + "/state/m.room.name?access_token=" + access_token
 	_make_get_request(url, "_get_room_name_by_room_id_completed")
 
 
@@ -300,7 +300,7 @@ func _get_state_by_room_id_completed(result : int, response_code : int, _headers
 
 func _get_room_name_by_room_id_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
 	var _err_result = _check_result(result)
-	var response: Dictionary = parse_json(body.get_string_from_ascii())
+	var response: Dictionary = parse_json(body.get_string_from_utf8())
 	match(response_code):
 		200:
 			print("Get messages success")

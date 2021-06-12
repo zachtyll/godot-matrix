@@ -7,10 +7,10 @@ export(String) var user_password
 
 #var access_token := ""
 var login := false
-var input_text := ""
 var mp : MatrixProtocol
 var room_counter := 0
-var joined_rooms := []
+var joined_rooms := {}
+var input_text := ""
 var current_room = ""
 var next_batch := ""
 var previous_batch := ""
@@ -42,84 +42,13 @@ func _on_Button3_pressed():
 	mp.join_room(input_text)
 
 
-# Register a new user.
-# TODO : Figure out how to register a user
-# TODO : Implement registration.
-func _on_Button4_pressed():
-	mp.register()
-
-
-# Sync all events. Should only be used on startup.
-# TODO : Use only sync on startup.
-func _on_Button5_pressed():
-#	var url := 'https://matrix.org/_matrix/client/r0/sync?filter={"room":{"timeline":{"limit":10}}}&since=s9_13_0_1_1&access_token=' + str(access_token)
-	mp.sync_events("filter={'room':{'timeline':{'limit':10}}}", next_batch)
-
-
-# Legacy content getter.
-# TODO : Make this sync only on startup and filter less data.
-func update_list(response) -> void:
-	chat_window.add_message("", response)
-	
-	print(JSON.print(response, "\t"))
-
-#	chat_history_list.add_item(JSON.print(response, "\t"))
-#	if not response.has("next_batch"):
-#		return
-#	previous_batch = next_batch
-#	# Set next message batch to be expected
-#	next_batch = response.get("next_batch")
-#	# Ugly algo to get message text only
-#	var rooms = response["rooms"].get("join").keys()
-#	var event_array = []
-#	for key in rooms:
-#		# TODO : Refactor this algo.
-#		event_array.append(response["rooms"].get("join").get(key).get("timeline").get("events"))
-#		var something = response["rooms"].get("join").get(key).get("timeline").get("events")
-#		for i in something.size():
-#			if something[i].get("content").get("body") is String:
-#				chat_history_list.add_item(something[i].get("content").get("body"))
-
-
-# Add rooms to our room list in the left navbar
-# TODO : Make room naming according to Spec §13.1.1(ish)
-func _update_room_list(room_name : Dictionary) -> void:
-	if not room_name.has("name"):
+func _on_Timer_timeout():
+	if current_room.empty():
 		return
-	room_list.add_item(room_name.get("name"))
-
-
-# Translates room id into a human-readable alias.
-# TODO : Make it work the way it should according to spec.
-# TODO : Make this work with room_alias_by_id instead
-# 	of using the hacky way of finding canonical alias.
-func _translate_room_id(rooms : Dictionary):
-	var test
-	for room_id in rooms["joined_rooms"]:
-		joined_rooms.append(room_id)
-		mp.get_room_name_by_room_id(room_id)
-		
-		test = yield(mp, "get_room_name_by_room_id_completed")
-		print("Test is: %s" % test)
-		print(JSON.print(test, "\t"))
-
-
-
-# OS notification when we recieve a message and not in focus on screen
-func _notify_user() -> void:
-	OS.request_attention()
-
-
-# Triggers when a login call has completed.
-func _on_login_completed(success):
-	if success.has("error"):
-		# TODO : Make a popup window instead of a print.
-		print(JSON.print(success.get("error"), "\t"))
-	elif not success.has("error"):
-		mp.sync_events()
-		$Timer.start()
-	else:
-		push_error("Unknown login error!")
+	elif previous_batch == next_batch:
+		return
+	
+	mp.get_messages(current_room, previous_batch, next_batch, "b", 1, "")
 
 
 # Updates the input text from the LineEdit in chat section
@@ -143,7 +72,7 @@ func _on_Button_toggled(button_pressed):
 # Updates which room we act upon via the left sidebar
 func _on_room_list_item_selected(index):
 	chat_window.clear()
-	current_room = joined_rooms[index]
+	current_room = joined_rooms.keys()[index]
 	channel_name.text = room_list.get_item_text(index)
 #	room_id : String,
 #	from : String = next_batch,
@@ -151,8 +80,52 @@ func _on_room_list_item_selected(index):
 #	dir : String = "b",
 #	limit : int = 10,
 #	filter : String = ""
-#	mp.get_messages(current_room, next_batch, "", "b", 10, "")
 	mp.get_messages(current_room, next_batch, "", "b", 100, "")
+
+
+# Register a new user.
+# TODO : Figure out how to register a user
+# TODO : Implement registration.
+func _on_Button4_pressed():
+	mp.register()
+
+
+# Synchronizes data in client with server.
+func _sync_to_server(sync_data : Dictionary) -> void:
+#	print(JSON.print(sync_data, "\t"))
+	joined_rooms = sync_data.get("rooms").get("join")
+	_update_room_list()
+
+
+# Add rooms to our room list in the left navbar
+# TODO : Make room naming according to Spec §13.1.1(ish)
+# TODO : Make this also inlude "leave" and "invite" rooms.
+func _update_room_list() -> void:
+	var response : Dictionary
+	for room_id in joined_rooms:
+		mp.get_room_name_by_room_id(room_id)
+		response = yield(mp, "get_room_name_by_room_id_completed")
+		if not response.has("name"):
+			room_list.add_item("TODO: Canonical Alias")
+		else:
+			room_list.add_item(response.get("name"))
+
+
+# OS notification when we recieve a message and not in focus on screen
+func _notify_user() -> void:
+	OS.request_attention()
+
+
+# Triggers when a login call has completed.
+func _on_login_completed(success):
+	if success.has("error"):
+		# TODO : Make a popup window instead of a print.
+		print(JSON.print(success.get("error"), "\t"))
+	elif not success.has("error"):
+		mp.sync_events()
+		$Timer.start()
+	else:
+		push_error("Unknown login error!")
 
 
 # Updates the chat window when we click on a room in the left sidebar.
@@ -174,19 +147,11 @@ func _input(event):
 		_send_message()
 
 
-func _on_Timer_timeout():
-	if current_room.empty():
-		return
-	elif previous_batch == next_batch:
-		return
-	
-	mp.get_messages(current_room, previous_batch, next_batch, "b", 1, "")
-
-
 func _ready():
 	mp = matrix_protocol.new() as MatrixProtocol
 	self.add_child(mp)
-	var _sync_err = mp.connect("sync_completed", self, "update_list")
+	
+	var _sync_err = mp.connect("sync_completed", self, "_sync_to_server")
 #	var _room_create_err = mp.connect("create_room_completed", self, "update_chat_list")
 	var _login_err = mp.connect("login_completed", self, "_on_login_completed")
 	var _get_joined_rooms_err = mp.connect("get_joined_rooms_completed", self, "_translate_room_id")
@@ -194,4 +159,4 @@ func _ready():
 #	var _get_room_aliases_err = mp.connect("get_room_aliases_completed", self, "_update_room_list")
 	var _get_messages_err = mp.connect("get_messages_completed", self, "_update_chat_window")
 #	var _get_state_by_room_id_err = mp.connect("get_state_by_room_id_completed", self, "_update_room_list")
-	var _get_name_by_room_id_err = mp.connect("get_room_name_by_room_id_completed", self, "_update_room_list")
+#	var _get_name_by_room_id_err = mp.connect("get_room_name_by_room_id_completed", self, "_update_room_list")
