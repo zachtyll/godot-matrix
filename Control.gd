@@ -5,7 +5,7 @@ const matrix_protocol = preload( "Matrix.gd" )
 export(String) var user_username
 export(String) var user_password
 
-var access_token := ""
+#var access_token := ""
 var login := false
 var input_text := ""
 var mp : MatrixProtocol
@@ -63,7 +63,6 @@ func update_list(response) -> void:
 		return
 	previous_batch = next_batch
 	# Set next message batch to be expected
-	print(response.get("next_batch"))
 	next_batch = response.get("next_batch")
 	# Ugly algo to get message text only
 	var rooms = response["rooms"].get("join").keys()
@@ -96,7 +95,8 @@ func _translate_room_id(rooms : Dictionary):
 		mp.get_room_name_by_room_id(room_id)
 		
 		test = yield(mp, "get_room_name_by_room_id_completed")
-		print("Test is: %s" % test)
+#		print("Test is: %s" % test)
+		print(JSON.print(test, "\t"))
 
 
 
@@ -108,8 +108,9 @@ func _notify_user() -> void:
 # Triggers when a login call has completed.
 func _on_login_completed(success):
 	if success:
-		mp.get_joined_rooms()
-		mp.sync_events('filter={"room":{"timeline":{"limit":10}}}', next_batch)
+#		mp.get_joined_rooms()
+#		mp.sync_events('filter={"room":{"timeline":{"limit":10}}}', next_batch)
+		mp.sync_events()
 		$Timer.start()
 	elif not success:
 		print("Invalid login!")

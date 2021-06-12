@@ -72,9 +72,8 @@ func send_message(room : String, message : String):
 # Syncs client state with server state.
 # NOTE : Should be used only on startup.
 # NOTE : Heavy workload.
-func sync_events(filter : String, next_batch : String):
+func sync_events(filter : String = "", next_batch : String = ""):
 	var url := "https://matrix.org/_matrix/client/r0/sync?" + filter + "&" + "since=" + next_batch + "&access_token=" + access_token
-	print(url)
 	_make_get_request(url, "_sync_completed")
 
 
@@ -162,22 +161,22 @@ func _login_completed(result : int, response_code : int, _headers : PoolStringAr
 	var response: Dictionary = parse_json(body.get_string_from_ascii())
 	match(response_code):
 		400:
-			print("Part of the request was invalid. For example, the login type may not be recognised.")
+			push_warning("Part of the request was invalid. For example, the login type may not be recognised.")
 			emit_signal("login_completed", false)
 		403:
-			print("The login attempt failed. This can include one of the following error codes:")
+			push_warning("The login attempt failed. This can include one of the following error codes:")
 			emit_signal("login_completed", false)
 		429:
-			print("This request was rate-limited.")
+			push_warning("This request was rate-limited.")
 			emit_signal("login_completed", false)
 		200:
 			print("Success!")
 			# NOTE : access_token must be set before emitting signal.
+			print(JSON.print(response, "\t"))
 			access_token = response.get("access_token")
 			emit_signal("login_completed", true)
-			print(response)
 		_:
-			print("something unexpected happened: " + str(response_code))
+			push_error("something unexpected happened: " + str(response_code))
 	
 
 # Runs when the logout request completes.
@@ -190,7 +189,7 @@ func _logout_completed(result : int, response_code : int, _headers : PoolStringA
 			print("Successfully logged out")
 			emit_signal("logout_completed", true)
 		401:
-			print("Missing access token")
+			push_warning("Missing access token")
 			emit_signal("logout_completed", false)
 
 
@@ -202,11 +201,10 @@ func _sync_completed(result : int, response_code : int, _headers : PoolStringArr
 	match(response_code):
 		200:
 			print("Sync success")
-			# Set next message batch to be expected
-#			next_batch = response.get("next_batch")
-			# Ugly algo to get message text only
 		401:
-			print("Missing access token")
+			push_warning("Missing access token")
+	print("------------------- JSON SYNC PRETTY ------------------")
+	print(JSON.print(response, "\t"))
 	emit_signal("sync_completed", response)
 
 
@@ -219,20 +217,20 @@ func _send_message_completed(result : int, _response_code : int, _headers : Pool
 # Runs when join room has completed.
 # TODO : Remove unessecary return statement.
 # TODO : Figure out if we actually need this signal to be emitted.
-func _join_room_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> String:
+func _join_room_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
 	var _err_result = _check_result(result)
 	var response: Dictionary = parse_json(body.get_string_from_ascii())
 	match(response_code):
 		200:
 			print("Join room success")
-			emit_signal("room_joined_completed", true)
+#			emit_signal("room_joined_completed", true)
 		403:
-			print("An unkown error occurred")
-			emit_signal("room_joined_completed", false)
+			push_warning("An unkown error occurred")
+#			emit_signal("room_joined_completed", false)
 		429:
-			print("Too many requests")
-			emit_signal("room_joined_completed", false)
-	return response.get("room_id")
+			push_warning("Too many requests")
+#			emit_signal("room_joined_completed", false)
+	emit_signal("room_joined_completed", response)
 
 
 # Runs when get members completes
@@ -243,7 +241,7 @@ func _get_members_completed(result : int, response_code : int, _headers : PoolSt
 		200:
 			print("Get members success")
 		403:
-			print("You are not a member of the room")
+			push_warning("You are not a member of the room")
 	emit_signal("get_members_completed", response)
 
 
@@ -255,7 +253,7 @@ func _create_room_completed(result : int, response_code : int, _headers : PoolSt
 		200:
 			print("Room create success")
 		400:
-			print("Unknown error occurred")
+			push_warning("Unknown error occurred")
 	emit_signal("create_room_completed", response)
 
 
@@ -288,7 +286,7 @@ func _get_messages_completed(result : int, response_code : int, _headers : PoolS
 		200:
 			print("Get messages success")
 		403:
-			print("You are not a member of this room")
+			push_warning("You are not a member of this room")
 	emit_signal("get_messages_completed", response)
 
 
@@ -299,7 +297,7 @@ func _get_state_by_room_id_completed(result : int, response_code : int, _headers
 		200:
 			print("Get state success")
 		403:
-			print("You aren't a member of the room and weren't previously a member of the room.")
+			push_warning("You aren't a member of the room and weren't previously a member of the room.")
 	
 	emit_signal("get_state_by_room_id_completed", response)
 
@@ -313,7 +311,7 @@ func _get_room_name_by_room_id_completed(result : int, response_code : int, _hea
 		404:
 			print("The room has no state with the given type or key.")
 		403:
-			print("You aren't a member of the room and weren't previously a member of the room.")
+			push_warning("You aren't a member of the room and weren't previously a member of the room.")
 	emit_signal("get_room_name_by_room_id_completed", response)
 	
 
@@ -406,6 +404,6 @@ func _check_result(result) -> bool:
 			push_error("Timeout!")
 			return false
 		_:
-			push_error("Unexpected error!")
+			push_error("Unexpected http client error!")
 			return false
 
