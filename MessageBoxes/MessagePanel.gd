@@ -18,10 +18,18 @@ onready var message_body := $Padding/VBoxContainer/MessageBody as RichTextLabel
 
 
 func _ready():
-	sender_name.append_bbcode(sender)
-	time_stamp_text.append_bbcode(time_stamp)
-	message_body.append_bbcode(body)
-	
+	_print_and_check(sender_name, sender)
+	_print_and_check(time_stamp_text, time_stamp)
+	_print_and_check(message_body, body)
+
+
+# warning-ignore:narrowing_conversion
+# NOTE: We don't care about more than integer precision.
 	line_count = ceil(body.length() / float(LINE_LENGTH))
-	print("Line count is: " + str(line_count))
 	set_custom_minimum_size(Vector2(LINE_LENGTH * TEXT_WIDTH, (line_count * TEXT_HEIGHT) + HEADER_SIZE + FOOTER_SIZE))
+
+
+func _print_and_check(label : RichTextLabel, message : String) -> void:
+	var err := label.append_bbcode(message)
+	if err:
+		push_error("BBCode failed with error: %s" % err)

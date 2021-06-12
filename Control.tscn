@@ -115,18 +115,32 @@ margin_top = 74.0
 margin_right = 600.0
 margin_bottom = 468.0
 
-[node name="ChatInput" type="MarginContainer" parent="Screen/MidSection"]
+[node name="ChatInput" type="HBoxContainer" parent="Screen/MidSection"]
 margin_top = 472.0
 margin_right = 600.0
 margin_bottom = 496.0
+size_flags_horizontal = 3
 
-[node name="LineEdit" type="LineEdit" parent="Screen/MidSection/ChatInput"]
-margin_right = 600.0
+[node name="ChatLineStretcher" type="MarginContainer" parent="Screen/MidSection/ChatInput"]
+margin_right = 492.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
+
+[node name="ChatLine" type="LineEdit" parent="Screen/MidSection/ChatInput/ChatLineStretcher"]
+margin_right = 492.0
 margin_bottom = 24.0
 placeholder_text = "Write message here."
+caret_blink = true
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="SendMessage" type="Button" parent="Screen/MidSection/ChatInput"]
+margin_left = 496.0
+margin_right = 600.0
+margin_bottom = 24.0
+text = "Send message"
 
 [node name="Buttons" type="CenterContainer" parent="Screen/MidSection"]
 margin_top = 500.0
@@ -148,23 +162,17 @@ __meta__ = {
 }
 
 [node name="Button" type="Button" parent="Screen/MidSection/Buttons/HBoxContainer"]
-margin_left = 183.0
-margin_right = 229.0
+margin_left = 237.0
+margin_right = 283.0
 margin_bottom = 100.0
 toggle_mode = true
 text = "Login"
 
 [node name="Button3" type="Button" parent="Screen/MidSection/Buttons/HBoxContainer"]
-margin_left = 233.0
-margin_right = 309.0
+margin_left = 287.0
+margin_right = 363.0
 margin_bottom = 100.0
 text = "Join Room"
-
-[node name="Button2" type="Button" parent="Screen/MidSection/Buttons/HBoxContainer"]
-margin_left = 313.0
-margin_right = 417.0
-margin_bottom = 100.0
-text = "Send message"
 
 [node name="RightSection" type="VBoxContainer" parent="Screen"]
 margin_left = 808.0
@@ -176,8 +184,8 @@ size_flags_vertical = 3
 [node name="Timer" type="Timer" parent="."]
 wait_time = 3.0
 [connection signal="item_selected" from="Screen/LeftSection/ItemList" to="." method="_on_room_list_item_selected"]
-[connection signal="text_changed" from="Screen/MidSection/ChatInput/LineEdit" to="." method="_on_LineEdit_text_changed"]
+[connection signal="text_changed" from="Screen/MidSection/ChatInput/ChatLineStretcher/ChatLine" to="." method="_on_LineEdit_text_changed"]
+[connection signal="pressed" from="Screen/MidSection/ChatInput/SendMessage" to="." method="_on_SendMessage_pressed"]
 [connection signal="toggled" from="Screen/MidSection/Buttons/HBoxContainer/Button" to="." method="_on_Button_toggled"]
 [connection signal="pressed" from="Screen/MidSection/Buttons/HBoxContainer/Button3" to="." method="_on_Button3_pressed"]
-[connection signal="pressed" from="Screen/MidSection/Buttons/HBoxContainer/Button2" to="." method="_on_Button2_pressed"]
 [connection signal="timeout" from="Timer" to="." method="_on_Timer_timeout"]

@@ -18,13 +18,13 @@ var previous_batch := ""
 onready var channel_name := $Screen/MidSection/TopBarMid/TopBarMidHbox/ChannelLabels/ChannelName
 onready var topic := $Screen/MidSection/TopBarMid/TopBarMidHbox/ChannelLabels/Topic
 onready var room_list := $Screen/LeftSection/ItemList
-onready var chat_line := $Screen/MidSection/ChatInput/LineEdit
+onready var chat_line := $Screen/MidSection/ChatInput/ChatLineStretcher/ChatLine
 onready var chat_window := $Screen/MidSection/ChatWindow
 onready var chat_history_list := null
 
 
 # Sends a message to the given room
-func _on_Button2_pressed() -> void:
+func _on_SendMessage_pressed() -> void:
 	_send_message()
 
 
@@ -78,10 +78,10 @@ func update_list(response) -> void:
 
 
 # Add rooms to our room list in the left navbar
-# TODO : Currently broken due to "Unrecognized request" in "room_aliases".
+# TODO : Make room naming according to Spec §13.1.1(ish)
 func _update_room_list(room_name : Dictionary) -> void:
 	if not room_name.has("name"):
-		return	
+		return
 	room_list.add_item(room_name.get("name"))
 
 
@@ -90,9 +90,13 @@ func _update_room_list(room_name : Dictionary) -> void:
 # TODO : Make this work with room_alias_by_id instead
 # 	of using the hacky way of finding canonical alias.
 func _translate_room_id(rooms : Dictionary):
+	var test
 	for room_id in rooms["joined_rooms"]:
 		joined_rooms.append(room_id)
 		mp.get_room_name_by_room_id(room_id)
+		
+		test = yield(mp, "get_room_name_by_room_id_completed")
+		print("Test is: %s" % test)
 
 
 
@@ -125,6 +129,7 @@ func _on_Button_toggled(button_pressed):
 	else:
 		$Timer.stop()
 		mp.logout()
+		joined_rooms.clear()
 		room_list.clear()
 		room_counter = 0
 		chat_window.clear()
