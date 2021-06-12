@@ -8,7 +8,7 @@ const TEXT_HEIGHT := 16
 
 
 var sender := ""
-var time_stamp := "TIMESTAMP"
+var time_stamp := ""
 var body := ""
 var line_count := 0
 

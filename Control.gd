@@ -92,9 +92,11 @@ func _on_Button4_pressed():
 
 # Synchronizes data in client with server.
 func _sync_to_server(sync_data : Dictionary) -> void:
-#	print(JSON.print(sync_data, "\t"))
 	joined_rooms = sync_data.get("rooms").get("join")
 	_update_room_list()
+#	print(
+#		JSON.print(sync_data.get("rooms").get("join").get(sync_data.get("rooms").get("join").keys()[0]).get("state"), "\t")
+#		)
 
 
 # Add rooms to our room list in the left navbar

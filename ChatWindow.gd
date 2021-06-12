@@ -20,7 +20,12 @@ func add_message(message_type : String, chunk : Dictionary) -> int:
 		"m.room.message":
 			match(chunk.get("content").get("msgtype")):
 				"m.text":
+					print(JSON.print(chunk, "\t"))
 					message_box.sender = chunk.get("sender")
+					# This seems to be broken currently, or I've missunderstood timestamps.
+#					var time_stamp = OS.get_datetime_from_unix_time(chunk.get("origin_server_ts"))
+#					message_box.time_stamp = "{hour}:{minute}:{second} {year}/{month}/{day}".format(time_stamp)
+					
 					message_box.body = (
 						"{body}".format(chunk.get("content"))
 						)
