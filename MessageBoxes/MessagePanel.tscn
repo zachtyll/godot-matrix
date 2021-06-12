@@ -20,6 +20,7 @@ margin_left = 20.0
 margin_top = 20.0
 margin_right = -20.0
 margin_bottom = -20.0
+mouse_filter = 1
 size_flags_horizontal = 3
 size_flags_vertical = 3
 __meta__ = {
@@ -44,29 +45,39 @@ size_flags_horizontal = 3
 margin_right = 490.0
 margin_bottom = 20.0
 rect_min_size = Vector2( 100, 20 )
+focus_mode = 2
+mouse_filter = 1
 size_flags_horizontal = 3
 size_flags_vertical = 3
 bbcode_enabled = true
 scroll_active = false
+selection_enabled = true
 
 [node name="TimeStamp" type="RichTextLabel" parent="Padding/VBoxContainer/HBoxContainer"]
 margin_left = 494.0
 margin_right = 984.0
 margin_bottom = 20.0
+focus_mode = 2
+mouse_filter = 1
 size_flags_horizontal = 3
 size_flags_vertical = 3
 bbcode_enabled = true
 bbcode_text = "[right][/right]"
+selection_enabled = true
 
 [node name="MessageBody" type="RichTextLabel" parent="Padding/VBoxContainer"]
 margin_top = 24.0
 margin_right = 984.0
 margin_bottom = 560.0
 rect_clip_content = false
+focus_mode = 2
+mouse_filter = 1
 size_flags_horizontal = 3
 size_flags_vertical = 3
 bbcode_enabled = true
 scroll_active = false
+selection_enabled = true
 __meta__ = {
 "_edit_use_anchors_": false
 }
+[connection signal="gui_input" from="." to="." method="_on_MessagePanel_gui_input"]

@@ -10,7 +10,9 @@ const TEXT_HEIGHT := 16
 var sender := ""
 var time_stamp := ""
 var body := ""
+var event_id := ""
 var line_count := 0
+var selected := false
 
 onready var sender_name := $Padding/VBoxContainer/HBoxContainer/SenderName as RichTextLabel
 onready var time_stamp_text := $Padding/VBoxContainer/HBoxContainer/TimeStamp as RichTextLabel
@@ -33,3 +35,9 @@ func _print_and_check(label : RichTextLabel, message : String) -> void:
 	var err := label.append_bbcode(message)
 	if err:
 		push_error("BBCode failed with error: %s" % err)
+
+
+func _on_MessagePanel_gui_input(event : InputEvent):
+	if Input.is_mouse_button_pressed(BUTTON_LEFT):
+		selected = true
+		print("You pressed message %s" % event_id)
