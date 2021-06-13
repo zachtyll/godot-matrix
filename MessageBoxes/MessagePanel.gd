@@ -37,7 +37,25 @@ func _print_and_check(label : RichTextLabel, message : String) -> void:
 		push_error("BBCode failed with error: %s" % err)
 
 
-func _on_MessagePanel_gui_input(event : InputEvent):
-	if Input.is_mouse_button_pressed(BUTTON_LEFT):
+func _message_selection() -> void:
+	if selected:
+		selected = false
+		modulate = modulate - Color.gray
+	else:
+		modulate = modulate + Color.gray
 		selected = true
-		print("You pressed message %s" % event_id)
+
+
+func _on_MessagePanel_gui_input(event):
+	if not event is InputEventMouseButton:
+		return
+	
+	match(event.get_button_index()):
+		BUTTON_LEFT:
+			if event.pressed:
+				_message_selection()
+				
+		BUTTON_RIGHT:
+			print("Left click!")
+	
+		
