@@ -1,10 +1,11 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://Control.gd" type="Script" id=1]
 [ext_resource path="res://ChatWindow.tscn" type="PackedScene" id=2]
 [ext_resource path="res://LoginScreen.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Modal/Settings.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Modal.gd" type="Script" id=5]
+[ext_resource path="res://Popups/CreateRoom.tscn" type="PackedScene" id=6]
 
 [sub_resource type="StyleBoxFlat" id=1]
 bg_color = Color( 0.392157, 0.392157, 0.392157, 1 )
@@ -180,10 +181,8 @@ wait_time = 3.0
 visible = false
 
 [node name="Modal" type="ColorRect" parent="."]
-margin_left = 0.419861
-margin_top = -1.70679
-margin_right = 1024.42
-margin_bottom = 598.293
+anchor_right = 1.0
+anchor_bottom = 1.0
 mouse_filter = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -210,105 +209,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="CreateRoom" type="WindowDialog" parent="PopUps"]
-visible = true
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -150.0
-margin_top = -75.0
-margin_right = 150.0
-margin_bottom = 75.0
-rect_min_size = Vector2( 300, 150 )
-window_title = "Create new room"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="MarginContainer" type="MarginContainer" parent="PopUps/CreateRoom"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 20.0
-margin_top = 20.0
-margin_right = -20.0
-margin_bottom = -20.0
-rect_min_size = Vector2( 260, 110 )
-size_flags_horizontal = 3
-size_flags_vertical = 3
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="VBoxContainer" type="VBoxContainer" parent="PopUps/CreateRoom/MarginContainer"]
-margin_right = 260.0
-margin_bottom = 110.0
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-custom_constants/separation = 30
-alignment = 1
-
-[node name="HBoxContainer" type="HBoxContainer" parent="PopUps/CreateRoom/MarginContainer/VBoxContainer"]
-margin_top = 9.0
-margin_right = 260.0
-margin_bottom = 51.0
-size_flags_horizontal = 3
-custom_constants/separation = 20
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="ChoosePicture" type="Button" parent="PopUps/CreateRoom/MarginContainer/VBoxContainer/HBoxContainer"]
-margin_right = 57.0
-margin_bottom = 42.0
-size_flags_vertical = 3
-text = "Picture"
-
-[node name="VBoxContainer" type="VBoxContainer" parent="PopUps/CreateRoom/MarginContainer/VBoxContainer/HBoxContainer"]
-margin_left = 77.0
-margin_right = 260.0
-margin_bottom = 42.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-size_flags_stretch_ratio = 3.0
-alignment = 1
-
-[node name="Label" type="Label" parent="PopUps/CreateRoom/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
-margin_right = 183.0
-margin_bottom = 14.0
-size_flags_horizontal = 3
-text = "Room Name:"
-
-[node name="LineEdit" type="LineEdit" parent="PopUps/CreateRoom/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
-margin_top = 18.0
-margin_right = 183.0
-margin_bottom = 42.0
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 3.0
-align = 1
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="HBoxContainer2" type="HBoxContainer" parent="PopUps/CreateRoom/MarginContainer/VBoxContainer"]
-margin_top = 81.0
-margin_right = 260.0
-margin_bottom = 101.0
-alignment = 2
-
-[node name="Cancel" type="Button" parent="PopUps/CreateRoom/MarginContainer/VBoxContainer/HBoxContainer2"]
-margin_left = 160.0
-margin_right = 214.0
-margin_bottom = 20.0
-text = "Cancel"
-
-[node name="Next" type="Button" parent="PopUps/CreateRoom/MarginContainer/VBoxContainer/HBoxContainer2"]
-margin_left = 218.0
-margin_right = 260.0
-margin_bottom = 20.0
-text = "Next"
+[node name="CreateRoom" parent="PopUps" instance=ExtResource( 6 )]
 [connection signal="pressed" from="Screen/LeftSection/TopBarLeft/TopBarLeftHbox/Settings" to="." method="_on_Settings_pressed"]
 [connection signal="item_selected" from="Screen/LeftSection/ItemList" to="." method="_on_room_list_item_selected"]
 [connection signal="text_changed" from="Screen/MidSection/ChatInput/ChatLineStretcher/ChatLine" to="." method="_on_LineEdit_text_changed"]
