@@ -178,7 +178,6 @@ size_flags_vertical = 3
 wait_time = 3.0
 
 [node name="LoginScreen" parent="." instance=ExtResource( 3 )]
-visible = false
 
 [node name="Modal" type="ColorRect" parent="."]
 anchor_right = 1.0
@@ -219,6 +218,7 @@ __meta__ = {
 [connection signal="pressed" from="LoginScreen/CenterContainer/VBoxContainer/Register" to="." method="_on_Register_pressed"]
 [connection signal="pressed" from="Modal/Settings/SettingsList/Logout" to="." method="_on_Logout_pressed"]
 [connection signal="pressed" from="Modal/Settings/SettingsList/CreateRoom" to="." method="_on_CreateRoom_pressed"]
+[connection signal="create_room" from="PopUps/CreateRoom" to="." method="_on_CreateRoom_create_room"]
 
 [editable path="LoginScreen"]
 

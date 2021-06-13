@@ -93,7 +93,7 @@ func get_members(room : String):
 
 
 # Creates a new room.
-func create_room(room_name : String, preset : int, room_alias_name : String, topic : String):
+func create_room(room_name : String, preset : int = Preset.PRIVATE_CHAT, room_alias_name : String = "placeholder_alias", topic : String = "General"):
 	var url := "https://matrix.org/_matrix/client/r0/createRoom?access_token=" + access_token
 	var room_preset := ""
 	

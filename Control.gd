@@ -62,8 +62,19 @@ func _on_Settings_pressed():
 	modal.find_node("Settings").appear()
 
 
+# Open create room popup
 func _on_CreateRoom_pressed():
 	popup.find_node("CreateRoom").popup_centered()
+
+
+# Call for room creation.
+# NOTE : I should seriously start thinking about
+#	turning mp into a singleton at this rate.
+func _on_CreateRoom_create_room(room_name):
+	mp.create_room(room_name)
+	yield(mp, "create_room_completed")
+	mp.get_joined_rooms()
+	# Get joined rooms activates list automatically.
 
 
 # Sends a message to the given room
@@ -110,6 +121,7 @@ func _on_Button_toggled(button_pressed):
 # Updates which room we act upon via the left sidebar
 func _on_room_list_item_selected(index):
 	chat_window.clear()
+	print(joined_rooms.keys())
 	current_room = joined_rooms.keys()[index]
 	channel_name.text = room_list.get_item_text(index)
 #	room_id : String,
@@ -125,7 +137,7 @@ func _on_room_list_item_selected(index):
 func _sync_to_server(sync_data : Dictionary) -> void:
 	synced_data = sync_data
 	joined_rooms = sync_data.get("rooms").get("join")
-	_update_room_list()
+	_update_room_list(synced_data)
 	$LoginScreen.hide()
 #	print(
 #		JSON.print(sync_data.get("rooms").get("join").get(sync_data.get("rooms").get("join").keys()[0]).get("state"), "\t")
@@ -134,35 +146,48 @@ func _sync_to_server(sync_data : Dictionary) -> void:
 
 # Add rooms to our room list in the left navbar
 # TODO : Make room naming according to Spec §13.1.1(ish)
-# TODO : Make this also inlude "leave" and "invite" rooms.
 # NOTE : Might want to make it so that all rooms are added
 #	at once and not for each.
-func _update_room_list() -> void:
+# TODO : This seems like itshould store all the synced 
+#	data to a local database rather than present it directly.
+func _update_room_list(rooms) -> void:
+	room_list.clear()
 	var response : Dictionary
-	# Joined rooms added.
-	for room_id in synced_data.get("rooms").get("join"):
-		mp.get_room_name_by_room_id(room_id)
-		response = yield(mp, "get_room_name_by_room_id_completed")
-		if not response.has("name"):
-			room_list.add_item("TODO: Canonical Alias")
-		else:
-			room_list.add_item(response.get("name"))
-	# Invites to rooms.
-	for room_id in synced_data.get("rooms").get("invite"):
-		mp.get_room_name_by_room_id(room_id)
-		response = yield(mp, "get_room_name_by_room_id_completed")
-		if not response.has("name"):
-			room_list.add_item("TODO: Canonical Alias")
-		else:
-			room_list.add_item(response.get("name"))
-	# Left rooms.
-	for room_id in synced_data.get("rooms").get("leave"):
-		mp.get_room_name_by_room_id(room_id)
-		response = yield(mp, "get_room_name_by_room_id_completed")
-		if not response.has("name"):
-			room_list.add_item("TODO: Canonical Alias")
-		else:
-			room_list.add_item(response.get("name"))
+	# If this is done through sync data.
+	if not rooms.has("joined_rooms"):
+		# Joined rooms added.
+		for room_id in synced_data.get("rooms").get("join"):
+			mp.get_room_name_by_room_id(room_id)
+			response = yield(mp, "get_room_name_by_room_id_completed")
+			if not response.has("name"):
+				room_list.add_item("TODO: Canonical Alias")
+			else:
+				room_list.add_item(response.get("name"))
+		# Invites to rooms.
+		for room_id in synced_data.get("rooms").get("invite"):
+			mp.get_room_name_by_room_id(room_id)
+			response = yield(mp, "get_room_name_by_room_id_completed")
+			if not response.has("name"):
+				room_list.add_item("TODO: Canonical Alias")
+			else:
+				room_list.add_item(response.get("name"))
+		# Left rooms.
+		for room_id in synced_data.get("rooms").get("leave"):
+			mp.get_room_name_by_room_id(room_id)
+			response = yield(mp, "get_room_name_by_room_id_completed")
+			if not response.has("name"):
+				room_list.add_item("TODO: Canonical Alias")
+			else:
+				room_list.add_item(response.get("name"))
+	# If this is done through joined rooms data
+	else:
+		for room_id in rooms.get("joined_rooms"):
+			mp.get_room_name_by_room_id(room_id)
+			response = yield(mp, "get_room_name_by_room_id_completed")
+			if not response.has("name"):
+				room_list.add_item("TODO: Canonical Alias")
+			else:
+				room_list.add_item(response.get("name"))
 
 
 # OS notification when we recieve a message and not in focus on screen
@@ -211,7 +236,7 @@ func _ready():
 	var _sync_err = mp.connect("sync_completed", self, "_sync_to_server")
 #	var _room_create_err = mp.connect("create_room_completed", self, "update_chat_list")
 	var _login_err = mp.connect("login_completed", self, "_on_login_completed")
-	var _get_joined_rooms_err = mp.connect("get_joined_rooms_completed", self, "_translate_room_id")
+	var _get_joined_rooms_err = mp.connect("get_joined_rooms_completed", self, "_update_room_list")
 #	var _get_room_id_by_alias_err = mp.connect("get_room_id_by_alias_completed", self, "_update_room_list")
 #	var _get_room_aliases_err = mp.connect("get_room_aliases_completed", self, "_update_room_list")
 	var _get_messages_err = mp.connect("get_messages_completed", self, "_update_chat_window")
