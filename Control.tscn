@@ -97,20 +97,17 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="TopBarMid" type="Panel" parent="Screen/MidSection"]
+[node name="TopBarMid" type="PanelContainer" parent="Screen/MidSection"]
 margin_right = 609.0
 margin_bottom = 70.0
 rect_min_size = Vector2( 600, 70 )
 size_flags_horizontal = 3
 
 [node name="TopBarMidHbox" type="HBoxContainer" parent="Screen/MidSection/TopBarMid"]
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
-margin_left = 20.0
-margin_top = -16.0
-margin_right = -20.0
-margin_bottom = 16.0
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 602.0
+margin_bottom = 63.0
 size_flags_horizontal = 3
 __meta__ = {
 "_edit_use_anchors_": false
@@ -118,7 +115,7 @@ __meta__ = {
 
 [node name="ChannelLabels" type="VBoxContainer" parent="Screen/MidSection/TopBarMid/TopBarMidHbox"]
 margin_right = 93.0
-margin_bottom = 32.0
+margin_bottom = 56.0
 
 [node name="ChannelName" type="Label" parent="Screen/MidSection/TopBarMid/TopBarMidHbox/ChannelLabels"]
 margin_right = 93.0

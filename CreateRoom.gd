@@ -1,6 +1,7 @@
 extends WindowDialog
 
 onready var room_name := $MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/LineEdit
+onready var status_label := $MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/StatusLabel
 
 signal create_room
 

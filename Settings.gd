@@ -26,14 +26,16 @@ func _on_Close_pressed():
 	disappear()
 
 
-func _input(event):
+func _unhandled_input(event):
 	if not event is InputEventMouseButton:
 		return
-	elif event.pressed and event.position > size:
-		disappear()
+	elif event.button_index(BUTTON_LEFT) or event.button_index(BUTTON_RIGHT):
+		if event.pressed and event.position > size:
+			disappear()
+		else:
+			return
 	else:
 		return
-
 
 func _ready():
 	rect_global_position = Vector2(-size.x, 0)

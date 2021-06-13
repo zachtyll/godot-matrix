@@ -93,7 +93,7 @@ func get_members(room : String):
 
 
 # Creates a new room.
-func create_room(room_name : String, preset : int = Preset.PRIVATE_CHAT, room_alias_name : String = "placeholder_alias", topic : String = "General"):
+func create_room(room_alias : String, room_name : String = "", topic : String = "General", preset : int = Preset.PRIVATE_CHAT, federate : bool = false):
 	var url := "https://matrix.org/_matrix/client/r0/createRoom?access_token=" + access_token
 	var room_preset := ""
 	
@@ -107,11 +107,11 @@ func create_room(room_name : String, preset : int = Preset.PRIVATE_CHAT, room_al
 			
 	var body := {
 		"creation_content": {
-		"m.federate": false
+		"m.federate": str(federate).to_lower()
 		},
 		"name": room_name,
 		"preset": room_preset,
-		"room_alias_name": room_alias_name,
+		"room_alias_name": room_alias,
 		"topic": topic
 	}
 	_make_post_request(url, body, true, "_create_room_completed")

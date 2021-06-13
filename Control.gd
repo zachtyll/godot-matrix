@@ -28,6 +28,7 @@ onready var password := $LoginScreen/CenterContainer/VBoxContainer/GridContainer
 onready var modal := $Modal
 onready var popup := $PopUps
 
+
 # Login a user
 func _on_Login_pressed():
 	# Proper login code.
@@ -70,9 +71,15 @@ func _on_CreateRoom_pressed():
 # Call for room creation.
 # NOTE : I should seriously start thinking about
 #	turning mp into a singleton at this rate.
+# TODO : Something is broken here. Matrix side works fine, but the result
+#	is not added to my list of available rooms for some reason.
 func _on_CreateRoom_create_room(room_name):
 	mp.create_room(room_name)
-	yield(mp, "create_room_completed")
+	var err = yield(mp, "create_room_completed")
+	if err.has("error"):
+		popup.find_node("CreateRoom").status_label.text = err.get("error")
+	else:
+		print(JSON.print(err, "\t")) 
 	mp.get_joined_rooms()
 	# Get joined rooms activates list automatically.
 
@@ -121,7 +128,6 @@ func _on_Button_toggled(button_pressed):
 # Updates which room we act upon via the left sidebar
 func _on_room_list_item_selected(index):
 	chat_window.clear()
-	print(joined_rooms.keys())
 	current_room = joined_rooms.keys()[index]
 	channel_name.text = room_list.get_item_text(index)
 #	room_id : String,
