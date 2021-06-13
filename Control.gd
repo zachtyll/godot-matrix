@@ -10,6 +10,7 @@ var login := false
 var mp : MatrixProtocol
 var room_counter := 0
 var joined_rooms := {}
+var synced_data := {}
 var input_text := ""
 var current_room = ""
 var next_batch := ""
@@ -25,6 +26,7 @@ onready var login_status := $LoginScreen/CenterContainer/VBoxContainer/LoginStat
 onready var username := $LoginScreen/CenterContainer/VBoxContainer/GridContainer/Username
 onready var password := $LoginScreen/CenterContainer/VBoxContainer/GridContainer/Password
 onready var modal := $Modal
+onready var popup := $PopUps
 
 # Login a user
 func _on_Login_pressed():
@@ -33,6 +35,7 @@ func _on_Login_pressed():
 	# Speeds up debug.
 	mp.login(user_username, user_password)
 	login_status.text = "Attempting login..."
+
 
 # Logout
 func _on_Logout_pressed():
@@ -43,6 +46,7 @@ func _on_Logout_pressed():
 	room_list.clear()
 	room_counter = 0
 	chat_window.clear()
+	login_status.text = "Logged out."
 	$LoginScreen.show()
 
 
@@ -55,8 +59,11 @@ func _on_Register_pressed():
 
 
 func _on_Settings_pressed():
-	modal.show()
 	modal.find_node("Settings").appear()
+
+
+func _on_CreateRoom_pressed():
+	popup.find_node("CreateRoom").popup_centered()
 
 
 # Sends a message to the given room
@@ -71,11 +78,6 @@ func _send_message() -> void:
 		return
 	mp.send_message(current_room, input_text)
 	chat_line.clear()
-
-
-# Allows the user to join a room.
-func _on_Button3_pressed():
-	mp.join_room(input_text)
 
 
 func _on_Timer_timeout():
@@ -121,6 +123,7 @@ func _on_room_list_item_selected(index):
 
 # Synchronizes data in client with server.
 func _sync_to_server(sync_data : Dictionary) -> void:
+	synced_data = sync_data
 	joined_rooms = sync_data.get("rooms").get("join")
 	_update_room_list()
 	$LoginScreen.hide()
@@ -136,14 +139,31 @@ func _sync_to_server(sync_data : Dictionary) -> void:
 #	at once and not for each.
 func _update_room_list() -> void:
 	var response : Dictionary
-	for room_id in joined_rooms:
+	# Joined rooms added.
+	for room_id in synced_data.get("rooms").get("join"):
 		mp.get_room_name_by_room_id(room_id)
 		response = yield(mp, "get_room_name_by_room_id_completed")
 		if not response.has("name"):
 			room_list.add_item("TODO: Canonical Alias")
 		else:
 			room_list.add_item(response.get("name"))
-	
+	# Invites to rooms.
+	for room_id in synced_data.get("rooms").get("invite"):
+		mp.get_room_name_by_room_id(room_id)
+		response = yield(mp, "get_room_name_by_room_id_completed")
+		if not response.has("name"):
+			room_list.add_item("TODO: Canonical Alias")
+		else:
+			room_list.add_item(response.get("name"))
+	# Left rooms.
+	for room_id in synced_data.get("rooms").get("leave"):
+		mp.get_room_name_by_room_id(room_id)
+		response = yield(mp, "get_room_name_by_room_id_completed")
+		if not response.has("name"):
+			room_list.add_item("TODO: Canonical Alias")
+		else:
+			room_list.add_item(response.get("name"))
+
 
 # OS notification when we recieve a message and not in focus on screen
 func _notify_user() -> void:
@@ -197,6 +217,3 @@ func _ready():
 	var _get_messages_err = mp.connect("get_messages_completed", self, "_update_chat_window")
 #	var _get_state_by_room_id_err = mp.connect("get_state_by_room_id_completed", self, "_update_room_list")
 #	var _get_name_by_room_id_err = mp.connect("get_room_name_by_room_id_completed", self, "_update_room_list")
-
-
-

@@ -3,7 +3,7 @@
 [ext_resource path="res://Control.gd" type="Script" id=1]
 [ext_resource path="res://ChatWindow.tscn" type="PackedScene" id=2]
 [ext_resource path="res://LoginScreen.tscn" type="PackedScene" id=3]
-[ext_resource path="res://Settings.gd" type="Script" id=4]
+[ext_resource path="res://Modal/Settings.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Modal.gd" type="Script" id=5]
 
 [sub_resource type="StyleBoxFlat" id=1]
@@ -180,8 +180,10 @@ wait_time = 3.0
 visible = false
 
 [node name="Modal" type="ColorRect" parent="."]
-margin_right = 1024.0
-margin_bottom = 600.0
+margin_left = 0.419861
+margin_top = -1.70679
+margin_right = 1024.42
+margin_bottom = 598.293
 mouse_filter = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -192,45 +194,121 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Settings" type="Panel" parent="Modal"]
-margin_left = -250.0
-margin_right = -1.52588e-05
-margin_bottom = 600.0
-rect_min_size = Vector2( 250, 600 )
-size_flags_horizontal = 3
-size_flags_vertical = 3
-script = ExtResource( 4 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="SettingsList" type="VBoxContainer" parent="Modal/Settings"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="HBoxContainer" type="HBoxContainer" parent="Modal/Settings/SettingsList"]
-margin_right = 250.0
-margin_bottom = 20.0
-
-[node name="Close" type="Button" parent="Modal/Settings/SettingsList/HBoxContainer"]
-margin_right = 47.0
-margin_bottom = 20.0
-text = "Close"
-
-[node name="Logout" type="Button" parent="Modal/Settings/SettingsList"]
-margin_top = 24.0
-margin_right = 250.0
-margin_bottom = 44.0
-text = "Logout"
-
-[node name="Tween" type="Tween" parent="Modal/Settings"]
+[node name="Settings" parent="Modal" instance=ExtResource( 4 )]
 
 [node name="Tween" type="Tween" parent="Modal"]
+
+[node name="PopUps" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 2.0
+margin_top = 1.0
+margin_right = 2.0
+margin_bottom = 1.0
+mouse_filter = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="CreateRoom" type="WindowDialog" parent="PopUps"]
+visible = true
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -150.0
+margin_top = -75.0
+margin_right = 150.0
+margin_bottom = 75.0
+rect_min_size = Vector2( 300, 150 )
+window_title = "Create new room"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="MarginContainer" type="MarginContainer" parent="PopUps/CreateRoom"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 20.0
+margin_top = 20.0
+margin_right = -20.0
+margin_bottom = -20.0
+rect_min_size = Vector2( 260, 110 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PopUps/CreateRoom/MarginContainer"]
+margin_right = 260.0
+margin_bottom = 110.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/separation = 30
+alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PopUps/CreateRoom/MarginContainer/VBoxContainer"]
+margin_top = 9.0
+margin_right = 260.0
+margin_bottom = 51.0
+size_flags_horizontal = 3
+custom_constants/separation = 20
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ChoosePicture" type="Button" parent="PopUps/CreateRoom/MarginContainer/VBoxContainer/HBoxContainer"]
+margin_right = 57.0
+margin_bottom = 42.0
+size_flags_vertical = 3
+text = "Picture"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PopUps/CreateRoom/MarginContainer/VBoxContainer/HBoxContainer"]
+margin_left = 77.0
+margin_right = 260.0
+margin_bottom = 42.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 3.0
+alignment = 1
+
+[node name="Label" type="Label" parent="PopUps/CreateRoom/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
+margin_right = 183.0
+margin_bottom = 14.0
+size_flags_horizontal = 3
+text = "Room Name:"
+
+[node name="LineEdit" type="LineEdit" parent="PopUps/CreateRoom/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
+margin_top = 18.0
+margin_right = 183.0
+margin_bottom = 42.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
+align = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="PopUps/CreateRoom/MarginContainer/VBoxContainer"]
+margin_top = 81.0
+margin_right = 260.0
+margin_bottom = 101.0
+alignment = 2
+
+[node name="Cancel" type="Button" parent="PopUps/CreateRoom/MarginContainer/VBoxContainer/HBoxContainer2"]
+margin_left = 160.0
+margin_right = 214.0
+margin_bottom = 20.0
+text = "Cancel"
+
+[node name="Next" type="Button" parent="PopUps/CreateRoom/MarginContainer/VBoxContainer/HBoxContainer2"]
+margin_left = 218.0
+margin_right = 260.0
+margin_bottom = 20.0
+text = "Next"
 [connection signal="pressed" from="Screen/LeftSection/TopBarLeft/TopBarLeftHbox/Settings" to="." method="_on_Settings_pressed"]
 [connection signal="item_selected" from="Screen/LeftSection/ItemList" to="." method="_on_room_list_item_selected"]
 [connection signal="text_changed" from="Screen/MidSection/ChatInput/ChatLineStretcher/ChatLine" to="." method="_on_LineEdit_text_changed"]
@@ -238,7 +316,9 @@ text = "Logout"
 [connection signal="timeout" from="Timer" to="." method="_on_Timer_timeout"]
 [connection signal="pressed" from="LoginScreen/CenterContainer/VBoxContainer/Login" to="." method="_on_Login_pressed"]
 [connection signal="pressed" from="LoginScreen/CenterContainer/VBoxContainer/Register" to="." method="_on_Register_pressed"]
-[connection signal="pressed" from="Modal/Settings/SettingsList/HBoxContainer/Close" to="Modal/Settings" method="_on_Close_pressed"]
 [connection signal="pressed" from="Modal/Settings/SettingsList/Logout" to="." method="_on_Logout_pressed"]
+[connection signal="pressed" from="Modal/Settings/SettingsList/CreateRoom" to="." method="_on_CreateRoom_pressed"]
 
 [editable path="LoginScreen"]
+
+[editable path="Modal/Settings"]
