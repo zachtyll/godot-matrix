@@ -1,7 +1,10 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://Control.gd" type="Script" id=1]
 [ext_resource path="res://ChatWindow.tscn" type="PackedScene" id=2]
+[ext_resource path="res://LoginScreen.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Settings.gd" type="Script" id=4]
+[ext_resource path="res://Modal.gd" type="Script" id=5]
 
 [sub_resource type="StyleBoxFlat" id=1]
 bg_color = Color( 0.392157, 0.392157, 0.392157, 1 )
@@ -56,11 +59,15 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Settings" type="MenuButton" parent="Screen/LeftSection/TopBarLeft/TopBarLeftHbox"]
+[node name="Settings" type="Button" parent="Screen/LeftSection/TopBarLeft/TopBarLeftHbox"]
 margin_right = 63.0
 margin_bottom = 70.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
 text = "Settings"
-flat = false
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="LineEdit" type="LineEdit" parent="Screen/LeftSection/TopBarLeft/TopBarLeftHbox"]
 margin_left = 67.0
@@ -68,6 +75,7 @@ margin_right = 203.0
 margin_bottom = 70.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
+size_flags_stretch_ratio = 3.0
 placeholder_text = "Search"
 
 [node name="ItemList" type="ItemList" parent="Screen/LeftSection"]
@@ -127,13 +135,13 @@ anchor_right = 0.0
 anchor_bottom = 0.0
 margin_top = 74.0
 margin_right = 609.0
-margin_bottom = 468.0
+margin_bottom = 572.0
 custom_styles/bg = SubResource( 1 )
 
 [node name="ChatInput" type="HBoxContainer" parent="Screen/MidSection"]
-margin_top = 472.0
+margin_top = 576.0
 margin_right = 609.0
-margin_bottom = 496.0
+margin_bottom = 600.0
 size_flags_horizontal = 3
 
 [node name="ChatLineStretcher" type="MarginContainer" parent="Screen/MidSection/ChatInput"]
@@ -158,39 +166,6 @@ margin_bottom = 24.0
 size_flags_horizontal = 3
 text = "Send message"
 
-[node name="Buttons" type="CenterContainer" parent="Screen/MidSection"]
-margin_top = 500.0
-margin_right = 609.0
-margin_bottom = 600.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="HBoxContainer" type="HBoxContainer" parent="Screen/MidSection/Buttons"]
-margin_left = 4.0
-margin_right = 604.0
-margin_bottom = 100.0
-rect_min_size = Vector2( 600, 100 )
-size_flags_horizontal = 3
-size_flags_vertical = 3
-alignment = 1
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Button" type="Button" parent="Screen/MidSection/Buttons/HBoxContainer"]
-margin_left = 237.0
-margin_right = 283.0
-margin_bottom = 100.0
-toggle_mode = true
-text = "Login"
-
-[node name="Button3" type="Button" parent="Screen/MidSection/Buttons/HBoxContainer"]
-margin_left = 287.0
-margin_right = 363.0
-margin_bottom = 100.0
-text = "Join Room"
-
 [node name="RightSection" type="VBoxContainer" parent="Screen"]
 margin_left = 820.0
 margin_right = 1024.0
@@ -200,9 +175,70 @@ size_flags_vertical = 3
 
 [node name="Timer" type="Timer" parent="."]
 wait_time = 3.0
+
+[node name="LoginScreen" parent="." instance=ExtResource( 3 )]
+visible = false
+
+[node name="Modal" type="ColorRect" parent="."]
+margin_right = 1024.0
+margin_bottom = 600.0
+mouse_filter = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 3.0
+color = Color( 0, 0, 0, 0 )
+script = ExtResource( 5 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Settings" type="Panel" parent="Modal"]
+margin_left = -250.0
+margin_right = -1.52588e-05
+margin_bottom = 600.0
+rect_min_size = Vector2( 250, 600 )
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource( 4 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="SettingsList" type="VBoxContainer" parent="Modal/Settings"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Modal/Settings/SettingsList"]
+margin_right = 250.0
+margin_bottom = 20.0
+
+[node name="Close" type="Button" parent="Modal/Settings/SettingsList/HBoxContainer"]
+margin_right = 47.0
+margin_bottom = 20.0
+text = "Close"
+
+[node name="Logout" type="Button" parent="Modal/Settings/SettingsList"]
+margin_top = 24.0
+margin_right = 250.0
+margin_bottom = 44.0
+text = "Logout"
+
+[node name="Tween" type="Tween" parent="Modal/Settings"]
+
+[node name="Tween" type="Tween" parent="Modal"]
+[connection signal="pressed" from="Screen/LeftSection/TopBarLeft/TopBarLeftHbox/Settings" to="." method="_on_Settings_pressed"]
 [connection signal="item_selected" from="Screen/LeftSection/ItemList" to="." method="_on_room_list_item_selected"]
 [connection signal="text_changed" from="Screen/MidSection/ChatInput/ChatLineStretcher/ChatLine" to="." method="_on_LineEdit_text_changed"]
 [connection signal="pressed" from="Screen/MidSection/ChatInput/SendMessage" to="." method="_on_SendMessage_pressed"]
-[connection signal="toggled" from="Screen/MidSection/Buttons/HBoxContainer/Button" to="." method="_on_Button_toggled"]
-[connection signal="pressed" from="Screen/MidSection/Buttons/HBoxContainer/Button3" to="." method="_on_Button3_pressed"]
 [connection signal="timeout" from="Timer" to="." method="_on_Timer_timeout"]
+[connection signal="pressed" from="LoginScreen/CenterContainer/VBoxContainer/Login" to="." method="_on_Login_pressed"]
+[connection signal="pressed" from="LoginScreen/CenterContainer/VBoxContainer/Register" to="." method="_on_Register_pressed"]
+[connection signal="pressed" from="Modal/Settings/SettingsList/HBoxContainer/Close" to="Modal/Settings" method="_on_Close_pressed"]
+[connection signal="pressed" from="Modal/Settings/SettingsList/Logout" to="." method="_on_Logout_pressed"]
+
+[editable path="LoginScreen"]

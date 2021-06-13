@@ -1,0 +1,89 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://LoginStatus.gd" type="Script" id=1]
+
+[node name="LoginScreen" type="Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
+margin_left = 425.0
+margin_top = 241.0
+margin_right = 599.0
+margin_bottom = 359.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="GridContainer" type="GridContainer" parent="CenterContainer/VBoxContainer"]
+margin_right = 174.0
+margin_bottom = 52.0
+columns = 2
+
+[node name="LabelUsername" type="Label" parent="CenterContainer/VBoxContainer/GridContainer"]
+margin_top = 5.0
+margin_right = 70.0
+margin_bottom = 19.0
+text = "Username:"
+
+[node name="Username" type="LineEdit" parent="CenterContainer/VBoxContainer/GridContainer"]
+margin_left = 74.0
+margin_right = 174.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+text = "kungpost"
+placeholder_text = "Username"
+
+[node name="LabelPassword" type="Label" parent="CenterContainer/VBoxContainer/GridContainer"]
+margin_top = 33.0
+margin_right = 70.0
+margin_bottom = 47.0
+text = "Password:"
+
+[node name="Password" type="LineEdit" parent="CenterContainer/VBoxContainer/GridContainer"]
+margin_left = 74.0
+margin_top = 28.0
+margin_right = 174.0
+margin_bottom = 52.0
+rect_min_size = Vector2( 100, 0 )
+secret = true
+placeholder_text = "Password"
+
+[node name="Login" type="Button" parent="CenterContainer/VBoxContainer"]
+margin_top = 56.0
+margin_right = 174.0
+margin_bottom = 76.0
+text = "Login"
+
+[node name="Register" type="Button" parent="CenterContainer/VBoxContainer"]
+margin_top = 80.0
+margin_right = 174.0
+margin_bottom = 100.0
+text = "Register"
+
+[node name="LoginStatus" type="Label" parent="CenterContainer/VBoxContainer"]
+margin_top = 104.0
+margin_right = 174.0
+margin_bottom = 118.0
+align = 1
+valign = 1
+script = ExtResource( 1 )
+
+[node name="Buttons" type="CenterContainer" parent="."]
+margin_left = 207.0
+margin_top = 500.0
+margin_right = 816.0
+margin_bottom = 600.0
+__meta__ = {
+"_edit_use_anchors_": false
+}

@@ -21,6 +21,42 @@ onready var room_list := $Screen/LeftSection/ItemList
 onready var chat_line := $Screen/MidSection/ChatInput/ChatLineStretcher/ChatLine
 onready var chat_window := $Screen/MidSection/ChatWindow
 onready var chat_history_list := null
+onready var login_status := $LoginScreen/CenterContainer/VBoxContainer/LoginStatus
+onready var username := $LoginScreen/CenterContainer/VBoxContainer/GridContainer/Username
+onready var password := $LoginScreen/CenterContainer/VBoxContainer/GridContainer/Password
+onready var modal := $Modal
+
+# Login a user
+func _on_Login_pressed():
+	# Proper login code.
+#	mp.login(username.text, password.text)
+	# Speeds up debug.
+	mp.login(user_username, user_password)
+	login_status.text = "Attempting login..."
+
+# Logout
+func _on_Logout_pressed():
+	modal.hide()
+	$Timer.stop()
+	mp.logout()
+	joined_rooms.clear()
+	room_list.clear()
+	room_counter = 0
+	chat_window.clear()
+	$LoginScreen.show()
+
+
+# Register a new user.
+# TODO : Figure out how to register a user
+# TODO : Implement registration.
+func _on_Register_pressed():
+	mp.register()
+	login_status.text = "Sorry, registration is not implemented!"
+
+
+func _on_Settings_pressed():
+	modal.show()
+	modal.find_node("Settings").appear()
 
 
 # Sends a message to the given room
@@ -83,17 +119,11 @@ func _on_room_list_item_selected(index):
 	mp.get_messages(current_room, next_batch, "", "b", 100, "")
 
 
-# Register a new user.
-# TODO : Figure out how to register a user
-# TODO : Implement registration.
-func _on_Button4_pressed():
-	mp.register()
-
-
 # Synchronizes data in client with server.
 func _sync_to_server(sync_data : Dictionary) -> void:
 	joined_rooms = sync_data.get("rooms").get("join")
 	_update_room_list()
+	$LoginScreen.hide()
 #	print(
 #		JSON.print(sync_data.get("rooms").get("join").get(sync_data.get("rooms").get("join").keys()[0]).get("state"), "\t")
 #		)
@@ -125,10 +155,13 @@ func _on_login_completed(success):
 	if success.has("error"):
 		# TODO : Make a popup window instead of a print.
 		print(JSON.print(success.get("error"), "\t"))
+		login_status.text = "Login error: %s" % success.get("error")
 	elif not success.has("error"):
+		login_status.text = "Login success!"
 		mp.sync_events()
 		$Timer.start()
 	else:
+		login_status.text = "Unkown error occured!"
 		push_error("Unknown login error!")
 
 
@@ -164,3 +197,6 @@ func _ready():
 	var _get_messages_err = mp.connect("get_messages_completed", self, "_update_chat_window")
 #	var _get_state_by_room_id_err = mp.connect("get_state_by_room_id_completed", self, "_update_room_list")
 #	var _get_name_by_room_id_err = mp.connect("get_room_name_by_room_id_completed", self, "_update_room_list")
+
+
+

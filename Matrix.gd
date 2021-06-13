@@ -164,7 +164,7 @@ func _login_completed(result : int, response_code : int, _headers : PoolStringAr
 		400:
 			push_warning("Part of the request was invalid. For example, the login type may not be recognised.")
 		403:
-			push_warning("The login attempt failed. This can include one of the following error codes:")
+			push_warning("The login attempt failed: %s" % response.get("error"))
 		429:
 			push_warning("This request was rate-limited.")
 		200:
