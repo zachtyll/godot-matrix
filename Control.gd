@@ -79,7 +79,8 @@ func _on_CreateRoom_create_room(room_name):
 	if err.has("error"):
 		popup.find_node("CreateRoom").status_label.text = err.get("error")
 	else:
-		print(JSON.print(err, "\t")) 
+		print(JSON.print(err, "\t"))
+		popup.find_node("CreateRoom").hide()
 	mp.get_joined_rooms()
 	# Get joined rooms activates list automatically.
 
@@ -127,6 +128,7 @@ func _on_Button_toggled(button_pressed):
 
 # Updates which room we act upon via the left sidebar
 func _on_room_list_item_selected(index):
+	print(index)
 	chat_window.clear()
 	current_room = joined_rooms.keys()[index]
 	channel_name.text = room_list.get_item_text(index)
@@ -165,26 +167,42 @@ func _update_room_list(rooms) -> void:
 		for room_id in synced_data.get("rooms").get("join"):
 			mp.get_room_name_by_room_id(room_id)
 			response = yield(mp, "get_room_name_by_room_id_completed")
-			if not response.has("name"):
-				room_list.add_item("TODO: Canonical Alias")
-			else:
+			if response.has("name"):
 				room_list.add_item(response.get("name"))
+			else:
+				mp.get_state_by_room_id(room_id)
+				var state_list = yield(mp, "get_state_by_room_id_completed")
+				for state in state_list:
+					if state.get("content").has("room_alias_name"):
+						room_list.add_item(state.get("content").get("room_alias_name"))
+					print(JSON.print(state.get("content"), "\t"))
 		# Invites to rooms.
 		for room_id in synced_data.get("rooms").get("invite"):
 			mp.get_room_name_by_room_id(room_id)
 			response = yield(mp, "get_room_name_by_room_id_completed")
-			if not response.has("name"):
-				room_list.add_item("TODO: Canonical Alias")
-			else:
+			if response.has("name"):
 				room_list.add_item(response.get("name"))
+			else:
+				mp.get_state_by_room_id(room_id)
+				var state_list = yield(mp, "get_state_by_room_id_completed")
+				for state in state_list:
+					if state.get("content").has("room_alias_name"):
+						room_list.add_item(state.get("content").get("room_alias_name"))
+
+				
+				
 		# Left rooms.
 		for room_id in synced_data.get("rooms").get("leave"):
 			mp.get_room_name_by_room_id(room_id)
 			response = yield(mp, "get_room_name_by_room_id_completed")
-			if not response.has("name"):
-				room_list.add_item("TODO: Canonical Alias")
-			else:
+			if response.has("name"):
 				room_list.add_item(response.get("name"))
+			else:
+				mp.get_state_by_room_id(room_id)
+				var state_list = yield(mp, "get_state_by_room_id_completed")
+				for state in state_list:
+					if state.get("content").has("room_alias_name"):
+						room_list.add_item(state.get("content").get("room_alias_name"))
 	# If this is done through joined rooms data
 	else:
 		for room_id in rooms.get("joined_rooms"):

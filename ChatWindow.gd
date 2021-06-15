@@ -71,9 +71,9 @@ func add_message(message_type : String, chunk : Dictionary) -> int:
 				"[center]Join rule set to: {join_rule}.[/center]".format(chunk.get("content"))
 			)
 		"m.room.canonical_alias":
-			message_box.sender = "TODO : Implement m.room.canonical_alias"
+			message_box.sender = ""
 			message_box.body = (
-				"{content}".format(chunk)
+				"[center]Canonical alias: {alias}.[/center]".format(chunk.get("content"))
 			)
 		"m.room.topic":
 			if chunk.get("content").has("topic"):
