@@ -77,7 +77,7 @@ func _on_CreateRoom_create_room(room_name):
 	mp.create_room(room_name)
 	var err = yield(mp, "create_room_completed")
 	if err.has("error"):
-		popup.find_node("CreateRoom").status_label.text = err.get("error")
+		popup.find_node("CreateRoom").status_label.text = err["error"]
 	else:
 		print(JSON.print(err, "\t"))
 		popup.find_node("CreateRoom").hide()
@@ -144,11 +144,11 @@ func _on_room_list_item_selected(index):
 # Synchronizes data in client with server.
 func _sync_to_server(sync_data : Dictionary) -> void:
 	synced_data = sync_data
-	joined_rooms = sync_data.get("rooms").get("join")
+	joined_rooms = sync_data["rooms"]["join"]
 	_update_room_list(synced_data)
 	$LoginScreen.hide()
 #	print(
-#		JSON.print(sync_data.get("rooms").get("join").get(sync_data.get("rooms").get("join").keys()[0]).get("state"), "\t")
+#		JSON.print(sync_data["rooms")["join")[sync_data["rooms")["join").keys()[0]).get("state"), "\t")
 #		)
 
 
@@ -164,7 +164,7 @@ func _update_room_list(rooms) -> void:
 	# If this is done through sync data.
 	if not rooms.has("joined_rooms"):
 		# Joined rooms added.
-		for room_id in synced_data.get("rooms").get("join"):
+		for room_id in synced_data["rooms"]["join"]:
 			mp.get_room_name_by_room_id(room_id)
 			response = yield(mp, "get_room_name_by_room_id_completed")
 			if response.has("name"):
@@ -173,44 +173,44 @@ func _update_room_list(rooms) -> void:
 				mp.get_state_by_room_id(room_id)
 				var state_list = yield(mp, "get_state_by_room_id_completed")
 				for state in state_list:
-					if state.get("content").has("room_alias_name"):
-						room_list.add_item(state.get("content").get("room_alias_name"))
-					print(JSON.print(state.get("content"), "\t"))
+					if state["content"].has("room_alias_name"):
+						room_list.add_item(state["content"]["room_alias_name"])
+					print(JSON.print(state["content"], "\t"))
 		# Invites to rooms.
-		for room_id in synced_data.get("rooms").get("invite"):
+		for room_id in synced_data["rooms"]["invite"]:
 			mp.get_room_name_by_room_id(room_id)
 			response = yield(mp, "get_room_name_by_room_id_completed")
 			if response.has("name"):
-				room_list.add_item(response.get("name"))
+				room_list.add_item(response["name"])
 			else:
 				mp.get_state_by_room_id(room_id)
 				var state_list = yield(mp, "get_state_by_room_id_completed")
 				for state in state_list:
-					if state.get("content").has("room_alias_name"):
-						room_list.add_item(state.get("content").get("room_alias_name"))
+					if state["content"].has("room_alias_name"):
+						room_list.add_item(state["content"]["room_alias_name"])
 #				for state in state_list:
-#					if state.get("content").has()
+#					if state["content").has()
 		# Left rooms.
-		for room_id in synced_data.get("rooms").get("leave"):
+		for room_id in synced_data["rooms"]["leave"]:
 			mp.get_room_name_by_room_id(room_id)
 			response = yield(mp, "get_room_name_by_room_id_completed")
 			if response.has("name"):
-				room_list.add_item(response.get("name"))
+				room_list.add_item(response["name"])
 			else:
 				mp.get_state_by_room_id(room_id)
 				var state_list = yield(mp, "get_state_by_room_id_completed")
 				for state in state_list:
-					if state.get("content").has("room_alias_name"):
-						room_list.add_item(state.get("content").get("room_alias_name"))
+					if state["content"].has("room_alias_name"):
+						room_list.add_item(state["content"]["room_alias_name"])
 	# If this is done through joined rooms data
 	else:
-		for room_id in rooms.get("joined_rooms"):
+		for room_id in rooms["joined_rooms"]:
 			mp.get_room_name_by_room_id(room_id)
 			response = yield(mp, "get_room_name_by_room_id_completed")
 			if not response.has("name"):
 				room_list.add_item("TODO: Canonical Alias")
 			else:
-				room_list.add_item(response.get("name"))
+				room_list.add_item(response["name"])
 
 
 # OS notification when we recieve a message and not in focus on screen
@@ -222,8 +222,8 @@ func _notify_user() -> void:
 func _on_login_completed(success):
 	if success.has("error"):
 		# TODO : Make a popup window instead of a print.
-		print(JSON.print(success.get("error"), "\t"))
-		login_status.text = "Login error: %s" % success.get("error")
+		print(JSON.print(success["error"], "\t"))
+		login_status.text = "Login error: %s" % success["error"]
 	elif not success.has("error"):
 		login_status.text = "Login success!"
 		mp.sync_events()
@@ -236,15 +236,15 @@ func _on_login_completed(success):
 # Updates the chat window when we click on a room in the left sidebar.
 func _update_chat_window(messages : Dictionary) -> void:
 	if messages.has("chunk"):
-		messages.get("chunk").invert()
-		for chunk in messages.get("chunk"):
+		messages["chunk"].invert()
+		for chunk in messages["chunk"]:
 			_format_chat(chunk)
-	next_batch = messages.get("start")
+	next_batch = messages["start"]
 
 
 # Formats the received content block for display.
 func _format_chat(chunk : Dictionary) -> void:
-	chat_window.add_message(chunk.get("type"), chunk)
+	chat_window.add_message(chunk["type"], chunk)
 
 
 func _input(event):
