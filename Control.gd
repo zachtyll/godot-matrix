@@ -160,11 +160,68 @@ func _sync_to_server(sync_data : Dictionary) -> void:
 #	data to a local database rather than present it directly.
 func _update_room_list(rooms) -> void:
 	room_list.clear()
+	_get_room_names(rooms, "join")
+	_get_room_names(rooms, "invite")
+	_get_room_names(rooms, "leave")
+	
+#	var response : Dictionary
+#	# If this is done through sync data.
+#	if not rooms.has("joined_rooms"):
+#		# Joined rooms added.
+#		for room_id in synced_data["rooms"]["join"]:
+#			mp.get_room_name_by_room_id(room_id)
+#			response = yield(mp, "get_room_name_by_room_id_completed")
+#			if response.has("name"):
+#				room_list.add_item(response["name"])
+#			else:
+#				mp.get_state_by_room_id(room_id)
+#				var state_list = yield(mp, "get_state_by_room_id_completed")
+#				for state in state_list:
+#					if state["content"].has("room_alias_name"):
+#						room_list.add_item(state["content"]["room_alias_name"])
+#					print(JSON.print(state["content"], "\t"))
+#		# Invites to rooms.
+#		for room_id in synced_data["rooms"]["invite"]:
+#			mp.get_room_name_by_room_id(room_id)
+#			response = yield(mp, "get_room_name_by_room_id_completed")
+#			if response.has("name"):
+#				room_list.add_item(response["name"])
+#			else:
+#				mp.get_state_by_room_id(room_id)
+#				var state_list = yield(mp, "get_state_by_room_id_completed")
+#				for state in state_list:
+#					if state["content"].has("room_alias_name"):
+#						room_list.add_item(state["content"]["room_alias_name"])
+##				for state in state_list:
+##					if state["content").has()
+#		# Left rooms.
+#		for room_id in synced_data["rooms"]["leave"]:
+#			mp.get_room_name_by_room_id(room_id)
+#			response = yield(mp, "get_room_name_by_room_id_completed")
+#			if response.has("name"):
+#				room_list.add_item(response["name"])
+#			else:
+#				mp.get_state_by_room_id(room_id)
+#				var state_list = yield(mp, "get_state_by_room_id_completed")
+#				for state in state_list:
+#					if state["content"].has("room_alias_name"):
+#						room_list.add_item(state["content"]["room_alias_name"])
+#	# If this is done through joined rooms data
+#	else:
+#		for room_id in rooms["joined_rooms"]:
+#			mp.get_room_name_by_room_id(room_id)
+#			response = yield(mp, "get_room_name_by_room_id_completed")
+#			if not response.has("name"):
+#				room_list.add_item("TODO: Canonical Alias")
+#			else:
+#				room_list.add_item(response["name"])
+
+
+func _get_room_names(rooms, type : String):
 	var response : Dictionary
-	# If this is done through sync data.
+	# Use sync data if we don't have joined_rooms.
 	if not rooms.has("joined_rooms"):
-		# Joined rooms added.
-		for room_id in synced_data["rooms"]["join"]:
+		for room_id in synced_data["rooms"][type]:
 			mp.get_room_name_by_room_id(room_id)
 			response = yield(mp, "get_room_name_by_room_id_completed")
 			if response.has("name"):
@@ -176,32 +233,12 @@ func _update_room_list(rooms) -> void:
 					if state["content"].has("room_alias_name"):
 						room_list.add_item(state["content"]["room_alias_name"])
 					print(JSON.print(state["content"], "\t"))
-		# Invites to rooms.
-		for room_id in synced_data["rooms"]["invite"]:
-			mp.get_room_name_by_room_id(room_id)
-			response = yield(mp, "get_room_name_by_room_id_completed")
-			if response.has("name"):
-				room_list.add_item(response["name"])
-			else:
-				mp.get_state_by_room_id(room_id)
-				var state_list = yield(mp, "get_state_by_room_id_completed")
 				for state in state_list:
-					if state["content"].has("room_alias_name"):
-						room_list.add_item(state["content"]["room_alias_name"])
-#				for state in state_list:
-#					if state["content").has()
-		# Left rooms.
-		for room_id in synced_data["rooms"]["leave"]:
-			mp.get_room_name_by_room_id(room_id)
-			response = yield(mp, "get_room_name_by_room_id_completed")
-			if response.has("name"):
-				room_list.add_item(response["name"])
-			else:
-				mp.get_state_by_room_id(room_id)
-				var state_list = yield(mp, "get_state_by_room_id_completed")
-				for state in state_list:
-					if state["content"].has("room_alias_name"):
-						room_list.add_item(state["content"]["room_alias_name"])
+					if state["content"].has("displayname"):
+						if not state["content"]["displayname"] == user_username:
+							room_list.add_item(state["content"]["displayname"])
+							break
+					print(JSON.print(state["content"], "\t"))
 	# If this is done through joined rooms data
 	else:
 		for room_id in rooms["joined_rooms"]:
