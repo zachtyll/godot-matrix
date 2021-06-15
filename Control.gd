@@ -168,7 +168,7 @@ func _update_room_list(rooms) -> void:
 			mp.get_room_name_by_room_id(room_id)
 			response = yield(mp, "get_room_name_by_room_id_completed")
 			if response.has("name"):
-				room_list.add_item(response.get("name"))
+				room_list.add_item(response["name"])
 			else:
 				mp.get_state_by_room_id(room_id)
 				var state_list = yield(mp, "get_state_by_room_id_completed")
@@ -188,9 +188,8 @@ func _update_room_list(rooms) -> void:
 				for state in state_list:
 					if state.get("content").has("room_alias_name"):
 						room_list.add_item(state.get("content").get("room_alias_name"))
-
-				
-				
+#				for state in state_list:
+#					if state.get("content").has()
 		# Left rooms.
 		for room_id in synced_data.get("rooms").get("leave"):
 			mp.get_room_name_by_room_id(room_id)
