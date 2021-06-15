@@ -164,15 +164,15 @@ func _login_completed(result : int, response_code : int, _headers : PoolStringAr
 		400:
 			push_warning("Part of the request was invalid. For example, the login type may not be recognised.")
 		403:
-			push_warning("The login attempt failed: %s" % response.get("error"))
+			push_warning("The login attempt failed: %s" % response["error"])
 		429:
 			push_warning("This request was rate-limited.")
 		200:
 			print("Login success!")
 			# NOTE : access_token must be set before emitting signal.
 			print(JSON.print(response, "\t"))
-			access_token = response.get("access_token")
-			print(JSON.print(response.get("access_token"), "\t"))
+			access_token = response["access_token"]
+			print(JSON.print(response["access_token"], "\t"))
 		_:
 			push_error("something unexpected happened: " + str(response_code))
 	emit_signal("login_completed", response)
