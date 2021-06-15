@@ -16,30 +16,30 @@ func clear() -> void:
 # Returns an enumeration. 0: OK, 1: Fail.
 func add_message(message_type : String, chunk : Dictionary) -> int:
 	var message_box = m_text.instance()
-	match(chunk.get("type")):
+	match(chunk["type"]):
 		"m.room.message":
-			match(chunk.get("content").get("msgtype")):
+			match(chunk["content"]["msgtype"]):
 				"m.text":
-					message_box.sender = chunk.get("sender")
+					message_box.sender = chunk["sender"]
 					# This seems to be broken currently, or I've missunderstood timestamps.
-#					var time_stamp = OS.get_datetime_from_unix_time(chunk.get("origin_server_ts"))
+#					var time_stamp = OS.get_datetime_from_unix_time(chunk["origin_server_ts"))
 #					message_box.time_stamp = "{hour}:{minute}:{second} {year}/{month}/{day}".format(time_stamp)
-					message_box.event_id = chunk.get("event_id")
+					message_box.event_id = chunk["event_id"]
 					message_box.body = (
-						"{body}".format(chunk.get("content"))
+						"{body}".format(chunk["content"])
 						)
 				_:
 					message_box.sender = (
-						"This is a: {msgtype}".format(chunk.get("msgtype"))
+						"This is a: {msgtype}".format(chunk["msgtype"])
 					)
 					message_box.body = (
-						"{body}".format(chunk.get("content"))
+						"{body}".format(chunk["content"])
 					)
 		"m.room.guest_access":
-			if chunk.get("content").has("guest_access"):
+			if chunk["content"].has("guest_access"):
 				message_box.sender = ""
 				message_box.body = (
-					"[center]Guest access set to: {guest_access}![/center]".format(chunk.get("content"))
+					"[center]Guest access set to: {guest_access}![/center]".format(chunk["content"])
 					)
 				
 			else:
@@ -51,39 +51,39 @@ func add_message(message_type : String, chunk : Dictionary) -> int:
 				message_box.sender = ""
 				message_box.body += "[center]"
 				message_box.body += (
-					"{displayname} {membership}".format(chunk.get("content"))
+					"{displayname} {membership}".format(chunk["content"])
 					)
-				if chunk.get("content").has("room_alias_name"):
-					message_box.body += " {room_alias_name}.[/center]".format(chunk.get("content"))
+				if chunk["content"].has("room_alias_name"):
+					message_box.body += " {room_alias_name}.[/center]".format(chunk["content"])
 				else:
 					message_box.body += "[/center]"
 		"m.room.create":
 			message_box.body = (
-				"[center]{creator} created the room. Version: {room_version}[/center]".format(chunk.get("content"))
+				"[center]{creator} created the room. Version: {room_version}[/center]".format(chunk["content"])
 			)
 		"m.room.history_visibility":
 			message_box.body = (
-				"[center]Message history set to: {history_visibility}[/center]".format(chunk.get("content"))
+				"[center]Message history set to: {history_visibility}[/center]".format(chunk["content"])
 			)
 		"m.room.join_rules":
 			# TODO : Fix the formatting to be like natural language.
 			message_box.body = (
-				"[center]Join rule set to: {join_rule}.[/center]".format(chunk.get("content"))
+				"[center]Join rule set to: {join_rule}.[/center]".format(chunk["content"])
 			)
 		"m.room.canonical_alias":
 			message_box.sender = ""
 			message_box.body = (
-				"[center]Canonical alias: {alias}.[/center]".format(chunk.get("content"))
+				"[center]Canonical alias: {alias}.[/center]".format(chunk["content"])
 			)
 		"m.room.topic":
-			if chunk.get("content").has("topic"):
-#				topic.text = content.get("content").get("topic")
+			if chunk["content"].has("topic"):
+#				topic.text = content["content")["topic")
 				message_box.body = (
-					"[center]The topic was set to: {topic}[/center]".format(chunk.get("content"))
+					"[center]The topic was set to: {topic}[/center]".format(chunk["content"])
 				)
 		"m.room.name":
 			message_box.body = (
-					"[center]Room name set to: {name}.[/center]".format(chunk.get("content"))
+					"[center]Room name set to: {name}.[/center]".format(chunk["content"])
 				)
 		"m.room.power_levels":
 			message_box.sender = "TODO : Implement m.room.power_levels"
@@ -94,7 +94,7 @@ func add_message(message_type : String, chunk : Dictionary) -> int:
 			# TODO : Figure out wether this statement is actually
 			#	completely true.
 			message_box.body = (
-					"[center]Messages are encrypted with: {algorithm}.[/center]".format(chunk.get("content"))
+					"[center]Messages are encrypted with: {algorithm}.[/center]".format(chunk["content"])
 				)
 		"m.room.encrypted":
 			# TODO : Figure out how to solve decryption.
@@ -115,7 +115,7 @@ func add_message(message_type : String, chunk : Dictionary) -> int:
 			)
 		_:
 			message_box = null
-			push_warning("Unhandled message in content block: " + str(chunk.get("type")))
+			push_warning("Unhandled message in content block: " + str(chunk["type"]))
 
 	if message_box == null:
 		return FAILED
