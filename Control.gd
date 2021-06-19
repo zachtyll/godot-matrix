@@ -161,8 +161,8 @@ func _sync_to_server(sync_data : Dictionary) -> void:
 func _update_room_list(rooms) -> void:
 	room_list.clear()
 	_get_room_names(rooms, "join")
-	_get_room_names(rooms, "invite")
-	_get_room_names(rooms, "leave")
+#	_get_room_names(rooms, "invite")
+#	_get_room_names(rooms, "leave")
 	
 #	var response : Dictionary
 #	# If this is done through sync data.
@@ -270,8 +270,6 @@ func _notify_user() -> void:
 # Triggers when a login call has completed.
 func _on_login_completed(success):
 	if success.has("error"):
-		# TODO : Make a popup window instead of a print.
-		print(JSON.print(success["error"], "\t"))
 		login_status.text = "Login error: %s" % success["error"]
 	elif not success.has("error"):
 		login_status.text = "Login success!"
