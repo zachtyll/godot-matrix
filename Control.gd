@@ -216,7 +216,7 @@ func _update_room_list(rooms) -> void:
 #			else:
 #				room_list.add_item(response["name"])
 
-
+# Massive function to translate room_id into human-readable names.
 func _get_room_names(rooms, type : String):
 	var response : Dictionary
 	# Use sync data if we don't have joined_rooms.
@@ -226,28 +226,40 @@ func _get_room_names(rooms, type : String):
 			response = yield(mp, "get_room_name_by_room_id_completed")
 			if response.has("name"):
 				room_list.add_item(response["name"])
+				break
 			else:
 				mp.get_state_by_room_id(room_id)
 				var state_list = yield(mp, "get_state_by_room_id_completed")
 				for state in state_list:
 					if state["content"].has("room_alias_name"):
 						room_list.add_item(state["content"]["room_alias_name"])
-					print(JSON.print(state["content"], "\t"))
+						break
 				for state in state_list:
 					if state["content"].has("displayname"):
 						if not state["content"]["displayname"] == user_username:
 							room_list.add_item(state["content"]["displayname"])
 							break
-					print(JSON.print(state["content"], "\t"))
+				room_list.add_item("Name could not be resolved.")
 	# If this is done through joined rooms data
 	else:
 		for room_id in rooms["joined_rooms"]:
 			mp.get_room_name_by_room_id(room_id)
 			response = yield(mp, "get_room_name_by_room_id_completed")
-			if not response.has("name"):
-				room_list.add_item("TODO: Canonical Alias")
-			else:
+			if response.has("name"):
 				room_list.add_item(response["name"])
+				break
+			else:
+				mp.get_state_by_room_id(room_id)
+				var state_list = yield(mp, "get_state_by_room_id_completed")
+				for state in state_list:
+					if state["content"].has("room_alias_name"):
+						room_list.add_item(state["content"]["room_alias_name"])
+						break
+				for state in state_list:
+					if state["content"].has("displayname"):
+						if not state["content"]["displayname"] == user_username:
+							room_list.add_item(state["content"]["displayname"])
+							break
 
 
 # OS notification when we recieve a message and not in focus on screen
