@@ -1,7 +1,6 @@
 extends Node
 
 var login := false
-var mp : MatrixProtocol
 var room_counter := 0
 var joined_rooms := {}
 var synced_data := {}
