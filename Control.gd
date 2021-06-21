@@ -164,20 +164,11 @@ func _sync_to_server(sync_data : Dictionary) -> void:
 func _update_room_list(rooms) -> void:
 #	room_list.clear()
 	var room_names = yield(_get_room_names(rooms), "completed")
-	print(room_names)
 	for room_name in room_names:
 		if not room_name.empty():
-			print(room_name)
 			room_list.add_item(room_name)
 		else:
 			room_list.add_item("THIS NAME IS EMPTY!")
-	
-
-func test(room_id):
-	mp.get_room_name_by_room_id(room_id)
-	var response = yield(mp, "get_room_name_by_room_id_completed")
-	print(response)
-	return response
 
 
 # Massive function to translate room_id into human-readable names.
@@ -185,6 +176,11 @@ func _get_room_names(rooms : Dictionary) -> Array:
 	var response : Dictionary
 	var room_id_array : Array = []
 	var room_names := []
+	var types = [
+		"m.room.name",
+		"m.room.canonical_alias",
+		"m.room.member"
+		]
 	
 	if not rooms.has("joined_rooms"):
 		room_id_array += synced_data["rooms"]["join"].keys()
@@ -193,68 +189,29 @@ func _get_room_names(rooms : Dictionary) -> Array:
 	else:
 		room_id_array += rooms["joined_rooms"]
 
-	# Add rooms to room list.
-	for room_id in room_id_array:
-		response = yield(test(room_id), "completed")
-		
-		if response.has("name"):
-			room_names.append(response["name"])
-		else:
-			mp.get_state_by_room_id(room_id)
-			var state_list = yield(mp, "get_state_by_room_id_completed")
-			for state in state_list:
-				print(state.keys())
-				if state["content"].has("room_alias_name"):
-					room_names.append(state["content"]["room_alias_name"])
-					break
-				elif state["content"].has("displayname"):
-					if not state["content"]["displayname"] == user_username:
-						room_names.append(state["content"]["displayname"])
-						break
+
+	# Uses get message instead:
+	for type in types:
+		for room_id in room_id_array:
+			response = yield(mp.get_messages(room_id, "s0_0_0", "", "f", 10, '{"types":["%s"]}'% type), "completed")
+			if not response["chunk"].empty():
+				# Name
+				if response["chunk"].back()["content"].has("name"):
+					if not response["chunk"].back()["content"]["name"].empty():
+						room_names.append(response["chunk"].back()["content"]["name"])
+					else:
+						room_names.append(room_id)
+				# Alias name
+				elif response["chunk"].front()["content"].has("room_alias_name"):
+					if not response["chunk"].front()["content"]["room_alias_name"].empty():
+						room_names.append(response["chunk"].front()["content"]["room_alias_name"])
+				# Name from members
+				elif response["chunk"].back()["content"].has("displayname"):
+					if not response["chunk"].back()["content"]["displayname"] == user_username:
+						room_names.append(response["chunk"].back()["content"]["displayname"])
+			else:
+				pass
 	return room_names
-
-
-	# Use sync data if we don't have joined_rooms.
-#	if not rooms.has("joined_rooms"):
-#		for room_id in synced_data["rooms"][type]:
-#			mp.get_room_name_by_room_id(room_id)
-#			response = yield(mp, "get_room_name_by_room_id_completed")
-#			if response.has("name"):
-#				room_list.add_item(response["name"])
-#				break
-#			else:
-#				mp.get_state_by_room_id(room_id)
-#				var state_list = yield(mp, "get_state_by_room_id_completed")
-#				for state in state_list:
-#					if state["content"].has("room_alias_name"):
-#						room_list.add_item(state["content"]["room_alias_name"])
-#						break
-#				for state in state_list:
-#					if state["content"].has("displayname"):
-#						if not state["content"]["displayname"] == user_username:
-#							room_list.add_item(state["content"]["displayname"])
-#							break
-#				room_list.add_item("Name could not be resolved.")
-#	# If this is done through joined rooms data
-#	else:
-#		for room_id in rooms["joined_rooms"]:
-#			mp.get_room_name_by_room_id(room_id)
-#			response = yield(mp, "get_room_name_by_room_id_completed")
-#			if response.has("name"):
-#				room_list.add_item(response["name"])
-#				break
-#			else:
-#				mp.get_state_by_room_id(room_id)
-#				var state_list = yield(mp, "get_state_by_room_id_completed")
-#				for state in state_list:
-#					if state["content"].has("room_alias_name"):
-#						room_list.add_item(state["content"]["room_alias_name"])
-#						break
-#				for state in state_list:
-#					if state["content"].has("displayname"):
-#						if not state["content"]["displayname"] == user_username:
-#							room_list.add_item(state["content"]["displayname"])
-#							break
 
 
 # OS notification when we recieve a message and not in focus on screen

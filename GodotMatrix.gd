@@ -61,4 +61,18 @@ func _ready():
 	
 	var test = yield(mp.login(user_username, user_password), "completed")
 	print(test)
+#	(room_id : String,
+# from : String = "",
+# to : String = "",
+# dir : String = "b",
+# limit : int = 10,
+# filter : String = ""
+	var types = ["m.room.name", "m.room.canonical_alias", "m.room.member"]
+	for type in types:
+		var test2 = yield(mp.get_messages("!KSOWjTcKFhwaFHTKny:matrix.org", "s0_0_0", "", "f", 10, '{"types":["%s"]}'% type), "completed")
+		print(JSON.print(test2["chunk"].front(), "\t"))
+		if test2["chunk"].has("content"):
+			print("passes firts")
+			if test2["content"].has("room_alias_name"):
+				print(JSON.print(test2["room_alias_name"], "\t"))
 
