@@ -93,7 +93,7 @@ func get_members(room : String):
 
 
 # Creates a new room.
-func create_room(room_alias : String, room_name : String = "", topic : String = "General", preset : int = Preset.PRIVATE_CHAT, federate : bool = false):
+func create_room(room_name : String = "", room_alias : String = "", topic : String = "General", preset : int = Preset.PRIVATE_CHAT, federate : bool = false):
 	var url := "https://matrix.org/_matrix/client/r0/createRoom?access_token=" + access_token
 	var room_preset := ""
 	
@@ -168,7 +168,7 @@ func _login_completed(result : int, response_code : int, _headers : PoolStringAr
 		429:
 			push_warning("This request was rate-limited.")
 		200:
-			print("Login success!")
+			pass
 			# NOTE : access_token must be set before emitting signal.
 			print(JSON.print(response, "\t"))
 			access_token = response["access_token"]
@@ -198,7 +198,7 @@ func _sync_completed(result : int, response_code : int, _headers : PoolStringArr
 	var response: Dictionary = parse_json(body.get_string_from_utf8())
 	match(response_code):
 		200:
-			print("Sync success")
+			pass
 		401:
 			push_warning("Missing access token")
 	emit_signal("sync_completed", response)
@@ -218,7 +218,7 @@ func _join_room_completed(result : int, response_code : int, _headers : PoolStri
 	var response: Dictionary = parse_json(body.get_string_from_utf8())
 	match(response_code):
 		200:
-			print("Join room success")
+			pass
 #			emit_signal("room_joined_completed", true)
 		403:
 			push_warning("An unkown error occurred")
@@ -235,7 +235,7 @@ func _get_members_completed(result : int, response_code : int, _headers : PoolSt
 	var response: Dictionary = parse_json(body.get_string_from_utf8())
 	match(response_code):
 		200:
-			print("Get members success")
+			pass
 		403:
 			push_warning("You are not a member of the room")
 	emit_signal("get_members_completed", response)
@@ -247,7 +247,7 @@ func _create_room_completed(result : int, response_code : int, _headers : PoolSt
 	var response: Dictionary = parse_json(body.get_string_from_ascii())
 	match(response_code):
 		200:
-			print("Room create success")
+			pass
 		400:
 			push_warning("Unknown error occurred")
 	emit_signal("create_room_completed", response)
@@ -280,7 +280,7 @@ func _get_messages_completed(result : int, response_code : int, _headers : PoolS
 	var response: Dictionary = parse_json(body.get_string_from_ascii())
 	match(response_code):
 		200:
-			print("Get messages success")
+			pass
 		403:
 			push_warning("You are not a member of this room")
 	emit_signal("get_messages_completed", response)
@@ -291,7 +291,7 @@ func _get_state_by_room_id_completed(result : int, response_code : int, _headers
 	var response: Array = parse_json(body.get_string_from_ascii())
 	match(response_code):
 		200:
-			print("Get state success")
+			pass
 		403:
 			push_warning("You aren't a member of the room and weren't previously a member of the room.")
 	
@@ -303,11 +303,12 @@ func _get_room_name_by_room_id_completed(result : int, response_code : int, _hea
 	var response: Dictionary = parse_json(body.get_string_from_utf8())
 	match(response_code):
 		200:
-			print("Get messages success")
+			pass
 		404:
 			print("The room has no state with the given type or key.")
 		403:
 			push_warning("You aren't a member of the room and weren't previously a member of the room.")
+	
 	emit_signal("get_room_name_by_room_id_completed", response)
 	
 
@@ -361,7 +362,6 @@ func _make_get_request(url : String, response : String):
 func _check_result(result) -> bool:
 	match(result):
 		HTTPRequest.RESULT_SUCCESS:
-			print("Request successful.")
 			return true
 		HTTPRequest.RESULT_CHUNKED_BODY_SIZE_MISMATCH:
 			push_error("Result chunked body size mismatch.")

@@ -73,16 +73,19 @@ func _on_CreateRoom_pressed():
 #	turning mp into a singleton at this rate.
 # TODO : Something is broken here. Matrix side works fine, but the result
 #	is not added to my list of available rooms for some reason.
-func _on_CreateRoom_create_room(room_name):
-	mp.create_room(room_name)
+func _on_CreateRoom_create_room(room_name, room_alias):
+	mp.create_room(room_name, room_alias)
 	var err = yield(mp, "create_room_completed")
 	if err.has("error"):
 		popup.find_node("CreateRoom").status_label.text = err["error"]
+		return
 	else:
 		print(JSON.print(err, "\t"))
 		popup.find_node("CreateRoom").hide()
-	mp.get_joined_rooms()
+
 	# Get joined rooms activates list automatically.
+#	mp.get_joined_rooms()
+	mp.sync_events()
 
 
 # Sends a message to the given room
@@ -159,107 +162,99 @@ func _sync_to_server(sync_data : Dictionary) -> void:
 # TODO : This seems like itshould store all the synced 
 #	data to a local database rather than present it directly.
 func _update_room_list(rooms) -> void:
-	room_list.clear()
-	_get_room_names(rooms, "join")
-#	_get_room_names(rooms, "invite")
-#	_get_room_names(rooms, "leave")
+#	room_list.clear()
+	var room_names = yield(_get_room_names(rooms), "completed")
+	print(room_names)
+	for room_name in room_names:
+		if not room_name.empty():
+			print(room_name)
+			room_list.add_item(room_name)
+		else:
+			room_list.add_item("THIS NAME IS EMPTY!")
 	
-#	var response : Dictionary
-#	# If this is done through sync data.
+
+func test(room_id):
+	mp.get_room_name_by_room_id(room_id)
+	var response = yield(mp, "get_room_name_by_room_id_completed")
+	print(response)
+	return response
+
+
+# Massive function to translate room_id into human-readable names.
+func _get_room_names(rooms : Dictionary) -> Array:
+	var response : Dictionary
+	var room_id_array : Array = []
+	var room_names := []
+	
+	if not rooms.has("joined_rooms"):
+		room_id_array += synced_data["rooms"]["join"].keys()
+		room_id_array += synced_data["rooms"]["invite"].keys()
+		room_id_array += synced_data["rooms"]["leave"].keys()
+	else:
+		room_id_array += rooms["joined_rooms"]
+
+	# Add rooms to room list.
+	for room_id in room_id_array:
+		response = yield(test(room_id), "completed")
+		print(yield(test(room_id), "completed"))
+		
+		if response.has("name"):
+			room_names.append(response["name"])
+		else:
+			mp.get_state_by_room_id(room_id)
+			var state_list = yield(mp, "get_state_by_room_id_completed")
+			for state in state_list:
+				if state["content"].has("room_alias_name"):
+					room_names.append(state["content"]["room_alias_name"])
+					break
+				elif state["content"].has("displayname"):
+					if not state["content"]["displayname"] == user_username:
+						room_names.append(state["content"]["displayname"])
+						break
+	return room_names
+
+
+	# Use sync data if we don't have joined_rooms.
 #	if not rooms.has("joined_rooms"):
-#		# Joined rooms added.
-#		for room_id in synced_data["rooms"]["join"]:
+#		for room_id in synced_data["rooms"][type]:
 #			mp.get_room_name_by_room_id(room_id)
 #			response = yield(mp, "get_room_name_by_room_id_completed")
 #			if response.has("name"):
 #				room_list.add_item(response["name"])
+#				break
 #			else:
 #				mp.get_state_by_room_id(room_id)
 #				var state_list = yield(mp, "get_state_by_room_id_completed")
 #				for state in state_list:
 #					if state["content"].has("room_alias_name"):
 #						room_list.add_item(state["content"]["room_alias_name"])
-#					print(JSON.print(state["content"], "\t"))
-#		# Invites to rooms.
-#		for room_id in synced_data["rooms"]["invite"]:
-#			mp.get_room_name_by_room_id(room_id)
-#			response = yield(mp, "get_room_name_by_room_id_completed")
-#			if response.has("name"):
-#				room_list.add_item(response["name"])
-#			else:
-#				mp.get_state_by_room_id(room_id)
-#				var state_list = yield(mp, "get_state_by_room_id_completed")
+#						break
 #				for state in state_list:
-#					if state["content"].has("room_alias_name"):
-#						room_list.add_item(state["content"]["room_alias_name"])
-##				for state in state_list:
-##					if state["content").has()
-#		# Left rooms.
-#		for room_id in synced_data["rooms"]["leave"]:
-#			mp.get_room_name_by_room_id(room_id)
-#			response = yield(mp, "get_room_name_by_room_id_completed")
-#			if response.has("name"):
-#				room_list.add_item(response["name"])
-#			else:
-#				mp.get_state_by_room_id(room_id)
-#				var state_list = yield(mp, "get_state_by_room_id_completed")
-#				for state in state_list:
-#					if state["content"].has("room_alias_name"):
-#						room_list.add_item(state["content"]["room_alias_name"])
+#					if state["content"].has("displayname"):
+#						if not state["content"]["displayname"] == user_username:
+#							room_list.add_item(state["content"]["displayname"])
+#							break
+#				room_list.add_item("Name could not be resolved.")
 #	# If this is done through joined rooms data
 #	else:
 #		for room_id in rooms["joined_rooms"]:
 #			mp.get_room_name_by_room_id(room_id)
 #			response = yield(mp, "get_room_name_by_room_id_completed")
-#			if not response.has("name"):
-#				room_list.add_item("TODO: Canonical Alias")
-#			else:
+#			if response.has("name"):
 #				room_list.add_item(response["name"])
-
-# Massive function to translate room_id into human-readable names.
-func _get_room_names(rooms, type : String):
-	var response : Dictionary
-	# Use sync data if we don't have joined_rooms.
-	if not rooms.has("joined_rooms"):
-		for room_id in synced_data["rooms"][type]:
-			mp.get_room_name_by_room_id(room_id)
-			response = yield(mp, "get_room_name_by_room_id_completed")
-			if response.has("name"):
-				room_list.add_item(response["name"])
-				break
-			else:
-				mp.get_state_by_room_id(room_id)
-				var state_list = yield(mp, "get_state_by_room_id_completed")
-				for state in state_list:
-					if state["content"].has("room_alias_name"):
-						room_list.add_item(state["content"]["room_alias_name"])
-						break
-				for state in state_list:
-					if state["content"].has("displayname"):
-						if not state["content"]["displayname"] == user_username:
-							room_list.add_item(state["content"]["displayname"])
-							break
-				room_list.add_item("Name could not be resolved.")
-	# If this is done through joined rooms data
-	else:
-		for room_id in rooms["joined_rooms"]:
-			mp.get_room_name_by_room_id(room_id)
-			response = yield(mp, "get_room_name_by_room_id_completed")
-			if response.has("name"):
-				room_list.add_item(response["name"])
-				break
-			else:
-				mp.get_state_by_room_id(room_id)
-				var state_list = yield(mp, "get_state_by_room_id_completed")
-				for state in state_list:
-					if state["content"].has("room_alias_name"):
-						room_list.add_item(state["content"]["room_alias_name"])
-						break
-				for state in state_list:
-					if state["content"].has("displayname"):
-						if not state["content"]["displayname"] == user_username:
-							room_list.add_item(state["content"]["displayname"])
-							break
+#				break
+#			else:
+#				mp.get_state_by_room_id(room_id)
+#				var state_list = yield(mp, "get_state_by_room_id_completed")
+#				for state in state_list:
+#					if state["content"].has("room_alias_name"):
+#						room_list.add_item(state["content"]["room_alias_name"])
+#						break
+#				for state in state_list:
+#					if state["content"].has("displayname"):
+#						if not state["content"]["displayname"] == user_username:
+#							room_list.add_item(state["content"]["displayname"])
+#							break
 
 
 # OS notification when we recieve a message and not in focus on screen
