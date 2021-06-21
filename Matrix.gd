@@ -41,7 +41,8 @@ func login(username : String, password : String):
 		"type": "m.login.password"
 		}
 	_make_post_request(url, body, true, "_login_completed")
-
+	var response = yield(self, "login_completed")
+	return response
 
 # Logs out a session from the server
 func logout():
@@ -49,7 +50,9 @@ func logout():
 	var body := {}
 	
 	_make_post_request(url, body, true, "_logout_completed")
-
+	var response = yield(self, "logout_completed")
+	return response
+	
 
 # Registers a new user on Matrix.
 # TODO : Make this work as intended.
@@ -67,6 +70,8 @@ func send_message(room : String, message : String):
 		"body" : message
 		}
 	_make_post_request(url, content, true, "_send_message_completed")
+	var response = yield(self, "send_message_completed")
+	return response
 
 
 # Syncs client state with server state.
@@ -75,6 +80,8 @@ func send_message(room : String, message : String):
 func sync_events(filter : String = (""),  since : String = "s0", full_state : bool = false , set_presence : String = "offline", timeout : int = 0):
 	var url := "https://matrix.org/_matrix/client/r0/sync?{0}&since={1}&full_state={2}&set_presence={3}&timeout={4}&access_token={5}".format([filter, since, (str(full_state).to_lower()), set_presence, timeout, access_token])
 	_make_get_request(url, "_sync_completed")
+	var response = yield(self, "sync_completed")
+	return response
 
 
 # Joins the user to a room.
@@ -84,12 +91,16 @@ func join_room(room : String):
 		"room_alias_name": "test"
 	}
 	_make_post_request(url, body, true, "_join_room_completed")
+	var response = yield(self, "join_room_completed")
+	return response
 
 
 # Gets all members of a room.
 func get_members(room : String):
 	var url := "https://matrix.org/_matrix/client/r0/rooms/" + room + "/joined_members?access_token=" + access_token
 	_make_get_request(url, "_get_members_completed")
+	var response = yield(self, "get_members_completed")
+	return response
 
 
 # Creates a new room.
@@ -115,18 +126,24 @@ func create_room(room_name : String = "", room_alias : String = "", topic : Stri
 		"topic": topic
 	}
 	_make_post_request(url, body, true, "_create_room_completed")
+	var response = yield(self, "create_room_completed")
+	return response
 
 
 # Gets all rooms the user has joined.
 func get_joined_rooms():
 	var url := "https://matrix.org/_matrix/client/r0/joined_rooms?access_token=" + access_token
 	_make_get_request(url, "_get_joined_rooms_completed")
+	var response = yield(self, "get_joined_rooms_completed")
+	return response
 
 
 # Gets a room id by reading an alias.
 func get_room_id_by_alias(alias : String, homeserver : String = "matrix.org") -> void:
 	var url := "https://matrix.org/_matrix/client/r0/directory/room/" + alias + ":" + homeserver + "?access_token=" + access_token
 	_make_get_request(url, "_get_room_id_by_alias_completed")
+	var response = yield(self, "get_room_id_by_alias_completed")
+	return response
 
 
 # Gets an array of local aliases for a room.
@@ -134,6 +151,8 @@ func get_room_id_by_alias(alias : String, homeserver : String = "matrix.org") ->
 func get_room_aliases(room_id : String) -> void:
 	var url := "https://matrix.org/_matrix/client/r0/rooms/" + room_id + "/aliases?access_token=" + access_token
 	_make_get_request(url, "_get_room_aliases_completed")
+	var response = yield(self, "get_room_aliases_completed")
+	return response
 
 
 # Gets messages from room "room_id". Batch "from" to batch "to" with max "limit" messages.
@@ -142,16 +161,22 @@ func get_room_aliases(room_id : String) -> void:
 func get_messages(room_id : String, from : String = "", to : String = "", dir : String = "b", limit : int = 10, filter : String = ""):
 	var url := "https://matrix.org/_matrix/client/r0/rooms/" + room_id + "/messages?from=" + from + "&to=" + to + "&dir=" + dir + "&limit=" + str(limit) +  "&filter=" + filter + "&access_token=" + access_token
 	_make_get_request(url, "_get_messages_completed")
+	var response = yield(self, "get_messages_completed")
+	return response
 
 
 func get_state_by_room_id(room_id : String) -> void:
 	var url := "https://matrix.org/_matrix/client/r0/rooms/" + room_id + "/state?access_token=" + access_token
 	_make_get_request(url, "_get_state_by_room_id_completed")
+	var response = yield(self, "get_state_by_room_id_completed")
+	return response
 
 
 func get_room_name_by_room_id(room_id : String) -> void:
 	var url := "https://matrix.org/_matrix/client/r0/rooms/" + room_id + "/state/m.room.name?access_token=" + access_token
 	_make_get_request(url, "_get_room_name_by_room_id_completed")
+	var response = yield(self, "get_room_name_by_room_id_completed")
+	return response
 
 
 # Called when the login request is completed.
@@ -176,6 +201,7 @@ func _login_completed(result : int, response_code : int, _headers : PoolStringAr
 		_:
 			push_error("something unexpected happened: " + str(response_code))
 	emit_signal("login_completed", response)
+
 
 # Runs when the logout request completes.
 # Requires an access token to know who is logging out.
@@ -402,4 +428,3 @@ func _check_result(result) -> bool:
 		_:
 			push_error("Unexpected http client error!")
 			return false
-

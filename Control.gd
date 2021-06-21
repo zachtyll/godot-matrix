@@ -196,7 +196,6 @@ func _get_room_names(rooms : Dictionary) -> Array:
 	# Add rooms to room list.
 	for room_id in room_id_array:
 		response = yield(test(room_id), "completed")
-		print(yield(test(room_id), "completed"))
 		
 		if response.has("name"):
 			room_names.append(response["name"])
@@ -204,6 +203,7 @@ func _get_room_names(rooms : Dictionary) -> Array:
 			mp.get_state_by_room_id(room_id)
 			var state_list = yield(mp, "get_state_by_room_id_completed")
 			for state in state_list:
+				print(state.keys())
 				if state["content"].has("room_alias_name"):
 					room_names.append(state["content"]["room_alias_name"])
 					break
