@@ -156,10 +156,7 @@ func _sync_to_server(sync_data : Dictionary) -> void:
 
 
 # Add rooms to our room list in the left navbar
-# TODO : Make room naming according to Spec §13.1.1(ish)
-# NOTE : Might want to make it so that all rooms are added
-#	at once and not for each.
-# TODO : This seems like itshould store all the synced 
+# TODO : This seems like it should store all the synced 
 #	data to a local database rather than present it directly.
 func _update_room_list(rooms) -> void:
 #	room_list.clear()
@@ -188,8 +185,7 @@ func _get_room_names(rooms : Dictionary) -> Array:
 		room_id_array += synced_data["rooms"]["leave"].keys()
 	else:
 		room_id_array += rooms["joined_rooms"]
-
-
+	
 	# Uses get message instead:
 	for type in types:
 		for room_id in room_id_array:
@@ -198,17 +194,18 @@ func _get_room_names(rooms : Dictionary) -> Array:
 				# Name
 				if response["chunk"].back()["content"].has("name"):
 					if not response["chunk"].back()["content"]["name"].empty():
-						room_names.append(room_id + response["chunk"].back()["content"]["name"])
-					else:
-						room_names.append(room_id)
+						room_names.append(response["chunk"].back()["content"]["name"])
+#					else:
+#						room_names.append(room_id)
 				# Alias name
-				elif response["chunk"].front()["content"].has("room_alias_name"):
-					if not response["chunk"].front()["content"]["room_alias_name"].empty():
-						room_names.append(room_id + response["chunk"].front()["content"]["room_alias_name"])
+				elif response["chunk"].front()["content"].has("alias"):
+					room_names.append(response["chunk"].front()["content"]["alias"])
 				# Name from members
 				elif response["chunk"].back()["content"].has("displayname"):
 					if not response["chunk"].back()["content"]["displayname"] == user_username:
-						room_names.append(room_id + response["chunk"].back()["content"]["displayname"])
+						room_names.append(response["chunk"].back()["content"]["displayname"])
+				else:
+					print(JSON.print(response["chunk"], "\t"))
 			else:
 				# The room has no such events since s0_0_0.
 				pass
