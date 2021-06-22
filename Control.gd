@@ -74,18 +74,19 @@ func _on_CreateRoom_pressed():
 # TODO : Something is broken here. Matrix side works fine, but the result
 #	is not added to my list of available rooms for some reason.
 func _on_CreateRoom_create_room(room_name, room_alias):
-	mp.create_room(room_name, room_alias)
-	var err = yield(mp, "create_room_completed")
+	var err = yield(mp.create_room(room_name, room_alias), "completed")
+#	var err = yield(mp, "create_room_completed")
 	if err.has("error"):
 		popup.find_node("CreateRoom").status_label.text = err["error"]
 		return
 	else:
 		print(JSON.print(err, "\t"))
 		popup.find_node("CreateRoom").hide()
+		mp.sync_events()
 
 	# Get joined rooms activates list automatically.
 #	mp.get_joined_rooms()
-	mp.sync_events()
+	
 
 
 # Sends a message to the given room
@@ -108,30 +109,16 @@ func _on_Timer_timeout():
 	elif previous_batch == next_batch:
 		return
 	
-	mp.get_messages(current_room, previous_batch, next_batch, "b", 1, "")
-
+	var new_message = yield(mp.get_messages(current_room, previous_batch, next_batch, "b", 1, ""), "completed")
+	_update_chat_window(new_message)
 
 # Updates the input text from the LineEdit in chat section
 func _on_LineEdit_text_changed(new_text):
 	input_text = new_text
 
 
-# Login and logout
-func _on_Button_toggled(button_pressed):
-	if button_pressed:
-		mp.login(user_username, user_password)
-	else:
-		$Timer.stop()
-		mp.logout()
-		joined_rooms.clear()
-		room_list.clear()
-		room_counter = 0
-		chat_window.clear()
-
-
 # Updates which room we act upon via the left sidebar
 func _on_room_list_item_selected(index):
-	print(index)
 	chat_window.clear()
 	current_room = joined_rooms.keys()[index]
 	channel_name.text = room_list.get_item_text(index)
@@ -141,8 +128,8 @@ func _on_room_list_item_selected(index):
 #	dir : String = "b",
 #	limit : int = 10,
 #	filter : String = ""
-	mp.get_messages(current_room, next_batch, "", "b", 100, "")
-
+	var messages = yield(mp.get_messages(current_room, next_batch, "", "b", 100, ""), "completed")
+	_update_chat_window(messages)
 
 # Synchronizes data in client with server.
 func _sync_to_server(sync_data : Dictionary) -> void:
@@ -189,7 +176,6 @@ func _get_room_names(rooms : Dictionary) -> Array:
 	
 	# Uses get message instead:
 	for room_id in room_id_array:
-		room_number += 1
 		var room_name := ""
 		var room_alias := ""
 		var room_member_name := ""
@@ -201,17 +187,22 @@ func _get_room_names(rooms : Dictionary) -> Array:
 						# Name
 						if not response["chunk"].back()["content"]["name"].empty():
 							room_name = response["chunk"].back()["content"]["name"]
+							break
 					"m.room.canonical_alias":
 						# Alias name
-						room_alias = response["chunk"].back()["content"]["alias"]
+						if response["chunk"].back()["content"].has("alias"):
+							room_alias = response["chunk"].back()["content"]["alias"]
+							break
 					"m.room.member":
 						# Name from members (not user self).
-						if not response["chunk"].back()["content"]["displayname"] == user_username:
-							room_member_name = response["chunk"].back()["content"]["displayname"]
+						if response["chunk"].back()["content"].has("displayname"):
+							if not response["chunk"].back()["content"]["displayname"] == user_username:
+								room_member_name = response["chunk"].back()["content"]["displayname"]
+								break
 					_:
 						push_error("Unhandled chunk type: %s" % response["chunk"])
 						print(JSON.print(response["chunk"], "\t"))
-		
+
 		if not room_name.empty():
 			room_names.append(room_name)
 		elif not room_alias.empty():
@@ -219,6 +210,7 @@ func _get_room_names(rooms : Dictionary) -> Array:
 		elif not room_member_name.empty():
 			room_names.append(room_member_name)
 		else:
+			room_number += 1
 			room_names.append("Dummy name %s" % room_number)
 
 
@@ -275,6 +267,6 @@ func _ready():
 	var _get_joined_rooms_err = mp.connect("get_joined_rooms_completed", self, "_update_room_list")
 #	var _get_room_id_by_alias_err = mp.connect("get_room_id_by_alias_completed", self, "_update_room_list")
 #	var _get_room_aliases_err = mp.connect("get_room_aliases_completed", self, "_update_room_list")
-	var _get_messages_err = mp.connect("get_messages_completed", self, "_update_chat_window")
+#	var _get_messages_err = mp.connect("get_messages_completed", self, "_update_chat_window")
 #	var _get_state_by_room_id_err = mp.connect("get_state_by_room_id_completed", self, "_update_room_list")
 #	var _get_name_by_room_id_err = mp.connect("get_room_name_by_room_id_completed", self, "_update_room_list")
