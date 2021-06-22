@@ -100,7 +100,7 @@ __meta__ = {
 [node name="TopBarMid" type="PanelContainer" parent="Screen/MidSection"]
 margin_right = 609.0
 margin_bottom = 70.0
-rect_min_size = Vector2( 600, 70 )
+rect_min_size = Vector2( 300, 70 )
 size_flags_horizontal = 3
 
 [node name="TopBarMidHbox" type="HBoxContainer" parent="Screen/MidSection/TopBarMid"]

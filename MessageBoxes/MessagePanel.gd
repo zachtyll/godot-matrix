@@ -13,6 +13,11 @@ var body := ""
 var event_id := ""
 var line_count := 0
 var selected := false
+# Color variables
+var red := 0
+var green := 0
+var blue := 0
+var sender_color := Color8(100, 100, 100).to_html()
 
 onready var sender_name := $Padding/VBoxContainer/HBoxContainer/SenderName as RichTextLabel
 onready var time_stamp_text := $Padding/VBoxContainer/HBoxContainer/TimeStamp as RichTextLabel
@@ -20,7 +25,16 @@ onready var message_body := $Padding/VBoxContainer/MessageBody as RichTextLabel
 
 
 func _ready():
-	_print_and_check(sender_name, sender)
+	# We skip the @ so people get unique colors.
+	if sender.length() >= 4:
+		red = sender.ord_at(1) * 2
+		green = sender.ord_at(2) * 2
+		blue = sender.ord_at(3) * 2
+		sender_color = Color8(red, green, blue).to_html()
+
+	var sender_message := "[color=#%s]%s[/color]" % [sender_color, sender]
+	
+	_print_and_check(sender_name, sender_message)
 	_print_and_check(time_stamp_text, time_stamp)
 	_print_and_check(message_body, body)
 

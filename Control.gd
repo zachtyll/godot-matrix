@@ -192,6 +192,9 @@ func _get_room_names(rooms : Dictionary) -> Array:
 							if not response["chunk"].back()["content"]["displayname"] == user_username:
 								room_member_name = response["chunk"].back()["content"]["displayname"]
 								break
+							elif response["chunk"].back()["content"].has("room_alias_name"):
+								room_member_name = response["chunk"].back()["content"]["room_alias_name"]
+								break
 					_:
 						push_error("Unhandled chunk type: %s" % response["chunk"])
 						print(JSON.print(response["chunk"], "\t"))
