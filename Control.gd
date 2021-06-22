@@ -174,7 +174,7 @@ func _update_room_list(rooms) -> void:
 # Massive function to translate room_id into human-readable names.
 func _get_room_names(rooms : Dictionary) -> Array:
 	var response : Dictionary
-	var room_id_array : Array = []
+	var room_id_array := []
 	var room_names := []
 	var types = [
 		"m.room.name",
@@ -198,19 +198,24 @@ func _get_room_names(rooms : Dictionary) -> Array:
 				# Name
 				if response["chunk"].back()["content"].has("name"):
 					if not response["chunk"].back()["content"]["name"].empty():
-						room_names.append(response["chunk"].back()["content"]["name"])
+						room_names.append(room_id + response["chunk"].back()["content"]["name"])
 					else:
 						room_names.append(room_id)
 				# Alias name
 				elif response["chunk"].front()["content"].has("room_alias_name"):
 					if not response["chunk"].front()["content"]["room_alias_name"].empty():
-						room_names.append(response["chunk"].front()["content"]["room_alias_name"])
+						room_names.append(room_id + response["chunk"].front()["content"]["room_alias_name"])
 				# Name from members
 				elif response["chunk"].back()["content"].has("displayname"):
 					if not response["chunk"].back()["content"]["displayname"] == user_username:
-						room_names.append(response["chunk"].back()["content"]["displayname"])
+						room_names.append(room_id + response["chunk"].back()["content"]["displayname"])
 			else:
+				# The room has no such events since s0_0_0.
 				pass
+	
+	if room_names.size() > room_id_array.size():
+		push_error("room_names room_id_array mismatch. room_names: %s, room_id_array: %s" %[room_names.size(), room_id_array.size()])
+	
 	return room_names
 
 
