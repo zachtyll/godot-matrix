@@ -122,14 +122,9 @@ func _on_room_list_item_selected(index):
 	chat_window.clear()
 	current_room = joined_rooms.keys()[index]
 	channel_name.text = room_list.get_item_text(index)
-#	room_id : String,
-#	from : String = next_batch,
-#	to : String = "",
-#	dir : String = "b",
-#	limit : int = 10,
-#	filter : String = ""
 	var messages = yield(mp.get_messages(current_room, next_batch, "", "b", 100, ""), "completed")
 	_update_chat_window(messages)
+
 
 # Synchronizes data in client with server.
 func _sync_to_server(sync_data : Dictionary) -> void:
@@ -137,9 +132,20 @@ func _sync_to_server(sync_data : Dictionary) -> void:
 	joined_rooms = sync_data["rooms"]["join"]
 	_update_room_list(synced_data)
 	$LoginScreen.hide()
-#	print(
-#		JSON.print(sync_data["rooms")["join")[sync_data["rooms")["join").keys()[0]).get("state"), "\t")
-#		)
+	for room in sync_data["rooms"]["join"]:
+		var room_names := []
+		var events = sync_data["rooms"]["join"][room]["timeline"]["events"]
+		for event in events:
+			print(JSON.print(event, "\t"))
+			match(event["type"]):
+				"m.room.name":
+					room_names.append(event["content"]["name"])
+					print(JSON.print(event["content"], "\t"))
+				"m.room.canonical_alias":
+					room_names.append(event["content"]["alias"])
+		print(room_names)
+		
+	
 
 
 # Add rooms to our room list in the left navbar
