@@ -170,6 +170,7 @@ func _update_room_list(rooms) -> void:
 
 # Massive function to translate room_id into human-readable names.
 func _get_room_names(rooms : Dictionary) -> Array:
+	var room_number := 0	# For unresolved rooms.
 	var response : Dictionary
 	var room_id_array := []
 	var room_names := []
@@ -187,29 +188,40 @@ func _get_room_names(rooms : Dictionary) -> Array:
 		room_id_array += rooms["joined_rooms"]
 	
 	# Uses get message instead:
-	for type in types:
-		for room_id in room_id_array:
+	for room_id in room_id_array:
+		room_number += 1
+		var room_name := ""
+		var room_alias := ""
+		var room_member_name := ""
+		for type in types:
 			response = yield(mp.get_messages(room_id, "s0_0_0", "", "f", 10, '{"types":["%s"]}'% type), "completed")
 			if not response["chunk"].empty():
-				# Name
-				if response["chunk"].back()["content"].has("name"):
-					if not response["chunk"].back()["content"]["name"].empty():
-						room_names.append(response["chunk"].back()["content"]["name"])
-#					else:
-#						room_names.append(room_id)
-				# Alias name
-				elif response["chunk"].front()["content"].has("alias"):
-					room_names.append(response["chunk"].front()["content"]["alias"])
-				# Name from members
-				elif response["chunk"].back()["content"].has("displayname"):
-					if not response["chunk"].back()["content"]["displayname"] == user_username:
-						room_names.append(response["chunk"].back()["content"]["displayname"])
-				else:
-					print(JSON.print(response["chunk"], "\t"))
-			else:
-				# The room has no such events since s0_0_0.
-				pass
-	
+				match(type):
+					"m.room.name":
+						# Name
+						if not response["chunk"].back()["content"]["name"].empty():
+							room_name = response["chunk"].back()["content"]["name"]
+					"m.room.canonical_alias":
+						# Alias name
+						room_alias = response["chunk"].back()["content"]["alias"]
+					"m.room.member":
+						# Name from members (not user self).
+						if not response["chunk"].back()["content"]["displayname"] == user_username:
+							room_member_name = response["chunk"].back()["content"]["displayname"]
+					_:
+						push_error("Unhandled chunk type: %s" % response["chunk"])
+						print(JSON.print(response["chunk"], "\t"))
+		
+		if not room_name.empty():
+			room_names.append(room_name)
+		elif not room_alias.empty():
+			room_names.append(room_alias)
+		elif not room_member_name.empty():
+			room_names.append(room_member_name)
+		else:
+			room_names.append("Dummy name %s" % room_number)
+
+
 	if room_names.size() > room_id_array.size():
 		push_error("room_names room_id_array mismatch. room_names: %s, room_id_array: %s" %[room_names.size(), room_id_array.size()])
 	
