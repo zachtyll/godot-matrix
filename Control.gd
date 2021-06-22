@@ -112,6 +112,7 @@ func _on_Timer_timeout():
 	var new_message = yield(mp.get_messages(current_room, previous_batch, next_batch, "b", 1, ""), "completed")
 	_update_chat_window(new_message)
 
+
 # Updates the input text from the LineEdit in chat section
 func _on_LineEdit_text_changed(new_text):
 	input_text = new_text
@@ -131,21 +132,7 @@ func _sync_to_server(sync_data : Dictionary) -> void:
 	synced_data = sync_data
 	joined_rooms = sync_data["rooms"]["join"]
 	_update_room_list(synced_data)
-	$LoginScreen.hide()
-	for room in sync_data["rooms"]["join"]:
-		var room_names := []
-		var events = sync_data["rooms"]["join"][room]["timeline"]["events"]
-		for event in events:
-			print(JSON.print(event, "\t"))
-			match(event["type"]):
-				"m.room.name":
-					room_names.append(event["content"]["name"])
-					print(JSON.print(event["content"], "\t"))
-				"m.room.canonical_alias":
-					room_names.append(event["content"]["alias"])
-		print(room_names)
-		
-	
+	$LoginScreen.hide()	
 
 
 # Add rooms to our room list in the left navbar
@@ -219,9 +206,8 @@ func _get_room_names(rooms : Dictionary) -> Array:
 			room_number += 1
 			room_names.append("Dummy name %s" % room_number)
 
-
 	if room_names.size() > room_id_array.size():
-		push_error("room_names room_id_array mismatch. room_names: %s, room_id_array: %s" %[room_names.size(), room_id_array.size()])
+		push_error("room_names room_id_array mismatch. expected: %s, got: %s" %[room_id_array.size(), room_names.size()])
 	
 	return room_names
 

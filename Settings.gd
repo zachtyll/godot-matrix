@@ -27,15 +27,15 @@ func _on_Close_pressed():
 
 
 func _unhandled_input(event):
-	if not event is InputEventMouseButton:
+	var mouse_click := event as InputEventMouseButton
+	if not mouse_click:
 		return
-	elif event.button_index(BUTTON_LEFT) or event.button_index(BUTTON_RIGHT):
-		if event.pressed and event.position > size:
+	elif mouse_click.button_index:
+		if mouse_click.pressed and mouse_click.position > size:
 			disappear()
-		else:
-			return
 	else:
 		return
+
 
 func _ready():
 	rect_global_position = Vector2(-size.x, 0)
