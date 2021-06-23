@@ -6,7 +6,6 @@ const LINE_LENGTH := 100
 const TEXT_WIDTH := 4
 const TEXT_HEIGHT := 16
 
-
 var sender := ""
 var time_stamp := ""
 var body := ""
@@ -22,9 +21,15 @@ var sender_color := Color8(100, 100, 100).to_html()
 onready var sender_name := $Padding/VBoxContainer/HBoxContainer/SenderName as RichTextLabel
 onready var time_stamp_text := $Padding/VBoxContainer/HBoxContainer/TimeStamp as RichTextLabel
 onready var message_body := $Padding/VBoxContainer/MessageBody as RichTextLabel
-
+onready var event : Event
 
 func _ready():
+	sender = event.sender
+	body = (
+		"{body}".format(event.content)
+	)
+	
+	
 	# We skip the @ so people get unique colors.
 	if sender.length() >= 4:
 		red = sender.ord_at(1) * 2
@@ -60,14 +65,13 @@ func _message_selection() -> void:
 		selected = true
 
 
-func _on_MessagePanel_gui_input(event):
-	if not event is InputEventMouseButton:
+func _on_MessagePanel_gui_input(input_event):
+	if not input_event is InputEventMouseButton:
 		return
 	
-	match(event.get_button_index()):
+	match(input_event.get_button_index()):
 		BUTTON_LEFT:
-			if event.pressed:
+			if input_event.pressed:
 				_message_selection()
-				
 		BUTTON_RIGHT:
 			print("Left click!")

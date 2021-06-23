@@ -2,19 +2,21 @@ class_name Event
 extends Node
 # Model for a Matrix message event.
 
-var content = {}
-var origin_server_ts = 0
-var sender = ""
-var state_key = ""
-var type = ""
-var unsigned = {
+var content := {}
+var origin_server_ts := 0
+var sender := ""
+var state_key := ""
+var type := ""
+var unsigned := {
 				age = 0,
 			}
-var event_id = ""
+var event_id := ""
+var user_id := ""
+var age := -1
 
 
 func _init(event : Dictionary):
-	print(JSON.print(event, "\t"))
+#	print(JSON.print(event, "\t"))
 	content = get_content(event)
 	origin_server_ts = get_origin_server_ts(event)
 	sender = get_sender(event)

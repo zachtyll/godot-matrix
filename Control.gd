@@ -237,14 +237,15 @@ func _on_login_completed(success):
 func _update_chat_window(messages : Dictionary) -> void:
 	if messages.has("chunk"):
 		messages["chunk"].invert()
-		for chunk in messages["chunk"]:
-			_format_chat(chunk)
+		for event in messages["chunk"]:
+			var new_event = Event.new(event)
+			_format_chat(new_event)
 	next_batch = messages["start"]
 
 
 # Formats the received content block for display.
-func _format_chat(chunk : Dictionary) -> void:
-	chat_window.add_message(chunk["type"], chunk)
+func _format_chat(event : Event) -> void:
+	chat_window.add_message(event)
 
 
 func _input(event):
