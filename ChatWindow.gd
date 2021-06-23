@@ -2,6 +2,7 @@ extends ScrollContainer
 class_name ChatWindow
 
 const m_text = preload("res://MessageBoxes/RoomMessage.tscn")
+const m_rga = preload("res://MessageBoxes/RoomGuestAccess.tscn")
 
 onready var timeline := $TimeLine
 
@@ -15,11 +16,12 @@ func clear() -> void:
 # warning-ignore:unused_argument
 # Returns an enumeration. 0: OK, 1: Fail.
 func add_message(new_event : Event) -> int:
-	var message_box = m_text.instance()
+	var message_box
 	match(new_event.type):
 		"m.room.message":
 			match(new_event.content["msgtype"]):
 				"m.text":
+					message_box = m_text.instance()
 					message_box.event = new_event
 #					message_box.sender = chunk["sender"]
 					# This seems to be broken currently, or I've missunderstood timestamps.
@@ -38,6 +40,7 @@ func add_message(new_event : Event) -> int:
 #						"{body}".format(chunk["content"])
 #					)
 		"m.room.guest_access":
+			message_box = m_rga.instance()
 			message_box.event = new_event
 			if new_event.content.has("guest_access"):
 #				message_box.sender = ""
@@ -51,6 +54,7 @@ func add_message(new_event : Event) -> int:
 					"Unexpected content block: {content}!".format(new_event.content)
 					)
 		"m.room.member":
+			message_box = m_text.instance()
 			message_box.event = new_event
 #			message_box.sender = ""
 			message_box.body += "[center]"
@@ -62,28 +66,33 @@ func add_message(new_event : Event) -> int:
 			else:
 				message_box.body += "[/center]"
 		"m.room.create":
+			message_box = m_text.instance()
 			message_box.event = new_event
 			message_box.body = (
 				"[center]{creator} created the room. Version: {room_version}[/center]".format(new_event.content)
 			)
 		"m.room.history_visibility":
+			message_box = m_text.instance()
 			message_box.event = new_event
 			message_box.body = (
 				"[center]Message history set to: {history_visibility}[/center]".format(new_event.content)
 			)
 		"m.room.join_rules":
+			message_box = m_text.instance()
 			message_box.event = new_event
 			# TODO : Fix the formatting to be like natural language.
 			message_box.body = (
 				"[center]Join rule set to: {join_rule}.[/center]".format(new_event.content)
 			)
 		"m.room.canonical_alias":
+			message_box = m_text.instance()
 			message_box.event = new_event
 #			message_box.sender = ""
 			message_box.body = (
 				"[center]Canonical alias: {alias}.[/center]".format(new_event.content)
 			)
 		"m.room.topic":
+			message_box = m_text.instance()
 			message_box.event = new_event
 			if new_event.content.has("topic"):
 #				topic.text = content["content")["topic")
@@ -91,17 +100,20 @@ func add_message(new_event : Event) -> int:
 					"[center]The topic was set to: {topic}[/center]".format(new_event.content)
 				)
 		"m.room.name":
+			message_box = m_text.instance()
 			message_box.event = new_event
 			message_box.body = (
 					"[center]Room name set to: {name}.[/center]".format(new_event.content)
 				)
 		"m.room.power_levels":
+			message_box = m_text.instance()
 			message_box.event = new_event
 #			message_box.sender = "TODO : Implement m.room.power_levels"
 			message_box.body = (
 				"{content}".format(new_event.content)
 			)
 		"m.room.encryption":
+			message_box = m_text.instance()
 			message_box.event = new_event
 			# TODO : Figure out wether this statement is actually
 			#	completely true.
@@ -109,6 +121,7 @@ func add_message(new_event : Event) -> int:
 					"[center]Messages are encrypted with: {algorithm}.[/center]".format(new_event.content)
 				)
 		"m.room.encrypted":
+			message_box = m_text.instance()
 			message_box.event = new_event
 			# TODO : Figure out how to solve decryption.
 			#	Maybe this shouldn't even be decrypted?
@@ -117,12 +130,14 @@ func add_message(new_event : Event) -> int:
 					"[center]This message is encrypted.[/center]"
 				)
 		"m.reaction":
+			message_box = m_text.instance()
 			message_box.event = new_event
 #			message_box.sender = "TODO : Implement m.reation"
 			message_box.body = (
 				"{content}".format(new_event.content)
 			)
 		"m.room.redaction":
+			message_box = m_text.instance()
 			message_box.event = new_event
 #			message_box.sender = "TODO : Implement m.redaction"
 			message_box.body = (
@@ -136,4 +151,4 @@ func add_message(new_event : Event) -> int:
 		return FAILED
 	else:
 		timeline.add_child(message_box)
-		return OK
+	return OK

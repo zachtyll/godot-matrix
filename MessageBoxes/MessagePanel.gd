@@ -7,6 +7,7 @@ const LINE_LENGTH := 100
 const TEXT_WIDTH := 4
 const TEXT_HEIGHT := 16
 
+var sender_message := ""
 var time_stamp := ""
 var body := ""
 var line_count := 0
@@ -17,30 +18,7 @@ var green := 0
 var blue := 0
 var sender_color := Color8(100, 100, 100).to_html()
 
-#onready var sender_name := $Padding/VBoxContainer/HBoxContainer/SenderName as RichTextLabel
-#onready var time_stamp_text := $Padding/VBoxContainer/HBoxContainer/TimeStamp as RichTextLabel
-#onready var message_body := $Padding/VBoxContainer/MessageBody as RichTextLabel
-onready var event : Event
-
-#func _ready():
-#	sender = event.sender
-#	body = (
-#		"{body}".format(event.content)
-#	)
-#
-#
-#	# We skip the @ so people get unique colors.
-#	if sender.length() >= 4:
-#		red = sender.ord_at(1) * 2
-#		green = sender.ord_at(2) * 2
-#		blue = sender.ord_at(3) * 2
-#		sender_color = Color8(red, green, blue).to_html()
-#
-#	var sender_message := "[color=#%s]%s[/color]" % [sender_color, sender]
-#
-#	_print_and_check(sender_name, sender_message)
-#	_print_and_check(time_stamp_text, time_stamp)
-#	_print_and_check(message_body, body)
+onready var event : Event setget set_event, get_event
 
 
 # warning-ignore:narrowing_conversion
@@ -63,6 +41,20 @@ func _message_selection() -> void:
 	else:
 		modulate = modulate + Color.gray
 		selected = true
+
+
+func _set_message_content():
+	pass
+
+
+func get_event() -> Event:
+	return event
+
+
+func set_event(new_event : Event) -> void:
+	event = new_event
+	_set_message_content()
+	_adjust_for_lines()
 
 
 func _on_MessagePanel_gui_input(input_event):

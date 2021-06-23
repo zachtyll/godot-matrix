@@ -1,23 +1,22 @@
 extends MessagePanel
 
+
 onready var sender_name := $Padding/VBoxContainer/HBoxContainer/SenderName as RichTextLabel
 onready var time_stamp_text := $Padding/VBoxContainer/HBoxContainer/TimeStamp as RichTextLabel
 onready var message_body := $Padding/VBoxContainer/MessageBody as RichTextLabel
 
 
-func _set_message_content():
+func set_message_content() -> void:
+	sender_message = "Guest Access set to:"
 	body = (
-		"{body}".format(event.content)
+		"[center]{guest_access}![/center]".format(event.content)
 	)
-	
-	# We skip the @ so people get unique colors.
-	if event.sender.length() >= 4:
-		red = event.sender.ord_at(1) * 2
-		green = event.sender.ord_at(2) * 2
-		blue = event.sender.ord_at(3) * 2
-		sender_color = Color8(red, green, blue).to_html()
 
-	sender_message = "[color=#%s]%s[/color]" % [sender_color, event.sender]
+
+func _print_and_check(label : RichTextLabel, message : String) -> void:
+	var err := label.append_bbcode(message)
+	if err:
+		push_error("BBCode failed with error: %s" % err)
 
 
 func _ready():
