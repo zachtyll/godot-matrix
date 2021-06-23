@@ -34,7 +34,8 @@ onready var popup := $PopUps
 # Login a user
 func _on_Login_pressed():
 	# Proper login code.
-#	mp.login(username.text, password.text)
+#	user_username = username.text
+#	user_password = password.text
 	# Speeds up debug.
 	mp.login(user_username, user_password)
 	login_status.text = "Attempting login..."
@@ -101,17 +102,16 @@ func _send_message() -> void:
 		return
 	elif chat_line.text.begins_with(" "):
 		return
-	mp.send_message(current_room, input_text)
+	mp.send_message(current_room.room_id, input_text)
 	chat_line.clear()
 
 
 func _on_Timer_timeout():
-	if current_room.empty():
-		return
-	elif previous_batch == next_batch:
+	if previous_batch == next_batch:
 		return
 	
 	var new_message = yield(mp.get_messages(current_room, previous_batch, next_batch, "b", 1, ""), "completed")
+	next_batch = new_message["start"]
 	_update_chat_window(new_message)
 
 
@@ -122,10 +122,12 @@ func _on_LineEdit_text_changed(new_text):
 
 # Updates which room we act upon via the left sidebar
 func _on_room_list_item_selected(index):
+	current_room = rooms_array[index]
 	chat_window.clear()
-	current_room = joined_rooms.keys()[index]
+#	current_room = joined_rooms.keys()[index]
 	channel_name.text = room_list.get_item_text(index)
-	var messages = yield(mp.get_messages(current_room, next_batch, "", "b", 100, ""), "completed")
+#	var messages = yield(mp.get_messages(current_room, next_batch, "", "b", 100, ""), "completed")
+	var messages = current_room.timeline.events
 	_update_chat_window(messages)
 
 
@@ -135,91 +137,20 @@ func _sync_to_server(sync_data : Dictionary) -> void:
 	joined_rooms = sync_data["rooms"]["join"]
 	for room_id in synced_data["rooms"]["join"].keys():
 		var room_data = synced_data["rooms"]["join"][room_id]
-		rooms_array.append(Room.new(room_data))
+		rooms_array.append(Room.new(user_username, room_id, room_data))
 		
-#	print(JSON.print(test2.timeline.get_event_type(0), "\t"))
-	_update_room_list(synced_data)
+	_update_room_list()
 	$LoginScreen.hide()
 
 
 # Add rooms to our room list in the left navbar
 # TODO : This seems like it should store all the synced 
 #	data to a local database rather than present it directly.
-func _update_room_list(rooms) -> void:
-#	room_list.clear()
-	var room_names = yield(_get_room_names(rooms), "completed")
-	for room_name in room_names:
-		if not room_name.empty():
-			room_list.add_item(room_name)
-		else:
-			room_list.add_item("THIS NAME IS EMPTY!")
-
-
-# Massive function to translate room_id into human-readable names.
-func _get_room_names(rooms : Dictionary) -> Array:
-	var room_number := 0	# For unresolved rooms.
-	var response : Dictionary
-	var room_id_array := []
-	var room_names := []
-	var types = [
-		"m.room.name",
-		"m.room.canonical_alias",
-		"m.room.member"
-		]
-	
-	if not rooms.has("joined_rooms"):
-		room_id_array += synced_data["rooms"]["join"].keys()
-		room_id_array += synced_data["rooms"]["invite"].keys()
-		room_id_array += synced_data["rooms"]["leave"].keys()
-	else:
-		room_id_array += rooms["joined_rooms"]
-	
-	# Uses get message instead:
-	for room_id in room_id_array:
-		var room_name := ""
-		var room_alias := ""
-		var room_member_name := ""
-		for type in types:
-			response = yield(mp.get_messages(room_id, "s0_0_0", "", "f", 10, '{"types":["%s"]}'% type), "completed")
-			if not response["chunk"].empty():
-				match(type):
-					"m.room.name":
-						# Name
-						if not response["chunk"].back()["content"]["name"].empty():
-							room_name = response["chunk"].back()["content"]["name"]
-							break
-					"m.room.canonical_alias":
-						# Alias name
-						if response["chunk"].back()["content"].has("alias"):
-							room_alias = response["chunk"].back()["content"]["alias"]
-							break
-					"m.room.member":
-						# Name from members (not user self).
-						if response["chunk"].back()["content"].has("displayname"):
-							if not response["chunk"].back()["content"]["displayname"] == user_username:
-								room_member_name = response["chunk"].back()["content"]["displayname"]
-								break
-							elif response["chunk"].back()["content"].has("room_alias_name"):
-								room_member_name = response["chunk"].back()["content"]["room_alias_name"]
-								break
-					_:
-						push_error("Unhandled chunk type: %s" % response["chunk"])
-						print(JSON.print(response["chunk"], "\t"))
-
-		if not room_name.empty():
-			room_names.append(room_name)
-		elif not room_alias.empty():
-			room_names.append(room_alias)
-		elif not room_member_name.empty():
-			room_names.append(room_member_name)
-		else:
-			room_number += 1
-			room_names.append("Dummy name %s" % room_number)
-
-	if room_names.size() > room_id_array.size():
-		push_error("room_names room_id_array mismatch. expected: %s, got: %s" %[room_id_array.size(), room_names.size()])
-	
-	return room_names
+func _update_room_list() -> void:
+	room_list.clear()
+#	var room_names = yield(_get_room_names(rooms), "completed")
+	for room in rooms_array:
+		room_list.add_item(room.room_name)
 
 
 # OS notification when we recieve a message and not in focus on screen
@@ -241,13 +172,12 @@ func _on_login_completed(success):
 
 
 # Updates the chat window when we click on a room in the left sidebar.
-func _update_chat_window(messages : Dictionary) -> void:
-	if messages.has("chunk"):
-		messages["chunk"].invert()
-		for event in messages["chunk"]:
-			var new_event = Event.new(event)
-			_format_chat(new_event)
-	next_batch = messages["start"]
+func _update_chat_window(events : Array) -> void:
+#	if messages.has("chunk"):
+#		messages["chunk"].invert()
+	for event in events:
+		_format_chat(event)
+#	next_batch = messages["start"]
 
 
 # Formats the received content block for display.

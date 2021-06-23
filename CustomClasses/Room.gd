@@ -50,9 +50,10 @@ class Timeline:
 		return events[index]["event_id"]
 
 
-var room_id : String = ""
-var room_name : String = ""
-var room_membership : int = 0
+var room_id := ""
+var room_name := ""
+var room_alias := ""
+var room_membership := 0
 
 # Room keys
 var timeline : Timeline = null
@@ -64,7 +65,31 @@ var summary
 var org_matrix_msc2654_unread_count
 
 
-func _init(new_room_data : Dictionary):
+func _init(username : String, new_room_id : String, new_room_data : Dictionary):
 	timeline = Timeline.new(new_room_data["timeline"])
-	print(JSON.print(timeline, "\t"))
+	state = new_room_data["state"]
+	room_id = new_room_id
+	_get_room_name(username)
 
+
+# Massive function to translate room_id into human-readable names.
+# TODO : Move this algo into the Room class.
+func _get_room_name(username : String) -> void:
+	var room_member_name := ""
+	for event in timeline.events:
+		match(event.type):
+			"m.room.name":
+				room_name = event.content["name"]
+			"m.room.canonical_alias":
+				room_alias = event.content["alias"]
+			"m.room.member":
+				if not event.content["displayname"] == username:
+					room_member_name = event.content["displayname"]
+	if not room_name.empty():
+		return
+	elif not room_alias.empty():
+		room_name = room_alias.split(":")[0]
+	elif not room_member_name.empty():
+		room_name = room_member_name
+	else:
+		room_name = str(self)
