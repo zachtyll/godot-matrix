@@ -71,5 +71,3 @@ func _on_MessagePanel_gui_input(event):
 				
 		BUTTON_RIGHT:
 			print("Left click!")
-	
-		

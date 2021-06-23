@@ -132,7 +132,7 @@ func _sync_to_server(sync_data : Dictionary) -> void:
 	synced_data = sync_data
 	joined_rooms = sync_data["rooms"]["join"]
 	_update_room_list(synced_data)
-	$LoginScreen.hide()	
+	$LoginScreen.hide()
 
 
 # Add rooms to our room list in the left navbar

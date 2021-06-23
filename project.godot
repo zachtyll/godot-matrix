@@ -15,13 +15,31 @@ _global_script_classes=[ {
 "path": "res://ChatWindow.gd"
 }, {
 "base": "Node",
+"class": "Event",
+"language": "GDScript",
+"path": "res://CustomClasses/Event.gd"
+}, {
+"base": "Node",
+"class": "GodotMatrix",
+"language": "GDScript",
+"path": "res://Model.gd"
+}, {
+"base": "Node",
 "class": "MatrixProtocol",
 "language": "GDScript",
 "path": "res://Matrix.gd"
+}, {
+"base": "Node",
+"class": "Room",
+"language": "GDScript",
+"path": "res://CustomClasses/Room.gd"
 } ]
 _global_script_class_icons={
 "ChatWindow": "",
-"MatrixProtocol": ""
+"Event": "",
+"GodotMatrix": "",
+"MatrixProtocol": "",
+"Room": ""
 }
 
 [application]
