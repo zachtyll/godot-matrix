@@ -9,7 +9,8 @@ onready var message_body := $Padding/VBoxContainer/MessageBody as RichTextLabel
 # TODO : Figure out wether this statement is actually
 #	completely true.
 func _set_message_content() -> void:
-	body = "{content}".format(JSON.print(event, "\t"))
+	body = "Power levels: {content}".format(event.content)
+	body = "%s" % event.content
 
 
 func _ready():

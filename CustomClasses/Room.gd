@@ -9,13 +9,17 @@ class Timeline:
 	var events = []
 	
 	
-	func event_append(event : Event) -> bool:
+	func _init(new_timeline):
+		for event in new_timeline["events"]:
+			var new_event = Event.new(event)
+			event_append(new_event)
+
+
+	func event_append(event : Event) -> void:
 		if event is Event:
 			events.append(event)
-			return true
 		else:
 			push_error("Timeline rejects: %s" % event)
-			return false
 	
 	
 	func get_content(index) -> Dictionary:
@@ -34,7 +38,7 @@ class Timeline:
 		return events[index]["state_key"]
 	
 	
-	func get_type(index) -> String:
+	func get_event_type(index) -> String:
 		return events[index]["type"]
 	
 	
@@ -47,8 +51,20 @@ class Timeline:
 
 
 var room_id : String = ""
+var room_name : String = ""
 var room_membership : int = 0
-var timeline : Timeline = Timeline.new()
+
+# Room keys
+var timeline : Timeline = null
+var state
+var account_data
+var ephemeral
+var unread_notifications
+var summary
+var org_matrix_msc2654_unread_count
 
 
+func _init(new_room_data : Dictionary):
+	timeline = Timeline.new(new_room_data["timeline"])
+	print(JSON.print(timeline, "\t"))
 

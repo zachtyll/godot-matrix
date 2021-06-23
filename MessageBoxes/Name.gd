@@ -7,7 +7,7 @@ onready var message_body := $Padding/VBoxContainer/MessageBody as RichTextLabel
 
 
 func _set_message_content() -> void:
-	body = "[center]The topic was set to: {topic}[/center]".format(event.content)
+	body = "[center]The name was set to: {name}[/center]".format(event.content)
 
 
 func _ready():

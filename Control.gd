@@ -16,6 +16,8 @@ var current_room = ""
 var next_batch := ""
 var previous_batch := ""
 
+var rooms_array := []
+
 onready var channel_name := $Screen/MidSection/TopBarMid/TopBarMidHbox/ChannelLabels/ChannelName
 onready var topic := $Screen/MidSection/TopBarMid/TopBarMidHbox/ChannelLabels/Topic
 onready var room_list := $Screen/LeftSection/ItemList
@@ -131,6 +133,11 @@ func _on_room_list_item_selected(index):
 func _sync_to_server(sync_data : Dictionary) -> void:
 	synced_data = sync_data
 	joined_rooms = sync_data["rooms"]["join"]
+	for room_id in synced_data["rooms"]["join"].keys():
+		var room_data = synced_data["rooms"]["join"][room_id]
+		rooms_array.append(Room.new(room_data))
+		
+#	print(JSON.print(test2.timeline.get_event_type(0), "\t"))
 	_update_room_list(synced_data)
 	$LoginScreen.hide()
 

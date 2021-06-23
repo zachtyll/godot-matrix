@@ -20,11 +20,11 @@ func _set_message_content() -> void:
 	
 	# Humanize string.
 	if "join" in body:
-		body = body.replace("join", "joined")
+		body = body.replace("join", "joined.")
 	elif "leave" in body:
-		body = body.replace("leave", "left")
+		body = body.replace("leave", "left.")
 	elif "invite" in body:
-		body = body.replace("invite", "got an invite")
+		body = body.replace("invite", "got an invite.")
 	else:
 		pass
 
