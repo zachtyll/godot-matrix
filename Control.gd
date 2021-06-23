@@ -12,7 +12,7 @@ var room_counter := 0
 var joined_rooms := {}
 var synced_data := {}
 var input_text := ""
-var current_room = ""
+var current_room : Room
 var next_batch := ""
 var previous_batch := ""
 
@@ -85,11 +85,7 @@ func _on_CreateRoom_create_room(room_name, room_alias):
 	else:
 		print(JSON.print(err, "\t"))
 		popup.find_node("CreateRoom").hide()
-		mp.sync_events()
-
-	# Get joined rooms activates list automatically.
-#	mp.get_joined_rooms()
-	
+		mp.sync_events()	
 
 
 # Sends a message to the given room
@@ -107,12 +103,20 @@ func _send_message() -> void:
 
 
 func _on_Timer_timeout():
-	if previous_batch == next_batch:
+	if current_room == null:
 		return
 	
-	var new_message = yield(mp.get_messages(current_room, previous_batch, next_batch, "b", 1, ""), "completed")
-	next_batch = new_message["start"]
-	_update_chat_window(new_message)
+	var event_data = yield(mp.get_messages(current_room.room_id, previous_batch, next_batch, "b", 1, ""), "completed")
+	
+	if event_data.has("error"):
+		print(event_data["error"])
+		return
+
+	next_batch = event_data["start"]
+	var events := []
+	for event in event_data["chunk"]:
+		events.append(Event.new(event))
+		_update_chat_window(events)
 
 
 # Updates the input text from the LineEdit in chat section
@@ -126,8 +130,7 @@ func _on_room_list_item_selected(index):
 	current_room = rooms_array[index]
 	channel_name.text = rooms_array[index].room_name
 	topic.text = rooms_array[index].room_topic
-	var messages = current_room.timeline.events
-	_update_chat_window(messages)
+	_update_chat_window(current_room.timeline.events)
 
 
 # Synchronizes data in client with server.
