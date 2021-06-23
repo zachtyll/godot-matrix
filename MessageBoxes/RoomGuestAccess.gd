@@ -7,7 +7,7 @@ onready var time_stamp_text := $Padding/VBoxContainer/HBoxContainer/TimeStamp as
 onready var message_body := $Padding/VBoxContainer/MessageBody as RichTextLabel
 
 
-func set_message_content() -> void:
+func _set_message_content() -> void:
 	sender_message = "Guest Access set to:"
 	body = (
 		"[center]{guest_access}![/center]".format(event.content)

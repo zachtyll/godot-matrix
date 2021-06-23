@@ -7,8 +7,8 @@ onready var time_stamp_text := $Padding/VBoxContainer/HBoxContainer/TimeStamp as
 onready var message_body := $Padding/VBoxContainer/MessageBody as RichTextLabel
 
 
-func set_message_content() -> void:
-	sender_message = "Room Member"
+func _set_message_content() -> void:
+	sender_message = ""
 	body += "[center]"
 	body += (
 		"{displayname} {membership}".format(event.content)
@@ -27,7 +27,6 @@ func set_message_content() -> void:
 		body = body.replace("invite", "got an invite")
 	else:
 		pass
-	print(body)
 
 
 func _ready():
