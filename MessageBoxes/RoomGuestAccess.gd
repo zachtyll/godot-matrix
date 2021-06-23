@@ -1,4 +1,5 @@
 extends MessagePanel
+# Displays m.room.guest_access in a message-box.
 
 
 onready var sender_name := $Padding/VBoxContainer/HBoxContainer/SenderName as RichTextLabel

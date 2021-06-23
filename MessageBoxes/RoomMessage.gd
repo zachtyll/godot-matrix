@@ -1,4 +1,6 @@
 extends MessagePanel
+# Displays m.room.message in a message-box.
+
 
 onready var sender_name := $Padding/VBoxContainer/HBoxContainer/SenderName as RichTextLabel
 onready var time_stamp_text := $Padding/VBoxContainer/HBoxContainer/TimeStamp as RichTextLabel

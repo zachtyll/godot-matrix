@@ -1,5 +1,6 @@
 class_name MessagePanel
 extends Panel
+# Parent class for all message-boxes.
 
 const HEADER_SIZE := 50
 const FOOTER_SIZE := 20

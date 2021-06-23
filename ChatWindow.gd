@@ -3,6 +3,7 @@ class_name ChatWindow
 
 const m_text = preload("res://MessageBoxes/RoomMessage.tscn")
 const m_rga = preload("res://MessageBoxes/RoomGuestAccess.tscn")
+const m_rm = preload("res://MessageBoxes/RoomMember.tscn")
 
 onready var timeline := $TimeLine
 
@@ -23,14 +24,6 @@ func add_message(new_event : Event) -> int:
 				"m.text":
 					message_box = m_text.instance()
 					message_box.event = new_event
-#					message_box.sender = chunk["sender"]
-					# This seems to be broken currently, or I've missunderstood timestamps.
-#					var time_stamp = OS.get_datetime_from_unix_time(chunk["origin_server_ts"))
-#					message_box.time_stamp = "{hour}:{minute}:{second} {year}/{month}/{day}".format(time_stamp)
-#					message_box.event_id = chunk["event_id"]
-#					message_box.body = (
-#						"{body}".format(chunk["content"])
-#						)
 				_:
 					pass
 #					message_box.sender = (
@@ -42,29 +35,29 @@ func add_message(new_event : Event) -> int:
 		"m.room.guest_access":
 			message_box = m_rga.instance()
 			message_box.event = new_event
-			if new_event.content.has("guest_access"):
-#				message_box.sender = ""
-				message_box.body = (
-					"[center]Guest access set to: {guest_access}![/center]".format(new_event.content)
-					)
-				
-			else:
-#				message_box.sender = "WARNING: Unexpected message"
-				message_box.body = (
-					"Unexpected content block: {content}!".format(new_event.content)
-					)
+#			if new_event.content.has("guest_access"):
+##				message_box.sender = ""
+#				message_box.body = (
+#					"[center]Guest access set to: {guest_access}![/center]".format(new_event.content)
+#					)
+#
+#			else:
+##				message_box.sender = "WARNING: Unexpected message"
+#				message_box.body = (
+#					"Unexpected content block: {content}!".format(new_event.content)
+#					)
 		"m.room.member":
-			message_box = m_text.instance()
+			message_box = m_rm.instance()
 			message_box.event = new_event
 #			message_box.sender = ""
-			message_box.body += "[center]"
-			message_box.body += (
-				"{displayname} {membership}".format(new_event.content)
-				)
-			if new_event.content.has("room_alias_name"):
-				message_box.body += " {room_alias_name}.[/center]".format(new_event.content)
-			else:
-				message_box.body += "[/center]"
+#			message_box.body += "[center]"
+#			message_box.body += (
+#				"{displayname} {membership}".format(new_event.content)
+#				)
+#			if new_event.content.has("room_alias_name"):
+#				message_box.body += " {room_alias_name}.[/center]".format(new_event.content)
+#			else:
+#				message_box.body += "[/center]"
 		"m.room.create":
 			message_box = m_text.instance()
 			message_box.event = new_event
