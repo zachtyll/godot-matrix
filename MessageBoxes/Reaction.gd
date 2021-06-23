@@ -1,5 +1,6 @@
 extends MessagePanel
-# Displays m.room.guest_access in a message-box.
+# Displays m.room.reaction in a message-box.
+# TODO: Make this show ontop of the box reacted to.
 
 
 onready var sender_name := $Padding/VBoxContainer/HBoxContainer/SenderName as RichTextLabel
@@ -8,10 +9,8 @@ onready var message_body := $Padding/VBoxContainer/MessageBody as RichTextLabel
 
 
 func _set_message_content() -> void:
-	sender_message = "Guest Access set to:"
-	body = (
-		"[center]{guest_access}![/center]".format(event.content)
-	)
+	sender_message = "Implement reaction:"
+	body = "[center]{content}[/center]".format(event)
 
 
 func _ready():

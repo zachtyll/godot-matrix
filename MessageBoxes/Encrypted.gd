@@ -1,5 +1,5 @@
 extends MessagePanel
-# Displays m.room.guest_access in a message-box.
+# Displays m.room.encrypted in a message-box.
 
 
 onready var sender_name := $Padding/VBoxContainer/HBoxContainer/SenderName as RichTextLabel
@@ -7,11 +7,11 @@ onready var time_stamp_text := $Padding/VBoxContainer/HBoxContainer/TimeStamp as
 onready var message_body := $Padding/VBoxContainer/MessageBody as RichTextLabel
 
 
+# TODO : Figure out how to solve decryption.
+#	Maybe this shouldn't even be decrypted?
+#	Spec is a little unclear.
 func _set_message_content() -> void:
-	sender_message = "Guest Access set to:"
-	body = (
-		"[center]{guest_access}![/center]".format(event.content)
-	)
+	body = "[center]This message is encrypted.[/center]"
 
 
 func _ready():

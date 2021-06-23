@@ -1,6 +1,5 @@
 extends MessagePanel
-# Displays m.room.guest_access in a message-box.
-
+# Displays m.room.name in a message-box.
 
 onready var sender_name := $Padding/VBoxContainer/HBoxContainer/SenderName as RichTextLabel
 onready var time_stamp_text := $Padding/VBoxContainer/HBoxContainer/TimeStamp as RichTextLabel
@@ -8,10 +7,7 @@ onready var message_body := $Padding/VBoxContainer/MessageBody as RichTextLabel
 
 
 func _set_message_content() -> void:
-	sender_message = "Guest Access set to:"
-	body = (
-		"[center]{guest_access}![/center]".format(event.content)
-	)
+	body = "[center]The topic was set to: {topic}[/center]".format(event.content)
 
 
 func _ready():

@@ -1,9 +1,21 @@
 extends ScrollContainer
 class_name ChatWindow
 
-const m_text = preload("res://MessageBoxes/RoomMessage.tscn")
-const m_rga = preload("res://MessageBoxes/RoomGuestAccess.tscn")
-const m_rm = preload("res://MessageBoxes/RoomMember.tscn")
+const m_text := preload("res://MessageBoxes/RoomMessage.tscn")
+const m_rga := preload("res://MessageBoxes/RoomGuestAccess.tscn")
+const m_rm := preload("res://MessageBoxes/RoomMember.tscn")
+const m_rc := preload("res://MessageBoxes/RoomCreate.tscn")
+const m_hv := preload("res://MessageBoxes/RoomHistoryVisibility.tscn")
+const m_jr := preload("res://MessageBoxes/RoomJoinRules.tscn")
+const m_ca := preload("res://MessageBoxes/CanonicalAlias.tscn")
+const m_t := preload("res://MessageBoxes/Topic.tscn")
+const m_n := preload("res://MessageBoxes/Name.tscn")
+const m_pl := preload("res://MessageBoxes/PowerLevels.tscn")
+const m_ion := preload("res://MessageBoxes/Encryption.tscn")
+const m_ted := preload("res://MessageBoxes/Encrypted.tscn")
+const m_rea := preload("res://MessageBoxes/Reaction.tscn")
+const m_red := preload("res://MessageBoxes/Redaction.tscn")
+
 
 onready var timeline := $TimeLine
 
@@ -25,120 +37,49 @@ func add_message(new_event : Event) -> int:
 					message_box = m_text.instance()
 					message_box.event = new_event
 				_:
-					pass
-#					message_box.sender = (
-#						"This is a: {msgtype}".format(chunk["msgtype"])
-#					)
-#					message_box.body = (
-#						"{body}".format(chunk["content"])
-#					)
+					push_warning("No implementation for: {msgtype}".format(new_event.content))
 		"m.room.guest_access":
 			message_box = m_rga.instance()
 			message_box.event = new_event
-#			if new_event.content.has("guest_access"):
-##				message_box.sender = ""
-#				message_box.body = (
-#					"[center]Guest access set to: {guest_access}![/center]".format(new_event.content)
-#					)
-#
-#			else:
-##				message_box.sender = "WARNING: Unexpected message"
-#				message_box.body = (
-#					"Unexpected content block: {content}!".format(new_event.content)
-#					)
 		"m.room.member":
 			message_box = m_rm.instance()
 			message_box.event = new_event
-#			message_box.sender = ""
-#			message_box.body += "[center]"
-#			message_box.body += (
-#				"{displayname} {membership}".format(new_event.content)
-#				)
-#			if new_event.content.has("room_alias_name"):
-#				message_box.body += " {room_alias_name}.[/center]".format(new_event.content)
-#			else:
-#				message_box.body += "[/center]"
 		"m.room.create":
-			message_box = m_text.instance()
+			message_box = m_rc.instance()
 			message_box.event = new_event
-			message_box.body = (
-				"[center]{creator} created the room. Version: {room_version}[/center]".format(new_event.content)
-			)
 		"m.room.history_visibility":
-			message_box = m_text.instance()
+			message_box = m_hv.instance()
 			message_box.event = new_event
-			message_box.body = (
-				"[center]Message history set to: {history_visibility}[/center]".format(new_event.content)
-			)
 		"m.room.join_rules":
-			message_box = m_text.instance()
+			message_box = m_jr.instance()
 			message_box.event = new_event
-			# TODO : Fix the formatting to be like natural language.
-			message_box.body = (
-				"[center]Join rule set to: {join_rule}.[/center]".format(new_event.content)
-			)
 		"m.room.canonical_alias":
-			message_box = m_text.instance()
+			message_box = m_ca.instance()
 			message_box.event = new_event
-#			message_box.sender = ""
-			message_box.body = (
-				"[center]Canonical alias: {alias}.[/center]".format(new_event.content)
-			)
 		"m.room.topic":
-			message_box = m_text.instance()
+			message_box = m_t.instance()
 			message_box.event = new_event
-			if new_event.content.has("topic"):
-#				topic.text = content["content")["topic")
-				message_box.body = (
-					"[center]The topic was set to: {topic}[/center]".format(new_event.content)
-				)
 		"m.room.name":
-			message_box = m_text.instance()
+			message_box = m_n.instance()
 			message_box.event = new_event
-			message_box.body = (
-					"[center]Room name set to: {name}.[/center]".format(new_event.content)
-				)
 		"m.room.power_levels":
-			message_box = m_text.instance()
+			message_box = m_pl.instance()
 			message_box.event = new_event
-#			message_box.sender = "TODO : Implement m.room.power_levels"
-			message_box.body = (
-				"{content}".format(new_event.content)
-			)
 		"m.room.encryption":
-			message_box = m_text.instance()
+			message_box = m_ion.instance()
 			message_box.event = new_event
-			# TODO : Figure out wether this statement is actually
-			#	completely true.
-			message_box.body = (
-					"[center]Messages are encrypted with: {algorithm}.[/center]".format(new_event.content)
-				)
 		"m.room.encrypted":
-			message_box = m_text.instance()
+			message_box = m_ted.instance()
 			message_box.event = new_event
-			# TODO : Figure out how to solve decryption.
-			#	Maybe this shouldn't even be decrypted?
-			#	Spec is a little unclear.
-			message_box.body = (
-					"[center]This message is encrypted.[/center]"
-				)
 		"m.reaction":
-			message_box = m_text.instance()
+			message_box = m_rea.instance()
 			message_box.event = new_event
-#			message_box.sender = "TODO : Implement m.reation"
-			message_box.body = (
-				"{content}".format(new_event.content)
-			)
 		"m.room.redaction":
-			message_box = m_text.instance()
+			message_box = m_red.instance()
 			message_box.event = new_event
-#			message_box.sender = "TODO : Implement m.redaction"
-			message_box.body = (
-				"{content}".format(new_event.content)
-			)
 		_:
 			message_box = null
-			push_warning("Unhandled message in content block: " + str(new_event.type))
+			push_warning("Unhandled message type: " + str(new_event.type))
 
 	if message_box == null:
 		return FAILED
