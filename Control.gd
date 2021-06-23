@@ -122,11 +122,10 @@ func _on_LineEdit_text_changed(new_text):
 
 # Updates which room we act upon via the left sidebar
 func _on_room_list_item_selected(index):
-	current_room = rooms_array[index]
 	chat_window.clear()
-#	current_room = joined_rooms.keys()[index]
-	channel_name.text = room_list.get_item_text(index)
-#	var messages = yield(mp.get_messages(current_room, next_batch, "", "b", 100, ""), "completed")
+	current_room = rooms_array[index]
+	channel_name.text = rooms_array[index].room_name
+	topic.text = rooms_array[index].room_topic
 	var messages = current_room.timeline.events
 	_update_chat_window(messages)
 
@@ -148,7 +147,6 @@ func _sync_to_server(sync_data : Dictionary) -> void:
 #	data to a local database rather than present it directly.
 func _update_room_list() -> void:
 	room_list.clear()
-#	var room_names = yield(_get_room_names(rooms), "completed")
 	for room in rooms_array:
 		room_list.add_item(room.room_name)
 
