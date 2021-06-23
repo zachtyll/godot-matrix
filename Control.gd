@@ -38,6 +38,8 @@ func _on_Login_pressed():
 #	user_password = password.text
 	# Speeds up debug.
 	mp.login(user_username, user_password)
+	username.clear()
+	password.clear()
 	login_status.text = "Attempting login..."
 
 
@@ -74,18 +76,15 @@ func _on_CreateRoom_pressed():
 # Call for room creation.
 # NOTE : I should seriously start thinking about
 #	turning mp into a singleton at this rate.
-# TODO : Something is broken here. Matrix side works fine, but the result
-#	is not added to my list of available rooms for some reason.
 func _on_CreateRoom_create_room(room_name, room_alias):
 	var err = yield(mp.create_room(room_name, room_alias), "completed")
-#	var err = yield(mp, "create_room_completed")
 	if err.has("error"):
 		popup.find_node("CreateRoom").status_label.text = err["error"]
 		return
 	else:
-		print(JSON.print(err, "\t"))
 		popup.find_node("CreateRoom").hide()
-		mp.sync_events()	
+		modal.find_node("Settings").disappear()
+		mp.sync_events()
 
 
 # Sends a message to the given room
@@ -174,11 +173,8 @@ func _on_login_completed(success):
 
 # Updates the chat window when we click on a room in the left sidebar.
 func _update_chat_window(events : Array) -> void:
-#	if messages.has("chunk"):
-#		messages["chunk"].invert()
 	for event in events:
 		_format_chat(event)
-#	next_batch = messages["start"]
 
 
 # Formats the received content block for display.
@@ -196,11 +192,5 @@ func _ready():
 	self.add_child(mp)
 	
 	var _sync_err = mp.connect("sync_completed", self, "_sync_to_server")
-#	var _room_create_err = mp.connect("create_room_completed", self, "update_chat_list")
 	var _login_err = mp.connect("login_completed", self, "_on_login_completed")
 	var _get_joined_rooms_err = mp.connect("get_joined_rooms_completed", self, "_update_room_list")
-#	var _get_room_id_by_alias_err = mp.connect("get_room_id_by_alias_completed", self, "_update_room_list")
-#	var _get_room_aliases_err = mp.connect("get_room_aliases_completed", self, "_update_room_list")
-#	var _get_messages_err = mp.connect("get_messages_completed", self, "_update_chat_window")
-#	var _get_state_by_room_id_err = mp.connect("get_state_by_room_id_completed", self, "_update_room_list")
-#	var _get_name_by_room_id_err = mp.connect("get_room_name_by_room_id_completed", self, "_update_room_list")
