@@ -1,7 +1,7 @@
 extends ScrollContainer
 class_name ChatWindow
 
-const m_text = preload("res://MessageBoxes/MessagePanel.tscn")
+const m_text = preload("res://MessageBoxes/RoomMessage.tscn")
 
 onready var timeline := $TimeLine
 
@@ -40,19 +40,19 @@ func add_message(new_event : Event) -> int:
 		"m.room.guest_access":
 			message_box.event = new_event
 			if new_event.content.has("guest_access"):
-				message_box.sender = ""
+#				message_box.sender = ""
 				message_box.body = (
 					"[center]Guest access set to: {guest_access}![/center]".format(new_event.content)
 					)
 				
 			else:
-				message_box.sender = "WARNING: Unexpected message"
+#				message_box.sender = "WARNING: Unexpected message"
 				message_box.body = (
 					"Unexpected content block: {content}!".format(new_event.content)
 					)
 		"m.room.member":
 			message_box.event = new_event
-			message_box.sender = ""
+#			message_box.sender = ""
 			message_box.body += "[center]"
 			message_box.body += (
 				"{displayname} {membership}".format(new_event.content)
@@ -79,7 +79,7 @@ func add_message(new_event : Event) -> int:
 			)
 		"m.room.canonical_alias":
 			message_box.event = new_event
-			message_box.sender = ""
+#			message_box.sender = ""
 			message_box.body = (
 				"[center]Canonical alias: {alias}.[/center]".format(new_event.content)
 			)
@@ -97,7 +97,7 @@ func add_message(new_event : Event) -> int:
 				)
 		"m.room.power_levels":
 			message_box.event = new_event
-			message_box.sender = "TODO : Implement m.room.power_levels"
+#			message_box.sender = "TODO : Implement m.room.power_levels"
 			message_box.body = (
 				"{content}".format(new_event.content)
 			)
@@ -118,13 +118,13 @@ func add_message(new_event : Event) -> int:
 				)
 		"m.reaction":
 			message_box.event = new_event
-			message_box.sender = "TODO : Implement m.reation"
+#			message_box.sender = "TODO : Implement m.reation"
 			message_box.body = (
 				"{content}".format(new_event.content)
 			)
 		"m.room.redaction":
 			message_box.event = new_event
-			message_box.sender = "TODO : Implement m.redaction"
+#			message_box.sender = "TODO : Implement m.redaction"
 			message_box.body = (
 				"{content}".format(new_event.content)
 			)
