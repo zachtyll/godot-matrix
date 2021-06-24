@@ -17,6 +17,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource( 1 )
 __meta__ = {
+"_edit_lock_": true,
 "_edit_use_anchors_": false
 }
 user_username = "kungpost"
@@ -186,6 +187,7 @@ size_flags_stretch_ratio = 3.0
 color = Color( 0, 0, 0, 0 )
 script = ExtResource( 5 )
 __meta__ = {
+"_edit_lock_": true,
 "_edit_use_anchors_": false
 }
 
@@ -202,6 +204,7 @@ margin_right = 2.0
 margin_bottom = 1.0
 mouse_filter = 2
 __meta__ = {
+"_edit_lock_": true,
 "_edit_use_anchors_": false
 }
 
