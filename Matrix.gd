@@ -46,7 +46,7 @@ func login(username : String, password : String):
 
 # Logs out a session from the server
 func logout():
-	var url := "https://matrix.org/_matrix/client/r0/logout?access_token=" + access_token
+	var url := "https://matrix.org/_matrix/client/r0/logout"
 	var body := {}
 	
 	_make_post_request(url, body, true, "_logout_completed")
@@ -64,7 +64,7 @@ func register():
 # NOTE : Message does not always mean "text message".
 # NOTE : Returns a message ID for redactions and edits.
 func send_message(room : String, message : String):
-	var url := "https://matrix.org/_matrix/client/r0/rooms/" + room + "/send/m.room.message?access_token=" + access_token
+	var url := "https://matrix.org/_matrix/client/r0/rooms/" + room + "/send/m.room.message"
 	var content := {
 		"msgtype" : "m.text",
 		"body" : message
@@ -78,7 +78,7 @@ func send_message(room : String, message : String):
 # NOTE : Should be used only on startup.
 # NOTE : Heavy workload.
 func sync_events(filter : String = (""),  since : String = "s0", full_state : bool = false , set_presence : String = "offline", timeout : int = 0):
-	var url := "https://matrix.org/_matrix/client/r0/sync?{0}&since={1}&full_state={2}&set_presence={3}&timeout={4}&access_token={5}".format([filter, since, (str(full_state).to_lower()), set_presence, timeout, access_token])
+	var url := "https://matrix.org/_matrix/client/r0/sync?{0}&since={1}&full_state={2}&set_presence={3}&timeout={4}".format([filter, since, (str(full_state).to_lower()), set_presence, timeout])
 	_make_get_request(url, "_sync_completed")
 	var response = yield(self, "sync_completed")
 	return response
@@ -86,7 +86,7 @@ func sync_events(filter : String = (""),  since : String = "s0", full_state : bo
 
 # Joins the user to a room.
 func join_room(room : String):
-	var url := "https://matrix.org/_matrix/client/r0/join/" + room + "?access_token=" + access_token
+	var url := "https://matrix.org/_matrix/client/r0/join/" + room
 	var body := {
 		"room_alias_name": "test"
 	}
@@ -97,7 +97,7 @@ func join_room(room : String):
 
 # Gets all members of a room.
 func get_members(room : String):
-	var url := "https://matrix.org/_matrix/client/r0/rooms/" + room + "/joined_members?access_token=" + access_token
+	var url := "https://matrix.org/_matrix/client/r0/rooms/" + room + "/joined_members"
 	_make_get_request(url, "_get_members_completed")
 	var response = yield(self, "get_members_completed")
 	return response
@@ -105,7 +105,7 @@ func get_members(room : String):
 
 # Creates a new room.
 func create_room(room_name : String = "", room_alias : String = "", topic : String = "General", preset : int = Preset.PRIVATE_CHAT, federate : bool = false):
-	var url := "https://matrix.org/_matrix/client/r0/createRoom?access_token=" + access_token
+	var url := "https://matrix.org/_matrix/client/r0/createRoom"
 	var room_preset := ""
 	
 	match(preset):
@@ -132,7 +132,7 @@ func create_room(room_name : String = "", room_alias : String = "", topic : Stri
 
 # Gets all rooms the user has joined.
 func get_joined_rooms():
-	var url := "https://matrix.org/_matrix/client/r0/joined_rooms?access_token=" + access_token
+	var url := "https://matrix.org/_matrix/client/r0/joined_rooms"
 	_make_get_request(url, "_get_joined_rooms_completed")
 	var response = yield(self, "get_joined_rooms_completed")
 	return response
@@ -140,7 +140,7 @@ func get_joined_rooms():
 
 # Gets a room id by reading an alias.
 func get_room_id_by_alias(alias : String, homeserver : String = "matrix.org") -> void:
-	var url := "https://matrix.org/_matrix/client/r0/directory/room/" + alias + ":" + homeserver + "?access_token=" + access_token
+	var url := "https://matrix.org/_matrix/client/r0/directory/room/" + alias + ":" + homeserver
 	_make_get_request(url, "_get_room_id_by_alias_completed")
 	var response = yield(self, "get_room_id_by_alias_completed")
 	return response
@@ -149,7 +149,7 @@ func get_room_id_by_alias(alias : String, homeserver : String = "matrix.org") ->
 # Gets an array of local aliases for a room.
 # TODO : Figure out what "local" implies.
 func get_room_aliases(room_id : String) -> void:
-	var url := "https://matrix.org/_matrix/client/r0/rooms/" + room_id + "/aliases?access_token=" + access_token
+	var url := "https://matrix.org/_matrix/client/r0/rooms/" + room_id + "/aliases"
 	_make_get_request(url, "_get_room_aliases_completed")
 	var response = yield(self, "get_room_aliases_completed")
 	return response
@@ -159,21 +159,21 @@ func get_room_aliases(room_id : String) -> void:
 # "dir" handles the direction to paginate. ("b"ackwards or "f"orwards).
 # TODO : Figure out how "filter" works.
 func get_messages(room_id : String, from : String = "", to : String = "", dir : String = "b", limit : int = 10, filter : String = ""):
-	var url := "https://matrix.org/_matrix/client/r0/rooms/" + room_id + "/messages?from=" + from + "&to=" + to + "&dir=" + dir + "&limit=" + str(limit) +  "&filter=" + filter + "&access_token=" + access_token
+	var url := "https://matrix.org/_matrix/client/r0/rooms/" + room_id + "/messages?from=" + from + "&to=" + to + "&dir=" + dir + "&limit=" + str(limit) +  "&filter=" + filter
 	_make_get_request(url, "_get_messages_completed")
 	var response = yield(self, "get_messages_completed")
 	return response
 
 
 func get_state_by_room_id(room_id : String) -> void:
-	var url := "https://matrix.org/_matrix/client/r0/rooms/" + room_id + "/state?access_token=" + access_token
+	var url := "https://matrix.org/_matrix/client/r0/rooms/" + room_id + "/state"
 	_make_get_request(url, "_get_state_by_room_id_completed")
 	var response = yield(self, "get_state_by_room_id_completed")
 	return response
 
 
 func get_room_name_by_room_id(room_id : String) -> void:
-	var url := "https://matrix.org/_matrix/client/r0/rooms/" + room_id + "/state/m.room.name?access_token=" + access_token
+	var url := "https://matrix.org/_matrix/client/r0/rooms/" + room_id + "/state/m.room.name"
 	_make_get_request(url, "_get_room_name_by_room_id_completed")
 	var response = yield(self, "get_room_name_by_room_id_completed")
 	return response
@@ -342,7 +342,7 @@ func _get_room_name_by_room_id_completed(result : int, response_code : int, _hea
 
 
 # HTTPRequest POST mode.
-# Connects a callback to functions in class for assync behaviour.
+# Connects a callback to functions in class for async behaviour.
 func _make_post_request(url : String, data_to_send, use_ssl : bool, response : String):
 	var http_request = HTTPRequest.new()
 	add_child(http_request)
@@ -350,7 +350,7 @@ func _make_post_request(url : String, data_to_send, use_ssl : bool, response : S
 	# Convert data to json string:
 	var query = JSON.print(data_to_send)
 	# Add 'Content-Type' header:
-	var headers = ["Content-Type: application/json"]
+	var headers := ["Content-Type: application/json", "Authorization: Bearer %s" % access_token]
 	var error = http_request.request(url, headers, use_ssl, HTTPClient.METHOD_POST, query)
 	
 	if error != OK:
@@ -358,7 +358,7 @@ func _make_post_request(url : String, data_to_send, use_ssl : bool, response : S
 	
 
 # HTTPRequest PUT mode.
-# Connects a callback to functions in class for assync behaviour.
+# Connects a callback to functions in class for async behaviour.
 func _make_put_request(url : String, data_to_send, use_ssl : bool, response : String):
 	var http_request = HTTPRequest.new()
 	add_child(http_request)
@@ -366,7 +366,7 @@ func _make_put_request(url : String, data_to_send, use_ssl : bool, response : St
 	# Convert data to json string:
 	var query = JSON.print(data_to_send)
 	# Add 'Content-Type' header:
-	var headers = ["Content-Type: application/json"]
+	var headers := ["Content-Type: application/json", "Authorization: Bearer %s" % access_token]
 	var error = http_request.request(url, headers, use_ssl, HTTPClient.METHOD_PUT, query)
 	
 	if error != OK:
@@ -374,14 +374,15 @@ func _make_put_request(url : String, data_to_send, use_ssl : bool, response : St
 
 
 # HTTPRequest GET mode.
-# Connects a callback to functions in class for assync behaviour.
+# Connects a callback to functions in class for async behaviour.
 func _make_get_request(url : String, response : String):
 	# Create an HTTP request node and connect its completion signal.
-	var http_request = HTTPRequest.new()
+	var http_request := HTTPRequest.new()
 	add_child(http_request)
 	http_request.connect("request_completed", self, response)
+	var headers := ["Content-Type: application/json", "Authorization: Bearer %s" % access_token]
 	# Perform a GET request. The URL below returns JSON as of writing.
-	var error = http_request.request(url)
+	var error = http_request.request(url, headers)
 	if error != OK:
 		push_error("An error occurred in the HTTP request.")
 
