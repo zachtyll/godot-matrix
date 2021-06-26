@@ -308,7 +308,9 @@ func _get_messages_completed(result : int, response_code : int, _headers : PoolS
 		200:
 			pass
 		403:
-			push_warning("You are not a member of this room")
+			###### THIS IS A TEST ######
+			# "You are not a member of this room"
+			push_warning("{errcode} : {error}").format(response)
 	emit_signal("get_messages_completed", response)
 
 

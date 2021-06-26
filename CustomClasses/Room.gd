@@ -99,7 +99,6 @@ func _init(username : String, new_room_id : String, new_room_data : Dictionary):
 # Massive function to translate room_id into human-readable names.
 # TODO : Move this algo into the Room class.
 func _get_room_name(username : String) -> void:
-	print(room_id)
 	var room_member_name := ""
 	# Must check state.events for rooms with a lot of message events.
 	for event in (timeline.events + state.events):
@@ -114,7 +113,6 @@ func _get_room_name(username : String) -> void:
 						room_member_name = event.content["room_alias_name"]
 					elif not event.content["displayname"] == username:
 						room_member_name = event.content["displayname"]
-	print("- - - - END - - - -")
 	if not room_name.empty():
 		return
 	elif not room_alias.empty():
@@ -123,10 +121,10 @@ func _get_room_name(username : String) -> void:
 		room_name = room_member_name
 	else:
 		room_name = str(self)
-		print(timeline.events)
 
 
 func _get_room_topic():
-	for event in timeline.events:
+	# Must check state.events for rooms with a lot of message events.
+	for event in (timeline.events + state.events):
 		if event.type == "m.room.topic":
 			room_topic = event.content["topic"]

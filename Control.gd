@@ -45,7 +45,7 @@ func _on_Login_pressed():
 
 # Logout
 func _on_Logout_pressed():
-	modal.hide()
+	modal.get_node("Settings").disappear()
 	$Timer.stop()
 	mp.logout()
 	joined_rooms.clear()
