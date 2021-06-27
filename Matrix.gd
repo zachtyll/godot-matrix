@@ -378,7 +378,7 @@ func _make_get_request(url : String, response : String):
 	# Create an HTTP request node and connect its completion signal.
 	var http_request := HTTPRequest.new()
 	add_child(http_request)
-	http_request.connect("request_completed", self, response)
+	var _err = http_request.connect("request_completed", self, response)
 	var headers := ["Content-Type: application/json", "Authorization: Bearer %s" % access_token]
 	# Perform a GET request. The URL below returns JSON as of writing.
 	var error = http_request.request(url, headers)

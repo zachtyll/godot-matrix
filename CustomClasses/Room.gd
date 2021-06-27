@@ -71,6 +71,13 @@ class State:
 		return events[index]
 
 
+enum RoomMembership {
+	LEAVE,
+	INVITE,
+	JOIN,
+	KNOCK # Not used.
+}
+
 var room_id := ""
 var room_name := ""
 var room_alias := ""

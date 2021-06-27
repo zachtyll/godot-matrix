@@ -38,22 +38,26 @@ func _on_Login_pressed():
 #	user_username = username.text
 #	user_password = password.text
 	# Speeds up debug.
-	mp.login(user_username, user_password)
 	GodotMatrix.login(user_username, user_password)
 	username.clear()
 	password.clear()
 	login_status.text = "Attempting login..."
 
 
+# Triggers when a login call has completed.
+func _on_login(response : String):
+	if not response.empty():
+		login_status.text = "Login error: %s" % response
+	else:
+		login_status.text = "Login success!"
+		GodotMatrix.sync_to_server()
+		$LoginScreen.hide()
+
+
 # Logout
 func _on_Settings_logout():
 	modal.get_node("Settings").disappear()
-	$Timer.stop()
-	mp.logout()
-	joined_rooms.clear()
-	room_list.clear()
-	room_counter = 0
-	chat_window.clear()
+	GodotMatrix.logout()
 	login_status.text = "Logged out."
 	$LoginScreen.show()
 
@@ -62,7 +66,7 @@ func _on_Settings_logout():
 # TODO : Figure out how to register a user
 # TODO : Implement registration.
 func _on_Register_pressed():
-	mp.register()
+	GodotMatrix.register()
 	login_status.text = "Sorry, registration is not implemented!"
 
 
@@ -87,30 +91,12 @@ func _on_SendMessage_pressed() -> void:
 	_send_message()
 
 
+# Necessary for being able to send via buttons and keypress.
 func _send_message() -> void:
-	if chat_line.text.empty():
-		return
-	elif chat_line.text.begins_with(" "):
-		return
-	mp.send_message(current_room.room_id, input_text)
+	var err := GodotMatrix.send_message(current_room.room_id, input_text)
+	if err:
+		push_error("Send message failed.")
 	chat_line.clear()
-
-
-func _on_Timer_timeout():
-	if current_room == null:
-		return
-	
-	var event_data = yield(mp.get_messages(current_room.room_id, previous_batch, next_batch, "b", 1, ""), "completed")
-	
-	if event_data.has("error"):
-		print(event_data["error"])
-		return
-
-	next_batch = event_data["start"]
-	var events := []
-	for event in event_data["chunk"]:
-		events.append(Event.new(event))
-		_update_chat_window(events)
 
 
 # Updates the input text from the LineEdit in chat section
@@ -121,10 +107,10 @@ func _on_LineEdit_text_changed(new_text):
 # Updates which room we act upon via the left sidebar
 func _on_room_list_item_selected(index):
 	chat_window.clear()
-	current_room = rooms_array[index]
-	channel_name.text = rooms_array[index].room_name
-	topic.text = rooms_array[index].room_topic
-	_update_chat_window(current_room.timeline.events)
+	current_room = GodotMatrix.get_room(index)
+	channel_name.text = GodotMatrix.get_room(index).room_name
+	topic.text = GodotMatrix.get_room(index).room_topic
+	_update_chat_window(GodotMatrix.get_room_events(index))
 
 
 func _on_Settings_close_settings():
@@ -136,24 +122,14 @@ func _on_Settings_create_room():
 	popup.find_node("CreateRoom").popup_centered()
 
 
-# Synchronizes data in client with server.
-func _sync_to_server(sync_data : Dictionary) -> void:
-	synced_data = sync_data
-	joined_rooms = sync_data["rooms"]["join"]
-	for room_id in synced_data["rooms"]["join"].keys():
-		var room_data = synced_data["rooms"]["join"][room_id]
-		rooms_array.append(Room.new(user_username, room_id, room_data))
-		
-	_update_room_list()
-	$LoginScreen.hide()
-
-
 # Add rooms to our room list in the left navbar
 # TODO : This seems like it should store all the synced 
 #	data to a local database rather than present it directly.
-func _update_room_list() -> void:
+
+#func _update_room_list(rooms_array) -> void:
+func _update_room_list(rooms : Array) -> void:
 	room_list.clear()
-	for room in rooms_array:
+	for room in rooms:
 		room_list.add_item(room.room_name)
 
 
@@ -162,28 +138,10 @@ func _notify_user() -> void:
 	OS.request_attention()
 
 
-# Triggers when a login call has completed.
-func _on_login_completed(success):
-	if success.has("error"):
-		login_status.text = "Login error: %s" % success["error"]
-	elif not success.has("error"):
-		login_status.text = "Login success!"
-		mp.sync_events()
-		$Timer.start()
-	else:
-		login_status.text = "Unkown error occured!"
-		push_error("Unknown login error!")
-
-
 # Updates the chat window when we click on a room in the left sidebar.
 func _update_chat_window(events : Array) -> void:
 	for event in events:
-		_format_chat(event)
-
-
-# Formats the received content block for display.
-func _format_chat(event : Event) -> void:
-	chat_window.add_message(event)
+		chat_window.add_message(event)
 
 
 func _input(event):
@@ -192,9 +150,6 @@ func _input(event):
 
 
 func _ready():
-	mp = matrix_protocol.new() as MatrixProtocol
-	self.add_child(mp)
-	
-	var _sync_err = mp.connect("sync_completed", self, "_sync_to_server")
-	var _login_err = mp.connect("login_completed", self, "_on_login_completed")
-	var _get_joined_rooms_err = mp.connect("get_joined_rooms_completed", self, "_update_room_list")
+	var _login_err := GodotMatrix.connect("login", self, "_on_login")
+	var _rooms_joined_err := GodotMatrix.connect("rooms_joined", self, "_update_room_list")
+	var _refresh_err := GodotMatrix.connect("incoming_events", self, "_update_chat_window")

@@ -3,28 +3,37 @@ extends Node
 const matrix_protocol = preload("Matrix.gd")
 
 
-#var access_token := ""
-#var login := false
 var mp : MatrixProtocol
-var room_counter := 0
-var joined_rooms := {}
-var synced_data := {}
-var input_text := ""
 var current_room : Room
-var next_batch := ""
+var input_text := ""
+var next_batch := "" setget set_next_batch
 var previous_batch := ""
-var chat_line := "" setget set_chat_line
+var text_input := "" setget set_text_input
 var user_username := ""
 var user_password := ""
 
 var rooms_array := []
+
+onready var timer = Timer.new()
+
+signal rooms_joined
+signal login
+signal logout
+signal incoming_events
+#signal create_room
+#signal synchronize
+#signal room_leave
+#signal room_invite
+#signal room_join
+#signal reaction
+#signal message
 
 
 func _on_Timer_timeout():
 	if current_room == null:
 		return
 	
-	var event_data = yield(mp.get_messages(current_room.room_id, previous_batch, next_batch, "b", 1, ""), "completed")
+	var event_data = yield(mp.get_messages(current_room.room_id, previous_batch, next_batch, "f", 1, ""), "completed")
 	
 	if event_data.has("error"):
 		print(event_data["error"])
@@ -34,88 +43,99 @@ func _on_Timer_timeout():
 	var events := []
 	for event in event_data["chunk"]:
 		events.append(Event.new(event))
-#		_update_chat_window(events)
+	emit_signal("incoming_events", events)
 
 
-func login(username : String, password : String) -> bool:
+func login(username : String, password : String) -> int:
 	var result = yield(mp.login(username, password), "completed")
 	if result.has("error"):
-		return false
+		emit_signal("login", result["error"])
+		return FAILED
 	else:
-		# TODO : Temporary.
+		emit_signal("login", "")
 		user_username = username
-		return true
-	
-	
-#	if success.has("error"):
-#		login_status.text = "Login error: %s" % success["error"]
-#	elif not success.has("error"):
-#		login_status.text = "Login success!"
-#		mp.sync_events()
-#		$Timer.start()
-#	else:
-#		login_status.text = "Unkown error occured!"
-#		push_error("Unknown login error!")
+		timer.start()
+		sync_to_server()
+		return OK
 
 
-func logout() -> bool:
+func logout() -> int:
 	var result = yield(mp.logout(), "completed")
-	if result.has("error"):
-		return false
+	if result:
+		emit_signal("logout", result)
+		return FAILED
 	else:
-		joined_rooms.clear()
-#		room_list.clear()
-		room_counter = 0
-#		chat_window.clear()
-		return true
+		emit_signal("logout", result)
+		rooms_array.clear()
+		timer.stop()
+		return OK
 
 
 func register() -> void:
 	mp.register()
 
 
-func _send_message() -> void:
-	if chat_line.empty():
-		return
-	elif chat_line.begins_with(" "):
-		return
-	mp.send_message(current_room.room_id, input_text)
-	chat_line = ""
+func room_invite(_user : String, _room_id : String) -> void:
+	pass
 
 
-func set_chat_line(new_text : String) -> void:
+func room_delete(_room_id : String) -> void:
+	pass
+
+
+func room_leave(_room_id : String) -> void:
+	pass
+
+
+func room_join(_room_id : String) -> void:
+	pass
+
+
+func redact_message(_event_id : String) -> void:
+	pass
+
+
+func append_reaction(_event_id : String, _reaction) -> void:
+	pass
+
+
+func send_message(room_id : String, message_text : String) -> int:
+	if message_text.empty():
+		return FAILED
+	elif message_text.begins_with(" "):
+		return FAILED
+	else:
+		mp.send_message(room_id, message_text)
+		return OK
+
+
+func set_next_batch(new_batch) -> void:
+	previous_batch = next_batch
+	next_batch = new_batch
+
+
+func set_text_input(new_text : String) -> void:
 	input_text = new_text
 
 
 func get_room(index : int) -> Room:
-#	chat_window.clear()
-	current_room = rooms_array[index]
-#	channel_name.text = rooms_array[index].room_name
-#	topic.text = rooms_array[index].room_topic
-#	_update_chat_window(current_room.timeline.events)
-	return current_room
+	return rooms_array[index]
+
+
+func get_room_events(index : int) -> Array:
+	return rooms_array[index].timeline.events
 
 
 # Synchronizes data in client with server.
-func _sync_to_server(sync_data : Dictionary) -> void:
-	synced_data = sync_data
-	joined_rooms = sync_data["rooms"]["join"]
-	for room_id in synced_data["rooms"]["join"].keys():
-		var room_data = synced_data["rooms"]["join"][room_id]
+func sync_to_server() -> void:
+	var sync_data = yield(mp.sync_events(), "completed")
+	for room_id in sync_data["rooms"]["join"].keys():
+		var room_data = sync_data["rooms"]["join"][room_id]
 		rooms_array.append(Room.new(user_username, room_id, room_data))
-		
-#	_update_room_list()
-	$LoginScreen.hide()
-
-
-# Add rooms to our room list in the left navbar
-# TODO : This seems like it should store all the synced 
-#	data to a local database rather than present it directly.
-func _update_room_list() -> void:
-	pass
-#	room_list.clear()
-#	for room in rooms_array:
-#		room_list.add_item(room.room_name)
+		# Always gets the last created room.
+		rooms_array.back().room_membership = Room.RoomMembership.JOIN
+	rooms_array.sort()
+	emit_signal("rooms_joined", rooms_array)
 
 
 # OS notification when we recieve a message and not in focus on screen
@@ -123,22 +143,9 @@ func _notify_user() -> void:
 	OS.request_attention()
 
 
-# Updates the chat window when we click on a room in the left sidebar.
-func _update_chat_window(events : Array) -> void:
-	for event in events:
-		_format_chat(event)
-
-
-# Formats the received content block for display.
-func _format_chat(event : Event) -> void:
-#	chat_window.add_message(event)
-	pass
-
-
 func _ready():
+	timer.wait_time = 3
+	timer.connect("timeout", self, "_on_Timer_timeout")
+	self.add_child(timer)
 	mp = matrix_protocol.new() as MatrixProtocol
 	self.add_child(mp)
-	
-	var _sync_err = mp.connect("sync_completed", self, "_sync_to_server")
-	var _login_err = mp.connect("login_completed", self, "_on_login_completed")
-	var _get_joined_rooms_err = mp.connect("get_joined_rooms_completed", self, "_update_room_list")

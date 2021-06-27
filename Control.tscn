@@ -171,9 +171,6 @@ margin_bottom = 600.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="Timer" type="Timer" parent="."]
-wait_time = 3.0
-
 [node name="LoginScreen" parent="." instance=ExtResource( 3 )]
 
 [node name="Modal" type="ColorRect" parent="."]
@@ -212,7 +209,6 @@ __meta__ = {
 [connection signal="item_selected" from="MainScreen/Screen/LeftSection/ItemList" to="." method="_on_room_list_item_selected"]
 [connection signal="text_changed" from="MainScreen/Screen/MidSection/ChatInput/ChatLineStretcher/ChatLine" to="." method="_on_LineEdit_text_changed"]
 [connection signal="pressed" from="MainScreen/Screen/MidSection/ChatInput/SendMessage" to="." method="_on_SendMessage_pressed"]
-[connection signal="timeout" from="Timer" to="." method="_on_Timer_timeout"]
 [connection signal="pressed" from="LoginScreen/CenterContainer/VBoxContainer/Login" to="." method="_on_Login_pressed"]
 [connection signal="pressed" from="LoginScreen/CenterContainer/VBoxContainer/Register" to="." method="_on_Register_pressed"]
 [connection signal="close_settings" from="Modal/Settings" to="." method="_on_Settings_close_settings"]
