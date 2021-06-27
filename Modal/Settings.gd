@@ -1,4 +1,6 @@
-extends Panel
+extends PanelContainer
+
+signal close_settings
 
 var size := get_rect().size
 var darken_screen := false
@@ -24,6 +26,7 @@ func disappear() -> void:
 
 func _on_Close_pressed():
 	disappear()
+	emit_signal("close_settings")
 
 
 func _unhandled_input(event):

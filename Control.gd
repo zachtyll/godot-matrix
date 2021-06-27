@@ -18,11 +18,11 @@ var previous_batch := ""
 
 var rooms_array := []
 
-onready var channel_name := $Screen/MidSection/TopBarMid/TopBarMidHbox/ChannelLabels/ChannelName
-onready var topic := $Screen/MidSection/TopBarMid/TopBarMidHbox/ChannelLabels/Topic
-onready var room_list := $Screen/LeftSection/ItemList
-onready var chat_line := $Screen/MidSection/ChatInput/ChatLineStretcher/ChatLine
-onready var chat_window := $Screen/MidSection/ChatWindow
+onready var channel_name := $MainScreen/Screen/MidSection/TopBarMid/TopBarMidHbox/ChannelLabels/ChannelName
+onready var topic := $MainScreen/Screen/MidSection/TopBarMid/TopBarMidHbox/ChannelLabels/Topic
+onready var room_list := $MainScreen/Screen/LeftSection/ItemList
+onready var chat_line := $MainScreen/Screen/MidSection/ChatInput/ChatLineStretcher/ChatLine
+onready var chat_window := $MainScreen/Screen/MidSection/ChatWindow
 onready var chat_history_list := null
 onready var login_status := $LoginScreen/CenterContainer/VBoxContainer/LoginStatus
 onready var username := $LoginScreen/CenterContainer/VBoxContainer/GridContainer/Username

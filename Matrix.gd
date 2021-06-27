@@ -8,7 +8,6 @@ enum Preset {
 }
 
 var access_token := ""
-#var next_batch := "s9_13_0_1_1"
 
 # Signals since it's async calls.
 signal sync_completed
