@@ -29,12 +29,12 @@ signal incoming_events
 #signal message
 
 
-func _on_Timer_timeout():
+func _on_refresh_messages():
 	if current_room == null:
 		return
-	
-	var event_data = yield(mp.get_messages(current_room.room_id, previous_batch, next_batch, "f", 1, ""), "completed")
-	
+
+	var event_data = yield(mp.get_messages(current_room.room_id, previous_batch, next_batch, "b", 1, ""), "completed")
+
 	if event_data.has("error"):
 		print(event_data["error"])
 		return
@@ -52,9 +52,11 @@ func login(username : String, password : String) -> int:
 		emit_signal("login", result["error"])
 		return FAILED
 	else:
+		print("LOGIN")
 		emit_signal("login", "")
 		user_username = username
 		timer.start()
+		print(timer.wait_time)
 		sync_to_server()
 		return OK
 
@@ -99,13 +101,13 @@ func append_reaction(_event_id : String, _reaction) -> void:
 	pass
 
 
-func send_message(room_id : String, message_text : String) -> int:
+func send_message(message_text : String) -> int:
 	if message_text.empty():
 		return FAILED
 	elif message_text.begins_with(" "):
 		return FAILED
 	else:
-		mp.send_message(room_id, message_text)
+		mp.send_message(current_room.room_id, message_text)
 		return OK
 
 
@@ -116,6 +118,10 @@ func set_next_batch(new_batch) -> void:
 
 func set_text_input(new_text : String) -> void:
 	input_text = new_text
+
+
+func set_current_room(index : int) -> void:
+	current_room = rooms_array[index]
 
 
 func get_room(index : int) -> Room:
@@ -145,7 +151,7 @@ func _notify_user() -> void:
 
 func _ready():
 	timer.wait_time = 3
-	timer.connect("timeout", self, "_on_Timer_timeout")
 	self.add_child(timer)
+	timer.connect("timeout", self, "_on_refresh_messages")
 	mp = matrix_protocol.new() as MatrixProtocol
 	self.add_child(mp)

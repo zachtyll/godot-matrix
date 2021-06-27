@@ -1,23 +1,9 @@
 extends Control
 
-const matrix_protocol = preload( "Matrix.gd" )
-
 export(String) var user_username
 export(String) var user_password
 
-#var access_token := ""
-var login := false
-var mp : MatrixProtocol
-var room_counter := 0
-var joined_rooms := {}
-var synced_data := {}
 var input_text := ""
-var current_room : Room
-var next_batch := ""
-var previous_batch := ""
-
-var rooms_array := []
-
 
 onready var channel_name := $MainScreen/Screen/MidSection/TopBarMid/TopBarMidHbox/ChannelLabels/ChannelName
 onready var topic := $MainScreen/Screen/MidSection/TopBarMid/TopBarMidHbox/ChannelLabels/Topic
@@ -75,15 +61,15 @@ func _on_Settings_pressed():
 
 
 # Call for room creation.
-func _on_CreateRoom_create_room(room_name, room_alias):
-	var err = yield(mp.create_room(room_name, room_alias), "completed")
-	if err.has("error"):
-		popup.find_node("CreateRoom").status_label.text = err["error"]
-		return
-	else:
-		popup.find_node("CreateRoom").hide()
-		modal.find_node("Settings").disappear()
-		mp.sync_events()
+#func _on_CreateRoom_create_room(room_name, room_alias):
+#	var err = yield(mp.create_room(room_name, room_alias), "completed")
+##	if err.has("error"):
+#		popup.find_node("CreateRoom").status_label.text = err["error"]
+#		return
+#	else:
+#		popup.find_node("CreateRoom").hide()
+#		modal.find_node("Settings").disappear()
+#		mp.sync_events()
 
 
 # Sends a message to the given room
@@ -93,7 +79,7 @@ func _on_SendMessage_pressed() -> void:
 
 # Necessary for being able to send via buttons and keypress.
 func _send_message() -> void:
-	var err := GodotMatrix.send_message(current_room.room_id, input_text)
+	var err := GodotMatrix.send_message(input_text)
 	if err:
 		push_error("Send message failed.")
 	chat_line.clear()
@@ -107,7 +93,7 @@ func _on_LineEdit_text_changed(new_text):
 # Updates which room we act upon via the left sidebar
 func _on_room_list_item_selected(index):
 	chat_window.clear()
-	current_room = GodotMatrix.get_room(index)
+	GodotMatrix.set_current_room(index)
 	channel_name.text = GodotMatrix.get_room(index).room_name
 	topic.text = GodotMatrix.get_room(index).room_topic
 	_update_chat_window(GodotMatrix.get_room_events(index))
