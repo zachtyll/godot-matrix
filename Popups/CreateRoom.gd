@@ -12,7 +12,10 @@ func _on_CreateRoom_about_to_show():
 
 
 func _on_Next_pressed():
-	emit_signal("create_room", room_name.text, room_alias.text)
+	if room_alias.text.empty():
+		status_label.text = "An alias is required."
+	else:
+		emit_signal("create_room", room_name.text, room_alias.text)
 
 
 func _on_Cancel_pressed():

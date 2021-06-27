@@ -56,20 +56,14 @@ func _on_Register_pressed():
 	login_status.text = "Sorry, registration is not implemented!"
 
 
+func _on_create_room(response : String) -> void:
+	popup.find_node("CreateRoom").status_label.text = response
+	popup.find_node("CreateRoom").hide()
+	modal.find_node("Settings").disappear()
+
+
 func _on_Settings_pressed():
 	modal.find_node("Settings").appear()
-
-
-# Call for room creation.
-#func _on_CreateRoom_create_room(room_name, room_alias):
-#	var err = yield(mp.create_room(room_name, room_alias), "completed")
-##	if err.has("error"):
-#		popup.find_node("CreateRoom").status_label.text = err["error"]
-#		return
-#	else:
-#		popup.find_node("CreateRoom").hide()
-#		modal.find_node("Settings").disappear()
-#		mp.sync_events()
 
 
 # Sends a message to the given room
@@ -111,17 +105,10 @@ func _on_Settings_create_room():
 # Add rooms to our room list in the left navbar
 # TODO : This seems like it should store all the synced 
 #	data to a local database rather than present it directly.
-
-#func _update_room_list(rooms_array) -> void:
 func _update_room_list(rooms : Array) -> void:
 	room_list.clear()
 	for room in rooms:
 		room_list.add_item(room.room_name)
-
-
-# OS notification when we recieve a message and not in focus on screen
-func _notify_user() -> void:
-	OS.request_attention()
 
 
 # Updates the chat window when we click on a room in the left sidebar.
@@ -139,3 +126,4 @@ func _ready():
 	var _login_err := GodotMatrix.connect("login", self, "_on_login")
 	var _rooms_joined_err := GodotMatrix.connect("rooms_joined", self, "_update_room_list")
 	var _refresh_err := GodotMatrix.connect("incoming_events", self, "_update_chat_window")
+	var _create_room_err := GodotMatrix.connect("create_room", self, "_on_create_room")

@@ -13,6 +13,7 @@ var access_token := ""
 signal sync_completed
 signal login_completed
 signal logout_completed
+signal invite_completed
 signal room_joined_completed
 signal send_message_completed
 signal get_members_completed
@@ -58,6 +59,17 @@ func logout():
 # TODO : Allow for 3PID registration.
 func register():
 	print("Not implemented.")
+
+# Invite by Matrix user ID.
+func invite(room_id : String, user_id : String) -> Dictionary:
+	var url := "https://matrix.org/_matrix/client/r0/rooms/" + room_id + "/invite"
+	var body := {
+		"user_id" : user_id
+	}
+	_make_post_request(url, body, true, "_invite_completed")
+	var response = yield(self, "invite_completed")
+	return response
+
 
 # Sends a message to the server.
 # NOTE : Message does not always mean "text message".
@@ -209,11 +221,25 @@ func _logout_completed(result : int, response_code : int, _headers : PoolStringA
 	match(response_code):
 		200:
 			access_token = ""
-			print("Successfully logged out")
 			emit_signal("logout_completed", true)
 		401:
 			push_warning("Missing access token")
 			emit_signal("logout_completed", false)
+
+
+func _invite_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray):
+	var _err_result := _check_result(result)
+	var response: Dictionary = parse_json(body.get_string_from_utf8())
+	match(response_code):
+		200:
+			pass
+		400:
+			push_error(response["error"])
+		403:
+			push_error(response["error"])
+		429:
+			push_error(response["error"])
+	emit_signal("invite_completed", response)
 
 
 # Runs when synchronizaion completes.

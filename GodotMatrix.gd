@@ -20,10 +20,10 @@ signal rooms_joined
 signal login
 signal logout
 signal incoming_events
-#signal create_room
+signal create_room
 #signal synchronize
 #signal room_leave
-#signal room_invite
+signal room_invite
 #signal room_join
 #signal reaction
 #signal message
@@ -77,8 +77,26 @@ func register() -> void:
 	mp.register()
 
 
-func room_invite(_user : String, _room_id : String) -> void:
-	pass
+# Call for room creation.
+func room_create(room_name : String, room_alias : String) -> int:
+	var result = yield(mp.create_room(room_name, room_alias), "completed")
+	if result.has("error"):
+		emit_signal("create_room", result["error"])
+		return FAILED
+	else:
+		emit_signal("create_room", "") #result["room_id"])
+		sync_to_server()
+		return OK
+
+
+# Invite to room by user ID.
+func room_invite(room_id : String, user : String) -> void:
+	var result = yield(mp.invite(room_id, user), "completed")
+	if result.has("error"):
+		return FAILED
+	else:
+		emit_signal("room_invite", result)
+		return OK
 
 
 func room_delete(_room_id : String) -> void:
