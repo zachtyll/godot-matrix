@@ -18,6 +18,7 @@ var previous_batch := ""
 
 var rooms_array := []
 
+
 onready var channel_name := $MainScreen/Screen/MidSection/TopBarMid/TopBarMidHbox/ChannelLabels/ChannelName
 onready var topic := $MainScreen/Screen/MidSection/TopBarMid/TopBarMidHbox/ChannelLabels/Topic
 onready var room_list := $MainScreen/Screen/LeftSection/ItemList
@@ -38,6 +39,7 @@ func _on_Login_pressed():
 #	user_password = password.text
 	# Speeds up debug.
 	mp.login(user_username, user_password)
+	GodotMatrix.login(user_username, user_password)
 	username.clear()
 	password.clear()
 	login_status.text = "Attempting login..."

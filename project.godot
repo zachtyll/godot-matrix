@@ -20,11 +20,6 @@ _global_script_classes=[ {
 "path": "res://CustomClasses/Event.gd"
 }, {
 "base": "Node",
-"class": "GodotMatrix",
-"language": "GDScript",
-"path": "res://Model.gd"
-}, {
-"base": "Node",
 "class": "MatrixProtocol",
 "language": "GDScript",
 "path": "res://Matrix.gd"
@@ -42,7 +37,6 @@ _global_script_classes=[ {
 _global_script_class_icons={
 "ChatWindow": "",
 "Event": "",
-"GodotMatrix": "",
 "MatrixProtocol": "",
 "MessagePanel": "",
 "Room": ""
@@ -53,6 +47,10 @@ _global_script_class_icons={
 config/name="MatrixProtocolTest"
 run/main_scene="res://Control.tscn"
 config/icon="res://icon.png"
+
+[autoload]
+
+GodotMatrix="*res://GodotMatrix.gd"
 
 [input]
 
