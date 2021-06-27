@@ -44,7 +44,7 @@ func _on_Login_pressed():
 
 
 # Logout
-func _on_Logout_pressed():
+func _on_Settings_logout():
 	modal.get_node("Settings").disappear()
 	$Timer.stop()
 	mp.logout()
@@ -66,11 +66,6 @@ func _on_Register_pressed():
 
 func _on_Settings_pressed():
 	modal.find_node("Settings").appear()
-
-
-# Open create room popup
-func _on_CreateRoom_pressed():
-	popup.find_node("CreateRoom").popup_centered()
 
 
 # Call for room creation.
@@ -130,6 +125,15 @@ func _on_room_list_item_selected(index):
 	channel_name.text = rooms_array[index].room_name
 	topic.text = rooms_array[index].room_topic
 	_update_chat_window(current_room.timeline.events)
+
+
+func _on_Settings_close_settings():
+	pass # Replace with function body.
+
+
+# Display create room popup.
+func _on_Settings_create_room():
+	popup.find_node("CreateRoom").popup_centered()
 
 
 # Synchronizes data in client with server.

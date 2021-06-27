@@ -215,8 +215,9 @@ __meta__ = {
 [connection signal="timeout" from="Timer" to="." method="_on_Timer_timeout"]
 [connection signal="pressed" from="LoginScreen/CenterContainer/VBoxContainer/Login" to="." method="_on_Login_pressed"]
 [connection signal="pressed" from="LoginScreen/CenterContainer/VBoxContainer/Register" to="." method="_on_Register_pressed"]
+[connection signal="close_settings" from="Modal/Settings" to="." method="_on_Settings_close_settings"]
+[connection signal="create_room" from="Modal/Settings" to="." method="_on_Settings_create_room"]
+[connection signal="logout" from="Modal/Settings" to="." method="_on_Settings_logout"]
 [connection signal="create_room" from="PopUps/CreateRoom" to="." method="_on_CreateRoom_create_room"]
 
 [editable path="LoginScreen"]
-
-[editable path="Modal/Settings"]

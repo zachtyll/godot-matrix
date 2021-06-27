@@ -59,3 +59,5 @@ text = "Create Room"
 
 [node name="Tween" type="Tween" parent="."]
 [connection signal="pressed" from="Panel/SettingsList/HBoxContainer/Close" to="." method="_on_Close_pressed"]
+[connection signal="pressed" from="Panel/SettingsList/Logout" to="." method="_on_Logout_pressed"]
+[connection signal="pressed" from="Panel/SettingsList/CreateRoom" to="." method="_on_CreateRoom_pressed"]
