@@ -69,8 +69,6 @@ func _on_Settings_pressed():
 
 
 # Call for room creation.
-# NOTE : I should seriously start thinking about
-#	turning mp into a singleton at this rate.
 func _on_CreateRoom_create_room(room_name, room_alias):
 	var err = yield(mp.create_room(room_name, room_alias), "completed")
 	if err.has("error"):
