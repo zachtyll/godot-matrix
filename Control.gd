@@ -56,10 +56,14 @@ func _on_Register_pressed():
 	login_status.text = "Sorry, registration is not implemented!"
 
 
-func _on_create_room(response : String) -> void:
-	popup.find_node("CreateRoom").status_label.text = response
-	popup.find_node("CreateRoom").hide()
-	modal.find_node("Settings").disappear()
+# Call when successfully creating a room from GodotMatrix.
+func _on_create_room(error : int) -> void:
+	if error:
+		popup.find_node("CreateRoom").status_label.text = "Failed!"
+	else:
+		popup.find_node("CreateRoom").status_label.text = "Success!"
+		popup.find_node("CreateRoom").hide()
+		modal.find_node("Settings").disappear()
 
 
 func _on_Settings_pressed():

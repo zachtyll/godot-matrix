@@ -78,15 +78,19 @@ func register() -> void:
 
 
 # Call for room creation.
-func room_create(room_name : String, room_alias : String) -> int:
-	var result = yield(mp.create_room(room_name, room_alias), "completed")
+func room_create(room_alias : String, room_name : String) -> void:
+	var result = yield(mp.create_room(
+		MatrixProtocol.RoomVisibility.PRIVATE,
+		room_alias,
+		room_name
+		), "completed")
 	if result.has("error"):
-		emit_signal("create_room", result["error"])
-		return FAILED
+		emit_signal("create_room", FAILED)
+		var error_string := "{errcode}: {error}".format(result)
+		push_error(error_string)
 	else:
-		emit_signal("create_room", "") #result["room_id"])
+		emit_signal("create_room", OK)
 		sync_to_server()
-		return OK
 
 
 # Invite to room by user ID.

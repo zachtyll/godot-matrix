@@ -7,7 +7,112 @@ enum Preset {
 	TRUSTED_PRIVATE_CHAT
 }
 
+enum RoomVisibility {
+	PUBLIC,
+	PRIVATE
+}
+
+# m.room.create content-field
+#	used in creating rooms.
+class CreationContent:
+	var data : Dictionary
+
+
+	func _init(
+		new_creator : String = "",
+		new_federate : bool = true,
+		new_room_version : String = "1",
+		new_predecessor : PreviousRoom = PreviousRoom.new()
+		):
+		
+		data = {
+			"creator" : new_creator,
+			"federate" : new_federate,
+			"room_version" : new_room_version,
+			"predecessor" : new_predecessor.data,
+		}
+		
+		
+
+class PreviousRoom:
+	var data : Dictionary
+
+	func _init(new_room_id : String = "", new_event_id : String = ""):
+		data = {
+			"room_id" : new_room_id,
+			"event_id" : new_event_id,
+		}
+		
+
+
+class PowerLevelEventContent:
+	var data : Dictionary
+
+
+	func _init(
+		new_ban : int = 50,
+		new_events : EventPowerLevels = EventPowerLevels.new(),
+		new_events_default = 0,
+		new_invite : int = 50,
+		new_kick : int = 50,
+		new_redact : int = 50,
+		new_state_default : int = 50,
+		new_users : Dictionary = {},
+		new_notifications : Notifications = Notifications.new(),
+		new_users_default : int = 0
+		
+	):
+		data = {
+			"ban" :  new_ban,
+			"events" : new_events.data,
+			"events_default" : new_events_default,
+			"invite" :  new_invite,
+			"kick" : new_kick,
+			"redact" : new_redact,
+			"state_default" : new_state_default,
+			"users" : new_users,
+			"users_default" : new_notifications.room,
+			"notifications" : new_users_default,
+		}
+
+
+class EventPowerLevels:
+	var data : Dictionary
+
+
+	func _init(
+		new_avatar : int = 50,
+		new_canonical_alias : int = 50,
+		new_encryption : int = 100,
+		new_history_visibility : int = 100,
+		new_room_name : int = 100,
+		new_power_levels : int = 100,
+		new_server_acl : int = 100,
+		new_tombstone : int = 100
+	):
+		data = {
+			"avatar" : new_avatar,
+			"canonical_alias" : new_canonical_alias,
+			"encryption" : new_encryption,
+			"history_visibility" : new_history_visibility,
+			"room_name" : new_room_name,
+			"power_levels" : new_power_levels,
+			"server_acl" : new_server_acl,
+			"tombstone" : new_tombstone,
+		}
+
+
+# For future-proofing.
+class Notifications:
+	var room : int
+	
+	
+	func _init(new_room : int = 50):
+		room = new_room
+
+
 var access_token := ""
+var user_id := ""
 
 # Signals since it's async calls.
 signal sync_completed
@@ -115,10 +220,33 @@ func get_members(room : String):
 
 
 # Creates a new room.
-func create_room(room_name : String = "", room_alias : String = "", topic : String = "General", preset : int = Preset.PRIVATE_CHAT, federate : bool = false):
-	var url := "https://matrix.org/_matrix/client/r0/createRoom"
-	var room_preset := ""
+func create_room(
+	visibility : int = RoomVisibility.PRIVATE,
+	room_alias_name : String = "",
+	room_name : String = "",
+	topic : String = "",
+	invite : Array = [],
+	invite_3pid : Array = [],
+	room_version : String = "1",
+	creation_content : CreationContent = CreationContent.new(user_id),
+	initial_state : Array = [],
+	preset : int = Preset.PRIVATE_CHAT,
+	is_direct : bool = false,
+	power_level_content_override : PowerLevelEventContent = PowerLevelEventContent.new()
 	
+	):
+	var url := "https://matrix.org/_matrix/client/r0/createRoom"
+	
+	power_level_content_override.data["users"][user_id] = 100
+	
+	var room_visibility := ""
+	match(visibility):
+		RoomVisibility.PRIVATE:
+			room_visibility = "private"
+		RoomVisibility.PUBLIC:
+			room_visibility = "public"
+
+	var room_preset := ""
 	match(preset):
 		Preset.PRIVATE_CHAT:
 			room_preset = "private_chat"
@@ -128,14 +256,20 @@ func create_room(room_name : String = "", room_alias : String = "", topic : Stri
 			room_preset = "trusted_private_chat"
 			
 	var body := {
-		"creation_content": {
-		"m.federate": str(federate).to_lower()
-		},
+		"room_visibility" : room_visibility,
+		"room_alias_name" : room_alias_name,
 		"name": room_name,
+		"topic" : topic,
+		"invite" : invite,
+		"invite_3pid" : invite_3pid,
+		"room_version" : room_version,
+		"creation_content" : creation_content.data,
+		"initial_state" : initial_state,
 		"preset": room_preset,
-		"room_alias_name": room_alias,
-		"topic": topic
+		"is_direct" : is_direct,
+		"power_level_content_override" : power_level_content_override.data, # This one breaks everything.
 	}
+	print(JSON.print(body, "\t"))
 	_make_post_request(url, body, true, "_create_room_completed")
 	var response = yield(self, "create_room_completed")
 	return response
@@ -198,16 +332,23 @@ func _login_completed(result : int, response_code : int, _headers : PoolStringAr
 	var response: Dictionary = parse_json(body.get_string_from_ascii())
 	match(response_code):
 		400:
-			push_warning("Part of the request was invalid. For example, the login type may not be recognised.")
+			var error_string := "{errcode} : {error}".format(response)
+			push_warning(error_string)
+#			push_warning("Part of the request was invalid. For example, the login type may not be recognised.")
 		403:
-			push_warning("The login attempt failed: %s" % response["error"])
+			var error_string := "{errcode} : {error}".format(response)
+			push_warning(error_string)
+#			push_warning("The login attempt failed: %s" % response["error"])
 		429:
-			push_warning("This request was rate-limited.")
+			var error_string := "{errcode} : {error}".format(response)
+			push_warning(error_string)
+#			push_warning("This request was rate-limited.")
 		200:
-			pass
+			
 			# NOTE : access_token must be set before emitting signal.
 			print(JSON.print(response, "\t"))
 			access_token = response["access_token"]
+			user_id = response["user_id"]
 			print(JSON.print(response["access_token"], "\t"))
 		_:
 			push_error("something unexpected happened: " + str(response_code))
@@ -216,14 +357,18 @@ func _login_completed(result : int, response_code : int, _headers : PoolStringAr
 
 # Runs when the logout request completes.
 # Requires an access token to know who is logging out.
-func _logout_completed(result : int, response_code : int, _headers : PoolStringArray, _body : PoolByteArray):
+func _logout_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray):
 	var _err_result = _check_result(result)
+	var response: Dictionary = parse_json(body.get_string_from_utf8())
 	match(response_code):
 		200:
 			access_token = ""
+			user_id = ""
 			emit_signal("logout_completed", true)
 		401:
-			push_warning("Missing access token")
+			var error_string := "{errcode} : {error}".format(response)
+			push_warning(error_string)
+#			push_warning("Missing access token")
 			emit_signal("logout_completed", false)
 
 
@@ -234,11 +379,14 @@ func _invite_completed(result : int, response_code : int, _headers : PoolStringA
 		200:
 			pass
 		400:
-			push_error(response["error"])
+			var error_string := "{errcode} : {error}".format(response)
+			push_warning(error_string)
 		403:
-			push_error(response["error"])
+			var error_string := "{errcode} : {error}".format(response)
+			push_warning(error_string)
 		429:
-			push_error(response["error"])
+			var error_string := "{errcode} : {error}".format(response)
+			push_warning(error_string)
 	emit_signal("invite_completed", response)
 
 
@@ -251,7 +399,9 @@ func _sync_completed(result : int, response_code : int, _headers : PoolStringArr
 		200:
 			pass
 		401:
-			push_warning("Missing access token")
+			var error_string := "{errcode} : {error}".format(response)
+			push_warning(error_string)
+#			push_warning("Missing access token")
 	emit_signal("sync_completed", response)
 
 
@@ -272,10 +422,14 @@ func _join_room_completed(result : int, response_code : int, _headers : PoolStri
 			pass
 #			emit_signal("room_joined_completed", true)
 		403:
-			push_warning("An unkown error occurred")
+			var error_string := "{errcode} : {error}".format(response)
+			push_warning(error_string)
+#			push_warning("An unkown error occurred")
 #			emit_signal("room_joined_completed", false)
 		429:
-			push_warning("Too many requests")
+			var error_string := "{errcode} : {error}".format(response)
+			push_warning(error_string)
+#			push_warning("Too many requests")
 #			emit_signal("room_joined_completed", false)
 	emit_signal("room_joined_completed", response)
 
@@ -288,7 +442,9 @@ func _get_members_completed(result : int, response_code : int, _headers : PoolSt
 		200:
 			pass
 		403:
-			push_warning("You are not a member of the room")
+			var error_string := "{errcode} : {error}".format(response)
+			push_warning(error_string)
+#			push_warning("You are not a member of the room")
 	emit_signal("get_members_completed", response)
 
 
@@ -300,7 +456,10 @@ func _create_room_completed(result : int, response_code : int, _headers : PoolSt
 		200:
 			pass
 		400:
-			push_warning("Unknown error occurred")
+			var error_string := "{errcode} : {error}".format(response)
+			push_warning(error_string)
+#			push_warning("{errcode} : {error}").format(response)
+#			push_error("Unknown error occurred: {error}".format(response))
 	emit_signal("create_room_completed", response)
 
 
@@ -333,9 +492,8 @@ func _get_messages_completed(result : int, response_code : int, _headers : PoolS
 		200:
 			pass
 		403:
-			###### THIS IS A TEST ######
-			# "You are not a member of this room"
-			push_warning("{errcode} : {error}").format(response)
+			var error_string := "{errcode} : {error}".format(response)
+			push_warning(error_string)
 	emit_signal("get_messages_completed", response)
 
 
@@ -346,7 +504,9 @@ func _get_state_by_room_id_completed(result : int, response_code : int, _headers
 		200:
 			pass
 		403:
-			push_warning("You aren't a member of the room and weren't previously a member of the room.")
+			var error_string := "{errcode} : {error}".format(response)
+			push_warning(error_string)
+#			push_warning("You aren't a member of the room and weren't previously a member of the room.")
 	
 	emit_signal("get_state_by_room_id_completed", response)
 
@@ -358,9 +518,13 @@ func _get_room_name_by_room_id_completed(result : int, response_code : int, _hea
 		200:
 			pass
 		404:
-			print("The room has no state with the given type or key.")
+			var error_string := "{errcode} : {error}".format(response)
+			push_warning(error_string)
+#			print("The room has no state with the given type or key.")
 		403:
-			push_warning("You aren't a member of the room and weren't previously a member of the room.")
+			var error_string := "{errcode} : {error}".format(response)
+			push_warning(error_string)
+#			push_warning("You aren't a member of the room and weren't previously a member of the room.")
 	
 	emit_signal("get_room_name_by_room_id_completed", response)
 	
