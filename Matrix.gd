@@ -112,7 +112,7 @@ class Notifications:
 
 
 var access_token := ""
-var user_id := ""
+var user_identification := ""
 
 # Signals since it's async calls.
 signal sync_completed
@@ -228,7 +228,7 @@ func create_room(
 	invite : Array = [],
 	invite_3pid : Array = [],
 	room_version : String = "1",
-	creation_content : CreationContent = CreationContent.new(user_id),
+	creation_content : CreationContent = CreationContent.new(user_identification),
 	initial_state : Array = [],
 	preset : int = Preset.PRIVATE_CHAT,
 	is_direct : bool = false,
@@ -237,7 +237,7 @@ func create_room(
 	):
 	var url := "https://matrix.org/_matrix/client/r0/createRoom"
 	
-	power_level_content_override.data["users"][user_id] = 100
+	power_level_content_override.data["users"][user_identification] = 100
 	
 	var room_visibility := ""
 	match(visibility):
@@ -269,7 +269,6 @@ func create_room(
 		"is_direct" : is_direct,
 		"power_level_content_override" : power_level_content_override.data, # This one breaks everything.
 	}
-	print(JSON.print(body, "\t"))
 	_make_post_request(url, body, true, "_create_room_completed")
 	var response = yield(self, "create_room_completed")
 	return response
@@ -348,7 +347,7 @@ func _login_completed(result : int, response_code : int, _headers : PoolStringAr
 			# NOTE : access_token must be set before emitting signal.
 			print(JSON.print(response, "\t"))
 			access_token = response["access_token"]
-			user_id = response["user_id"]
+			user_identification = response["user_id"]
 			print(JSON.print(response["access_token"], "\t"))
 		_:
 			push_error("something unexpected happened: " + str(response_code))
@@ -363,7 +362,7 @@ func _logout_completed(result : int, response_code : int, _headers : PoolStringA
 	match(response_code):
 		200:
 			access_token = ""
-			user_id = ""
+			user_identification = ""
 			emit_signal("logout_completed", true)
 		401:
 			var error_string := "{errcode} : {error}".format(response)

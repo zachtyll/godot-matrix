@@ -42,10 +42,17 @@ func _on_login(response : String):
 
 # Logout
 func _on_Settings_logout():
-	modal.get_node("Settings").disappear()
 	GodotMatrix.logout()
-	login_status.text = "Logged out."
-	$LoginScreen.show()
+
+
+func _on_logout(error : int) -> void:
+	if error:
+		return
+	else:
+		room_list.clear()
+		modal.get_node("Settings").disappear()
+		login_status.text = "Logged out."
+		$LoginScreen.show()
 
 
 # Register a new user.
@@ -131,3 +138,4 @@ func _ready():
 	var _rooms_joined_err := GodotMatrix.connect("rooms_joined", self, "_update_room_list")
 	var _refresh_err := GodotMatrix.connect("incoming_events", self, "_update_chat_window")
 	var _create_room_err := GodotMatrix.connect("create_room", self, "_on_create_room")
+	var _logout_err := GodotMatrix.connect("logout", self, "_on_logout")

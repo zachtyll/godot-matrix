@@ -61,16 +61,16 @@ func login(username : String, password : String) -> int:
 		return OK
 
 
-func logout() -> int:
-	var result = yield(mp.logout(), "completed")
-	if result:
-		emit_signal("logout", result)
-		return FAILED
-	else:
-		emit_signal("logout", result)
-		rooms_array.clear()
+func logout() -> void:
+	var logout = yield(mp.logout(), "completed")
+	if logout:
 		timer.stop()
-		return OK
+		rooms_array.clear()
+		emit_signal("logout", OK)
+	else:
+		emit_signal("logout", FAILED)
+		var error_string := "Logout: " + str(logout)
+		push_error(error_string)
 
 
 func register() -> void:
@@ -156,6 +156,7 @@ func get_room_events(index : int) -> Array:
 
 # Synchronizes data in client with server.
 func sync_to_server() -> void:
+	print(rooms_array)
 	var sync_data = yield(mp.sync_events(), "completed")
 	for room_id in sync_data["rooms"]["join"].keys():
 		var room_data = sync_data["rooms"]["join"][room_id]
