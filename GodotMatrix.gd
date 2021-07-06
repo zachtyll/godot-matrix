@@ -156,7 +156,6 @@ func get_room_events(index : int) -> Array:
 
 # Synchronizes data in client with server.
 func sync_to_server() -> void:
-	print(rooms_array)
 	var sync_data = yield(mp.sync_events(), "completed")
 	for room_id in sync_data["rooms"]["join"].keys():
 		var room_data = sync_data["rooms"]["join"][room_id]
