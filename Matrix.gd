@@ -523,7 +523,7 @@ func _room_kick_completed(result : int, response_code : int, _headers : PoolStri
 		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
 		push_warning(error_string)
 	
-	emit_signal("room_kickcompleted", response)
+	emit_signal("room_kick_completed", response)
 
 
 func _room_leave_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:

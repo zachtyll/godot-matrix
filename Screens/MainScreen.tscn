@@ -1,13 +1,11 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=3 format=2]
 
-[ext_resource path="res://ChatWindow.gd" type="Script" id=1]
-[ext_resource path="res://ChatWindow.tscn" type="PackedScene" id=2]
+[ext_resource path="res://ChatWindow.tscn" type="PackedScene" id=1]
 
 [sub_resource type="StyleBoxFlat" id=1]
 bg_color = Color( 0.392157, 0.392157, 0.392157, 1 )
 
 [node name="MainScreen" type="Panel"]
-modulate = Color( 0.607843, 0.607843, 0.607843, 1 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 size_flags_horizontal = 3
@@ -112,18 +110,13 @@ margin_right = 93.0
 margin_bottom = 32.0
 text = "Topic"
 
-[node name="ChatWindow" type="ScrollContainer" parent="Screen/MidSection" instance=ExtResource( 2 )]
+[node name="ChatWindow" parent="Screen/MidSection" instance=ExtResource( 1 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
 margin_top = 74.0
 margin_right = 609.0
 margin_bottom = 572.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
 custom_styles/bg = SubResource( 1 )
-scroll_horizontal_enabled = false
-script = ExtResource( 1 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="ChatInput" type="HBoxContainer" parent="Screen/MidSection"]
 margin_top = 576.0

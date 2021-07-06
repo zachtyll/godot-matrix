@@ -77,6 +77,8 @@ func add_message(new_event : Event) -> int:
 		"m.room.redaction":
 			message_box = m_red.instance()
 			message_box.event = new_event
+		"m.room.avatar":
+			print(JSON.print(new_event.content, "\t"))
 		_:
 			message_box = null
 			push_warning("Unhandled message type: " + str(new_event.type))
