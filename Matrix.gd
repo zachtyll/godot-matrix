@@ -119,7 +119,12 @@ signal sync_completed
 signal login_completed
 signal logout_completed
 signal invite_completed
-signal room_joined_completed
+signal room_join_completed
+signal room_ban_completed
+signal room_forget_completed
+signal room_kick_completed
+signal room_leave_completed
+signal room_unban_completed
 signal send_message_completed
 signal get_members_completed
 signal create_room_completed
@@ -129,6 +134,10 @@ signal get_room_aliases_completed
 signal get_messages_completed
 signal get_state_by_room_id_completed
 signal get_room_name_by_room_id_completed
+signal message_redact_completed
+signal who_am_i_completed
+signal search_user_completed
+signal get_displayname_completed
 
 
 # Logs a user into Matrix
@@ -149,6 +158,7 @@ func login(username : String, password : String):
 	var response = yield(self, "login_completed")
 	return response
 
+
 # Logs out a session from the server
 func logout():
 	var url := "https://matrix.org/_matrix/client/r0/logout"
@@ -160,14 +170,17 @@ func logout():
 	
 
 # Registers a new user on Matrix.
-# TODO : Make this work as intended.
+# TODO : Implement registration.
 # TODO : Allow for 3PID registration.
 func register():
 	print("Not implemented.")
 
+
+# -----------Room Participation-------------- #
+
 # Invite by Matrix user ID.
 func invite(room_id : String, user_id : String) -> Dictionary:
-	var url := "https://matrix.org/_matrix/client/r0/rooms/" + room_id + "/invite"
+	var url := "https://matrix.org/_matrix/client/r0/rooms/%s/invite" % room_id
 	var body := {
 		"user_id" : user_id
 	}
@@ -175,6 +188,66 @@ func invite(room_id : String, user_id : String) -> Dictionary:
 	var response = yield(self, "invite_completed")
 	return response
 
+
+# Joins a room that the user is invited to or a public room.
+func room_join(room_id_or_alias : String, server_name : String = "matrix.org") -> Dictionary:
+	var url := "https://matrix.org/_matrix/client/r0/join/%s?server_name=%s" % [room_id_or_alias, server_name]
+	var body := {
+		# TODO : Add 3PID implementation
+	}
+	_make_post_request(url, body, true, "_room_join_completed")
+	var response = yield(self, "room_join_completed")
+	return response
+
+
+func room_ban(room_id : String, user_id : String, reason : String = "", server : String = "matrix.org"):
+	var url := "https://matrix.org/_matrix/client/r0/rooms/%s:%s/ban" % [room_id, server]
+	var body := {
+		"reason" : reason,
+		"user_id" : user_id
+	}
+	_make_post_request(url, body, true, "_room_ban_completed")
+	var response = yield(self, "room_ban_completed")
+	return response
+
+
+func room_forget(room_id : String, server : String = "matrix.org"):
+	var url := "https://matrix.org/_matrix/client/r0/rooms/%s:%s/forget" % [room_id, server]
+	var body := {}
+	_make_post_request(url, body, true, "_room_forget_completed")
+	var response = yield(self, "room_forget_completed")
+	return response
+
+
+func room_kick(room_id : String, user_id : String, reason : String = "", server : String = "matrix.org"):
+	var url := "https://matrix.org/_matrix/client/r0/rooms/%s:%s/ban" % [room_id, server]
+	var body := {
+		"reason" : reason,
+		"user_id" : user_id
+	}
+	_make_post_request(url, body, true, "_room_kick_completed")
+	var response = yield(self, "room_kick_completed")
+	return response
+
+
+func room_leave(room_id : String, server : String = "matrix.org"):
+	var url := "https://matrix.org/_matrix/client/r0/rooms/%s:%s/forget" % [room_id, server]
+	var body := {}
+	_make_post_request(url, body, true, "_room_leave_completed")
+	var response = yield(self, "room_leave_completed")
+	return response
+
+
+func room_unban(room_id : String, user_id : String) -> Dictionary:
+	var url := "https://matrix.org/_matrix/client/r0/rooms/%s/unban" % room_id
+	var body := {
+		"user_id" : user_id,
+	}
+	_make_post_request(url, body, true, "_room_unban_completed")
+	var response = yield(self, "room_unban_completed")
+	return response
+
+# --------------------------------------------- #
 
 # Sends a message to the server.
 # NOTE : Message does not always mean "text message".
@@ -201,18 +274,18 @@ func sync_events(filter : String = (""),  since : String = "s0", full_state : bo
 
 
 # Joins the user to a room.
-func join_room(room : String):
-	var url := "https://matrix.org/_matrix/client/r0/join/" + room
-	var body := {
-		"room_alias_name": "test"
-	}
-	_make_post_request(url, body, true, "_join_room_completed")
-	var response = yield(self, "join_room_completed")
-	return response
+#func join_room(room : String) -> Dictionary:
+#	var url := "https://matrix.org/_matrix/client/r0/join/" + room
+#	var body := {
+#		"room_alias_name": "test"
+#	}
+#	_make_post_request(url, body, true, "_join_room_completed")
+#	var response = yield(self, "join_room_completed")
+#	return response
 
 
 # Gets all members of a room.
-func get_members(room : String):
+func get_members(room : String) -> Dictionary:
 	var url := "https://matrix.org/_matrix/client/r0/rooms/" + room + "/joined_members"
 	_make_get_request(url, "_get_members_completed")
 	var response = yield(self, "get_members_completed")
@@ -234,7 +307,7 @@ func create_room(
 	is_direct : bool = false,
 	power_level_content_override : PowerLevelEventContent = PowerLevelEventContent.new()
 	
-	):
+	) -> Dictionary:
 	var url := "https://matrix.org/_matrix/client/r0/createRoom"
 	
 	power_level_content_override.data["users"][user_identification] = 100
@@ -275,7 +348,7 @@ func create_room(
 
 
 # Gets all rooms the user has joined.
-func get_joined_rooms():
+func get_joined_rooms() -> Dictionary:
 	var url := "https://matrix.org/_matrix/client/r0/joined_rooms"
 	_make_get_request(url, "_get_joined_rooms_completed")
 	var response = yield(self, "get_joined_rooms_completed")
@@ -292,7 +365,7 @@ func get_room_id_by_alias(alias : String, homeserver : String = "matrix.org") ->
 
 # Gets an array of local aliases for a room.
 # TODO : Figure out what "local" implies.
-func get_room_aliases(room_id : String) -> void:
+func get_room_aliases(room_id : String) -> Dictionary:
 	var url := "https://matrix.org/_matrix/client/r0/rooms/" + room_id + "/aliases"
 	_make_get_request(url, "_get_room_aliases_completed")
 	var response = yield(self, "get_room_aliases_completed")
@@ -309,17 +382,54 @@ func get_messages(room_id : String, from : String = "", to : String = "", dir : 
 	return response
 
 
-func get_state_by_room_id(room_id : String) -> void:
+func get_state_by_room_id(room_id : String) -> Dictionary:
 	var url := "https://matrix.org/_matrix/client/r0/rooms/" + room_id + "/state"
 	_make_get_request(url, "_get_state_by_room_id_completed")
 	var response = yield(self, "get_state_by_room_id_completed")
 	return response
 
 
-func get_room_name_by_room_id(room_id : String) -> void:
+func get_room_name_by_room_id(room_id : String) -> Dictionary:
 	var url := "https://matrix.org/_matrix/client/r0/rooms/" + room_id + "/state/m.room.name"
 	_make_get_request(url, "_get_room_name_by_room_id_completed")
 	var response = yield(self, "get_room_name_by_room_id_completed")
+	return response
+
+
+func message_redact(room_id : String, event_id : String, transaction_id : String, reason : String = "") -> void:
+	var url := "https://matrix.org/_matrix/client/r0/rooms/%s/redact/%s/%s" % [room_id, event_id, transaction_id]
+	var body := {
+		"reason" : reason,
+	}
+	_make_put_request(url, body, true, "_message_redact_completed")
+	var response = yield(self, "message_redact_completed")
+	return response
+
+
+# Get current user_id.
+func who_am_i() -> void:
+	var url := "https://matrix.org/_matrix/client/r0/account/whoami"
+	_make_get_request(url, "_who_am_i_completed")
+	var response = yield(self, "who_am_i_completed")
+	return response
+
+
+# Find a user_id from search_term returns limit amount of user_ids.
+func search_user(search_term : String, limit : int = 10) -> void:
+	var url := "https://matrix.org/_matrix/client/r0/user_directory/search"
+	var body := {
+		"limit" : limit,
+		"search_term" : search_term,
+	}
+	_make_post_request(url, body, true, "_search_user_completed")
+	var response = yield(self, "search_user_completed")
+	return response
+
+
+func get_displayname(user_id : String) -> Dictionary:
+	var url := "https://matrix.org/_matrix/client/r0/profile/%s/displayname" % user_id
+	_make_get_request(url, "_get_displayname_completed")
+	var response = yield(self, "get_displayname_completed")
 	return response
 
 
@@ -329,28 +439,15 @@ func get_room_name_by_room_id(room_id : String) -> void:
 func _login_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray):
 	var _err_result = _check_result(result)
 	var response: Dictionary = parse_json(body.get_string_from_ascii())
-	match(response_code):
-		400:
-			var error_string := "{errcode} : {error}".format(response)
-			push_warning(error_string)
-#			push_warning("Part of the request was invalid. For example, the login type may not be recognised.")
-		403:
-			var error_string := "{errcode} : {error}".format(response)
-			push_warning(error_string)
-#			push_warning("The login attempt failed: %s" % response["error"])
-		429:
-			var error_string := "{errcode} : {error}".format(response)
-			push_warning(error_string)
-#			push_warning("This request was rate-limited.")
-		200:
-			
-			# NOTE : access_token must be set before emitting signal.
-			print(JSON.print(response, "\t"))
-			access_token = response["access_token"]
-			user_identification = response["user_id"]
-			print(JSON.print(response["access_token"], "\t"))
-		_:
-			push_error("something unexpected happened: " + str(response_code))
+	if response_code == 200:
+		# NOTE : access_token must be set before emitting signal.
+		access_token = response["access_token"]
+		user_identification = response["user_id"]
+		print(JSON.print(response["access_token"], "\t"))
+	else:
+		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
+		push_warning(error_string)
+	
 	emit_signal("login_completed", response)
 
 
@@ -359,34 +456,98 @@ func _login_completed(result : int, response_code : int, _headers : PoolStringAr
 func _logout_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray):
 	var _err_result = _check_result(result)
 	var response: Dictionary = parse_json(body.get_string_from_utf8())
-	match(response_code):
-		200:
-			access_token = ""
-			user_identification = ""
-			emit_signal("logout_completed", true)
-		401:
-			var error_string := "{errcode} : {error}".format(response)
-			push_warning(error_string)
+	if response_code == 200:
+		access_token = ""
+		user_identification = ""
+		emit_signal("logout_completed", true)
+	else:
+		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
+		push_warning(error_string)
 #			push_warning("Missing access token")
-			emit_signal("logout_completed", false)
+		emit_signal("logout_completed", false)
 
 
 func _invite_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray):
 	var _err_result := _check_result(result)
 	var response: Dictionary = parse_json(body.get_string_from_utf8())
-	match(response_code):
-		200:
-			pass
-		400:
-			var error_string := "{errcode} : {error}".format(response)
-			push_warning(error_string)
-		403:
-			var error_string := "{errcode} : {error}".format(response)
-			push_warning(error_string)
-		429:
-			var error_string := "{errcode} : {error}".format(response)
-			push_warning(error_string)
+	if response_code == 200:
+		pass
+	else:
+		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
+		push_warning(error_string)
 	emit_signal("invite_completed", response)
+
+
+func _room_join_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
+	var _err_result = _check_result(result)
+	var response: Dictionary = parse_json(body.get_string_from_utf8())
+	if response_code == 200:
+		pass
+	else:
+		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
+		push_warning(error_string)
+
+	emit_signal("room_join_completed", response)
+
+
+func _room_ban_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
+	var _err_result = _check_result(result)
+	var response: Dictionary = parse_json(body.get_string_from_utf8())
+	if response_code == 200:
+		pass
+	else:
+		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
+		push_warning(error_string)
+	
+	emit_signal("room_ban_completed", response)
+
+
+func _room_forget_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
+	var _err_result = _check_result(result)
+	var response: Dictionary = parse_json(body.get_string_from_utf8())
+	if response_code == 200:
+		pass
+	else:
+		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
+		push_warning(error_string)
+	
+	emit_signal("room_forget_completed", response)
+
+
+func _room_kick_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
+	var _err_result = _check_result(result)
+	var response: Dictionary = parse_json(body.get_string_from_utf8())
+	if response_code == 200:
+		pass
+	else:
+		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
+		push_warning(error_string)
+	
+	emit_signal("room_kickcompleted", response)
+
+
+func _room_leave_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
+	var _err_result = _check_result(result)
+	var response: Dictionary = parse_json(body.get_string_from_utf8())
+	if response_code == 200:
+		pass
+	else:
+		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
+		push_warning(error_string)
+	
+	emit_signal("room_leave_completed", response)
+
+
+func _room_unban_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
+	var _err_result = _check_result(result)
+	var response: Dictionary = parse_json(body.get_string_from_utf8())
+	if response_code == 200:
+		pass
+	else:
+		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
+		push_warning(error_string)
+	
+	emit_signal("room_unban_completed", response)
 
 
 # Runs when synchronizaion completes.
@@ -394,56 +555,35 @@ func _invite_completed(result : int, response_code : int, _headers : PoolStringA
 func _sync_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray):
 	var _err_result = _check_result(result)
 	var response: Dictionary = parse_json(body.get_string_from_utf8())
-	match(response_code):
-		200:
-			pass
-		401:
-			var error_string := "{errcode} : {error}".format(response)
-			push_warning(error_string)
-#			push_warning("Missing access token")
+	if response_code == 200:
+		pass
+	else:
+		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
+		push_warning(error_string)
 	emit_signal("sync_completed", response)
 
 
 # Runs when send message has completed.
-func _send_message_completed(result : int, _response_code : int, _headers : PoolStringArray, _body : PoolByteArray):
-	var _err_result = _check_result(result)
-	emit_signal("send_message_completed", true)
-
-
-# Runs when join room has completed.
-# TODO : Remove unessecary return statement.
-# TODO : Figure out if we actually need this signal to be emitted.
-func _join_room_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
+func _send_message_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray):
 	var _err_result = _check_result(result)
 	var response: Dictionary = parse_json(body.get_string_from_utf8())
-	match(response_code):
-		200:
-			pass
-#			emit_signal("room_joined_completed", true)
-		403:
-			var error_string := "{errcode} : {error}".format(response)
-			push_warning(error_string)
-#			push_warning("An unkown error occurred")
-#			emit_signal("room_joined_completed", false)
-		429:
-			var error_string := "{errcode} : {error}".format(response)
-			push_warning(error_string)
-#			push_warning("Too many requests")
-#			emit_signal("room_joined_completed", false)
-	emit_signal("room_joined_completed", response)
+	if response_code == 200:
+		pass
+	else:
+		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
+		push_warning(error_string)
+	emit_signal("send_message_completed", true)
 
 
 # Runs when get members completes
 func _get_members_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
 	var _err_result = _check_result(result)
 	var response: Dictionary = parse_json(body.get_string_from_utf8())
-	match(response_code):
-		200:
-			pass
-		403:
-			var error_string := "{errcode} : {error}".format(response)
-			push_warning(error_string)
-#			push_warning("You are not a member of the room")
+	if response_code == 200:
+		pass
+	else:
+		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
+		push_warning(error_string)
 	emit_signal("get_members_completed", response)
 
 
@@ -451,35 +591,47 @@ func _get_members_completed(result : int, response_code : int, _headers : PoolSt
 func _create_room_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
 	var _err_result = _check_result(result)
 	var response: Dictionary = parse_json(body.get_string_from_ascii())
-	match(response_code):
-		200:
-			pass
-		400:
-			var error_string := "{errcode} : {error}".format(response)
-			push_warning(error_string)
-#			push_warning("{errcode} : {error}").format(response)
-#			push_error("Unknown error occurred: {error}".format(response))
+	if response_code == 200:
+		pass
+	else:
+		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
+		push_warning(error_string)
 	emit_signal("create_room_completed", response)
 
 
 # Runs when get joined rooms completes.
-func _get_joined_rooms_completed(result : int, _response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
+func _get_joined_rooms_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
 	var _err_result = _check_result(result)
 	var response: Dictionary = parse_json(body.get_string_from_ascii())
+	if response_code == 200:
+		pass
+	else:
+		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
+		push_warning(error_string)
 	emit_signal("get_joined_rooms_completed", response)
 
 
 # Runs when get room by alias completes.
-func _get_room_id_by_alias_completed(result : int, _response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
+func _get_room_id_by_alias_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
 	var _err_result = _check_result(result)
 	var response: Dictionary = parse_json(body.get_string_from_ascii())
+	if response_code == 200:
+		pass
+	else:
+		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
+		push_warning(error_string)
 	emit_signal("get_room_id_by_alias_completed", response)
 
 
 # Runs when get room aliases completes.
-func _get_room_aliases_completed(result : int, _response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
+func _get_room_aliases_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
 	var _err_result = _check_result(result)
 	var response: Dictionary = parse_json(body.get_string_from_ascii())
+	if response_code == 200:
+		pass
+	else:
+		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
+		push_warning(error_string)
 	emit_signal("get_room_aliases_completed", response)
 
 
@@ -487,25 +639,22 @@ func _get_room_aliases_completed(result : int, _response_code : int, _headers : 
 func _get_messages_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
 	var _err_result = _check_result(result)
 	var response: Dictionary = parse_json(body.get_string_from_ascii())
-	match(response_code):
-		200:
-			pass
-		403:
-			var error_string := "{errcode} : {error}".format(response)
-			push_warning(error_string)
+	if response_code == 200:
+		pass
+	else:
+		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
+		push_warning(error_string)
 	emit_signal("get_messages_completed", response)
 
 
 func _get_state_by_room_id_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
 	var _err_result = _check_result(result)
 	var response: Array = parse_json(body.get_string_from_ascii())
-	match(response_code):
-		200:
-			pass
-		403:
-			var error_string := "{errcode} : {error}".format(response)
-			push_warning(error_string)
-#			push_warning("You aren't a member of the room and weren't previously a member of the room.")
+	if response_code == 200:
+		pass
+	else:
+		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
+		push_warning(error_string)
 	
 	emit_signal("get_state_by_room_id_completed", response)
 
@@ -513,20 +662,62 @@ func _get_state_by_room_id_completed(result : int, response_code : int, _headers
 func _get_room_name_by_room_id_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
 	var _err_result = _check_result(result)
 	var response: Dictionary = parse_json(body.get_string_from_utf8())
-	match(response_code):
-		200:
-			pass
-		404:
-			var error_string := "{errcode} : {error}".format(response)
-			push_warning(error_string)
-#			print("The room has no state with the given type or key.")
-		403:
-			var error_string := "{errcode} : {error}".format(response)
-			push_warning(error_string)
-#			push_warning("You aren't a member of the room and weren't previously a member of the room.")
+	if response_code == 200:
+		pass
+	else:
+		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
+		push_warning(error_string)
 	
 	emit_signal("get_room_name_by_room_id_completed", response)
+
+
+func _message_redact_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
+	var _err_result = _check_result(result)
+	var response: Dictionary = parse_json(body.get_string_from_utf8())
+	if response_code == 200:
+		pass
+	else:
+		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
+		push_warning(error_string)
 	
+	emit_signal("message_redact_completed", response)
+
+
+# Get current user_id.
+func _who_am_i_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
+	var _err_result = _check_result(result)
+	var response: Dictionary = parse_json(body.get_string_from_utf8())
+	if response_code == 200:
+		pass
+	else:
+		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
+		push_warning(error_string)
+
+	emit_signal("who_am_i_completed", response)
+
+
+func _search_user_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
+	var _err_result = _check_result(result)
+	var response: Dictionary = parse_json(body.get_string_from_utf8())
+	if response_code == 200:
+		pass
+	else:
+		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
+		push_warning(error_string)
+
+	emit_signal("search_user_completed", response)
+
+
+func _get_displayname_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
+	var _err_result = _check_result(result)
+	var response: Dictionary = parse_json(body.get_string_from_utf8())
+	if response_code == 200:
+		pass
+	else:
+		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
+		push_warning(error_string)
+
+	emit_signal("get_displayname_completed", response)
 
 
 # HTTPRequest POST mode.

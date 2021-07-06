@@ -52,7 +52,6 @@ func login(username : String, password : String) -> int:
 		emit_signal("login", result["error"])
 		return FAILED
 	else:
-		print("LOGIN")
 		emit_signal("login", "")
 		user_username = username
 		timer.start()
@@ -117,11 +116,14 @@ func redact_message(_event_id : String) -> void:
 	pass
 
 
+# Not found in spec.
 func append_reaction(_event_id : String, _reaction) -> void:
 	pass
 
 
 func send_message(message_text : String) -> int:
+	if not current_room:
+		return FAILED
 	if message_text.empty():
 		return FAILED
 	elif message_text.begins_with(" "):
