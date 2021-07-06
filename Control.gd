@@ -36,6 +36,7 @@ func _on_login(response : String):
 		login_status.text = "Login error: %s" % response
 	else:
 		login_status.text = "Login success!"
+		GodotMatrix.sync_to_server()
 		$LoginScreen.hide()
 
 

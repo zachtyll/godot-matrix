@@ -56,8 +56,6 @@ func login(username : String, password : String) -> int:
 		emit_signal("login", "")
 		user_username = username
 		timer.start()
-		print(timer.wait_time)
-		sync_to_server()
 		return OK
 
 
