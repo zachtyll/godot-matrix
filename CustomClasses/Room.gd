@@ -81,6 +81,7 @@ enum RoomMembership {
 var room_id := ""
 var room_name := ""
 var room_alias := ""
+var room_avatar := ""
 var room_topic := ""
 var room_membership := 0
 
@@ -100,11 +101,11 @@ func _init(username : String, new_room_id : String, new_room_data : Dictionary):
 	state = State.new(new_room_data["state"])
 	room_id = new_room_id
 	_get_room_name(username)
+	_get_room_avatar()
 	_get_room_topic()
 
 
-# Massive function to translate room_id into human-readable names.
-# TODO : Move this algo into the Room class.
+# Translate room_id into human-readable names.
 func _get_room_name(username : String) -> void:
 	var room_member_name := ""
 	# Must check state.events for rooms with a lot of message events.
@@ -128,6 +129,14 @@ func _get_room_name(username : String) -> void:
 		room_name = room_member_name
 	else:
 		room_name = str(self)
+
+
+# Finds the latest url to the avatar used for the room.
+func _get_room_avatar():
+	# Must check state.events for rooms with a lot of message events.
+	for event in (timeline.events + state.events):
+		if event.type == "m.room.topic":
+			room_avatar = event.content["topic"]
 
 
 func _get_room_topic():

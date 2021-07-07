@@ -63,6 +63,15 @@ size_flags_vertical = 3
 size_flags_stretch_ratio = 3.0
 placeholder_text = "Search"
 
+[node name="RoomList" type="ScrollContainer" parent="Screen/LeftSection/TopBarLeft"]
+margin_right = 12.0
+margin_bottom = 12.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Screen/LeftSection/TopBarLeft/RoomList"]
+
 [node name="ItemList" type="ItemList" parent="Screen/LeftSection"]
 margin_top = 74.0
 margin_right = 203.0
@@ -172,6 +181,11 @@ margin_right = 204.0
 margin_bottom = 68.0
 text = "Test Download"
 
-[node name="Sprite" type="Sprite" parent="Screen/RightSection"]
-position = Vector2( 92.142, 180.785 )
+[node name="Sprite" type="TextureRect" parent="Screen/RightSection"]
+margin_top = 72.0
+margin_right = 204.0
+margin_bottom = 600.0
+size_flags_vertical = 3
 texture = SubResource( 2 )
+expand = true
+stretch_mode = 5
