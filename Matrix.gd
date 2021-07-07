@@ -138,11 +138,14 @@ signal message_redact_completed
 signal who_am_i_completed
 signal search_user_completed
 signal get_displayname_completed
+signal download_completed
 signal get_thumbnail_completed
+signal preview_url_completed
 
 
 # Logs a user into Matrix
-# TODO : Make this work with any homeserver
+# TODO : Make this work with any homeserver.
+# TODO : Make this work with any type of authentication.
 func login(username : String, password : String):
 	var device_id := OS.get_unique_id() + "_" + username
 	var url := "https://matrix.org/_matrix/client/r0/login"
@@ -160,7 +163,7 @@ func login(username : String, password : String):
 	return response
 
 
-# Logs out a session from the server
+# Logs out a session from the server.
 func logout():
 	var url := "https://matrix.org/_matrix/client/r0/logout"
 	var body := {}
@@ -434,12 +437,25 @@ func get_displayname(user_id : String) -> Dictionary:
 	return response
 
 
+func download(media_id : String, allow_remote : bool = false, server : String = "matrix.org"):
+	var url := "https://matrix.org/_matrix/media/r0/download/%s/%s?allow_remote=%s" % [server, media_id, (str(allow_remote).to_lower())]
+	_make_get_request(url, "_download_completed")
+	var response = yield(self, "download_completed")
+	return response
+
+
 func get_thumbnail(media_id : String, width : int, height : int, server : String = "matrix.org", method : String = "scale", allow_remote : bool = false):
 	var url := "https://matrix.org/_matrix/media/r0/thumbnail/%s/%s?width=%s&height=%s&method=%s&allow_remote=%s" % [server, media_id, width, height, method, (str(allow_remote).to_lower())]
 	_make_get_request(url, "_get_thumbnail_completed")
 	var response = yield(self, "get_thumbnail_completed")
 	return response
 
+
+func preview_url(preview_url : String, ts : int = 0) -> Dictionary:
+	var url := "https://matrix.org/_matrix/media/r0/preview_url?url=%s&ts=%s" % [preview_url, ts]
+	_make_get_request(url, "_preview_url_completed")
+	var response = yield(self, "preview_url_completed")
+	return response
 
 # Called when the login request is completed.
 # Sets the access token that is used for all interactions with the server.
@@ -726,6 +742,30 @@ func _get_displayname_completed(result : int, response_code : int, _headers : Po
 		push_warning(error_string)
 
 	emit_signal("get_displayname_completed", response)
+
+
+func _download_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
+	var _err_result = _check_result(result)
+	var response: Dictionary = parse_json(body.get_string_from_utf8())
+	if response_code == 200:
+		pass
+	else:
+		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
+		push_warning(error_string)
+
+	emit_signal("download_completed", response)
+
+
+func _preview_url_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
+	var _err_result = _check_result(result)
+	var response: Dictionary = parse_json(body.get_string_from_utf8())
+	if response_code == 200:
+		pass
+	else:
+		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
+		push_warning(error_string)
+
+	emit_signal("preview_url_completed", response)
 
 
 func _get_thumbnail_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
