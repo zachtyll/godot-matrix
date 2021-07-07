@@ -7,8 +7,7 @@ var input_text := ""
 
 onready var channel_name := $MainScreen/Screen/MidSection/TopBarMid/TopBarMidHbox/ChannelLabels/ChannelName
 onready var topic := $MainScreen/Screen/MidSection/TopBarMid/TopBarMidHbox/ChannelLabels/Topic
-onready var room_list := $MainScreen/Screen/LeftSection/ItemList
-onready var room_list2 := $MainScreen/Screen/LeftSection/RoomList
+onready var room_list := $MainScreen/Screen/LeftSection/RoomList
 onready var chat_line := $MainScreen/Screen/MidSection/ChatInput/ChatLineStretcher/ChatLine
 onready var chat_window := $MainScreen/Screen/MidSection/ChatWindow
 onready var chat_history_list := null
@@ -149,11 +148,9 @@ func _on_Settings_create_room():
 # TODO : This seems like it should store all the synced 
 #	data to a local database rather than present it directly.
 func _update_room_list(rooms : Array) -> void:
-	room_list2.clear()
 	room_list.clear()
 	for room in rooms:
-		room_list.add_item(room.room_name)
-		room_list2.add_room(room)
+		room_list.add_room(room)
 
 
 # Updates the chat window when we click on a room in the left sidebar.

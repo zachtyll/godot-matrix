@@ -38,9 +38,9 @@ func _print_and_check(label : RichTextLabel, message : String) -> void:
 func _message_selection() -> void:
 	if selected:
 		selected = false
-		modulate = modulate - Color.gray
+		self_modulate = self_modulate - Color.gray
 	else:
-		modulate = modulate + Color.gray
+		self_modulate = self_modulate + Color.gray
 		selected = true
 
 
