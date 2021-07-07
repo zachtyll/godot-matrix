@@ -1,9 +1,11 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://ChatWindow.tscn" type="PackedScene" id=1]
 
 [sub_resource type="StyleBoxFlat" id=1]
 bg_color = Color( 0.392157, 0.392157, 0.392157, 1 )
+
+[sub_resource type="ImageTexture" id=2]
 
 [node name="MainScreen" type="Panel"]
 anchor_right = 1.0
@@ -152,3 +154,24 @@ margin_right = 1024.0
 margin_bottom = 600.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
+
+[node name="Preview" type="Button" parent="Screen/RightSection"]
+margin_right = 204.0
+margin_bottom = 20.0
+text = "Test Preview"
+
+[node name="Thumbnail" type="Button" parent="Screen/RightSection"]
+margin_top = 24.0
+margin_right = 204.0
+margin_bottom = 44.0
+text = "Test Thumbnail"
+
+[node name="Download" type="Button" parent="Screen/RightSection"]
+margin_top = 48.0
+margin_right = 204.0
+margin_bottom = 68.0
+text = "Test Download"
+
+[node name="Sprite" type="Sprite" parent="Screen/RightSection"]
+position = Vector2( 92.142, 180.785 )
+texture = SubResource( 2 )

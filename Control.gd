@@ -16,6 +16,28 @@ onready var username := $LoginScreen/CenterContainer/VBoxContainer/GridContainer
 onready var password := $LoginScreen/CenterContainer/VBoxContainer/GridContainer/Password
 onready var modal := $Modal
 onready var popup := $PopUps
+onready var sprite := $MainScreen/Screen/RightSection/Sprite
+
+
+
+
+
+
+func _on_Preview_pressed():
+	GodotMatrix.preview_url()
+
+
+func _on_Thumbnail_pressed():
+	var texture = yield(GodotMatrix.thumbnail(), "completed")
+	sprite.texture = texture
+
+
+func _on_Download_pressed():
+	var texture = yield(GodotMatrix.download(), "completed")
+	sprite.texture = texture
+
+
+
 
 
 # Login a user

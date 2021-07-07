@@ -29,6 +29,35 @@ signal room_invite
 #signal message
 
 
+func preview_url():
+	var test = yield(mp.preview_url("https://github.com/public-apis/public-apis"),  "completed")
+	print(JSON.print(test, "\t"))
+
+
+func thumbnail():
+	var thumbnail = yield(mp.get_thumbnail("2021-07-07_ssncDdKimLbDCoQG", 64, 64),  "completed")
+	var image = Image.new()
+	var image_error = image.load_png_from_buffer(thumbnail)
+	if image_error != OK:
+		print("An error occurred while trying to display the image.")
+	
+	var texture = ImageTexture.new()
+	texture.create_from_image(image)
+	
+	return texture
+
+func download():
+	var data = yield(mp.download("CkjpviDvtacypZqLsxkpPxJm"),  "completed")
+	var image = Image.new()
+	var image_error = image.load_jpg_from_buffer(data)
+	if image_error != OK:
+		print("An error occurred while trying to display the image.")
+	
+	var texture = ImageTexture.new()
+	texture.create_from_image(image)
+	
+	return texture
+
 func _on_refresh_messages():
 	if current_room == null:
 		return

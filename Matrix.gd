@@ -457,6 +457,7 @@ func preview_url(preview_url : String, ts : int = 0) -> Dictionary:
 	var response = yield(self, "preview_url_completed")
 	return response
 
+
 # Called when the login request is completed.
 # Sets the access token that is used for all interactions with the server.
 # NOTE : Prints "response" for debugging via API playground at matrix.org
@@ -746,7 +747,7 @@ func _get_displayname_completed(result : int, response_code : int, _headers : Po
 
 func _download_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
 	var _err_result = _check_result(result)
-	var response: Dictionary = parse_json(body.get_string_from_utf8())
+	var response := body
 	if response_code == 200:
 		pass
 	else:
@@ -770,7 +771,8 @@ func _preview_url_completed(result : int, response_code : int, _headers : PoolSt
 
 func _get_thumbnail_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
 	var _err_result = _check_result(result)
-	var response: Dictionary = parse_json(body.get_string_from_utf8())
+	var response = body
+#	var response: Dictionary = parse_json(body.get_string_from_utf8())
 	if response_code == 200:
 		pass
 	else:
