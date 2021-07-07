@@ -5,7 +5,7 @@ const matrix_protocol = preload("Matrix.gd")
 
 
 var mp : MatrixProtocol
-var current_room : Room
+var current_room : Room setget set_current_room
 var input_text := ""
 var next_batch := "" setget set_next_batch
 var previous_batch := ""
@@ -43,10 +43,13 @@ func thumbnail(media_id : String, min_width : int = 32, min_height : int = 32):
 	var texture = ImageTexture.new()
 	var thumbnail = yield(mp.get_thumbnail(media_id.right(MEDIA_ID_LENGTH), min_width, min_height),  "completed")
 
-	var image_error = image.load_png_from_buffer(thumbnail)
-	if image_error != OK:
-		print("An error occurred while trying to display the image.")
-	texture.create_from_image(image)
+	if thumbnail is Dictionary:
+		return null
+	else:
+		var image_error = image.load_png_from_buffer(thumbnail)
+		if image_error != OK:
+			print("An error occurred while trying to display the image.")
+		texture.create_from_image(image)
 	
 	return texture
 
@@ -156,11 +159,14 @@ func append_reaction(_event_id : String, _reaction) -> void:
 
 
 func send_message(message_text : String) -> int:
-	if not current_room:
+	if current_room == null:
+		push_error("current_room == null.")
 		return FAILED
-	if message_text.empty():
+	elif message_text.empty():
+		push_error("message_text is empty.")
 		return FAILED
 	elif message_text.begins_with(" "):
+		push_error("message_text begins with whitespace.")
 		return FAILED
 	else:
 		mp.send_message(current_room.room_id, message_text)
@@ -176,8 +182,9 @@ func set_text_input(new_text : String) -> void:
 	input_text = new_text
 
 
-func set_current_room(index : int) -> void:
-	current_room = rooms_array[index]
+func set_current_room(new_room : Room) -> void:
+	current_room = new_room
+	print(new_room.room_id)
 
 
 func get_room(index : int) -> Room:

@@ -65,13 +65,6 @@ size_flags_vertical = 3
 size_flags_stretch_ratio = 3.0
 placeholder_text = "Search"
 
-[node name="ItemList" type="ItemList" parent="Screen/LeftSection"]
-visible = false
-margin_top = 74.0
-margin_right = 203.0
-margin_bottom = 474.0
-rect_min_size = Vector2( 200, 400 )
-
 [node name="RoomList" type="ScrollContainer" parent="Screen/LeftSection"]
 margin_top = 74.0
 margin_right = 203.0

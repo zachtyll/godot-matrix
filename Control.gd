@@ -28,7 +28,7 @@ func _on_Preview_pressed():
 
 
 func _on_Thumbnail_pressed():
-	var texture = yield(GodotMatrix.thumbnail("2021-07-07_ssncDdKimLbDCoQG"), "completed")
+	var texture = yield(GodotMatrix.thumbnail("mxc://matrix.org/2021-07-07_ssncDdKimLbDCoQG"), "completed")
 	sprite.texture = texture
 
 
@@ -111,28 +111,19 @@ func _send_message() -> void:
 		push_error("Send message failed.")
 	chat_line.clear()
 
-
 # Updates the input text from the LineEdit in chat section
-func _on_LineEdit_text_changed(new_text):
+func _on_ChatLine_text_changed(new_text):
+	print(new_text)
 	input_text = new_text
 
 
 # Updates which room we act upon via the left sidebar
 func _on_RoomList_room_selected(room : Room):
 	chat_window.clear()
+	GodotMatrix.set_current_room(room)
 	channel_name.text = room.room_name
 	topic.text = room.room_topic
 	_update_chat_window(room.timeline.events)
-
-
-
-# Updates which room we act upon via the left sidebar
-func _on_room_list_item_selected(index):
-	chat_window.clear()
-	GodotMatrix.set_current_room(index)
-	channel_name.text = GodotMatrix.get_room(index).room_name
-	topic.text = GodotMatrix.get_room(index).room_topic
-	_update_chat_window(GodotMatrix.get_room_events(index))
 
 
 func _on_Settings_close_settings():
@@ -159,9 +150,13 @@ func _update_chat_window(events : Array) -> void:
 		chat_window.add_message(event)
 
 
-func _input(event):
-	if event.is_action_pressed("Enter"):
-		_send_message()
+func _on_ChatLine_text_entered(_new_text):
+	_send_message()
+
+
+#func _input(event):
+#	if event.is_action_pressed("Enter"):
+#		_send_message()
 
 
 func _ready():
