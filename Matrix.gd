@@ -270,22 +270,11 @@ func send_message(room : String, message : String):
 # Syncs client state with server state.
 # NOTE : Should be used only on startup.
 # NOTE : Heavy workload.
-func sync_events(filter : String = (""),  since : String = "s0", full_state : bool = false , set_presence : String = "offline", timeout : int = 0):
+func sync_events(filter : String = (""),  since : String = "s0", full_state : bool = false , set_presence : String = "offline", timeout : int = 0) -> Dictionary:
 	var url := "https://matrix.org/_matrix/client/r0/sync?{0}&since={1}&full_state={2}&set_presence={3}&timeout={4}".format([filter, since, (str(full_state).to_lower()), set_presence, timeout])
 	_make_get_request(url, "_sync_completed")
 	var response = yield(self, "sync_completed")
 	return response
-
-
-# Joins the user to a room.
-#func join_room(room : String) -> Dictionary:
-#	var url := "https://matrix.org/_matrix/client/r0/join/" + room
-#	var body := {
-#		"room_alias_name": "test"
-#	}
-#	_make_post_request(url, body, true, "_join_room_completed")
-#	var response = yield(self, "join_room_completed")
-#	return response
 
 
 # Gets all members of a room.
@@ -400,7 +389,7 @@ func get_room_name_by_room_id(room_id : String) -> Dictionary:
 	return response
 
 
-func message_redact(room_id : String, event_id : String, transaction_id : String, reason : String = "") -> void:
+func message_redact(room_id : String, event_id : String, transaction_id : String, reason : String = "") -> Dictionary:
 	var url := "https://matrix.org/_matrix/client/r0/rooms/%s/redact/%s/%s" % [room_id, event_id, transaction_id]
 	var body := {
 		"reason" : reason,
@@ -411,7 +400,7 @@ func message_redact(room_id : String, event_id : String, transaction_id : String
 
 
 # Get current user_id.
-func who_am_i() -> void:
+func who_am_i() -> Dictionary:
 	var url := "https://matrix.org/_matrix/client/r0/account/whoami"
 	_make_get_request(url, "_who_am_i_completed")
 	var response = yield(self, "who_am_i_completed")
@@ -419,7 +408,7 @@ func who_am_i() -> void:
 
 
 # Find a user_id from search_term returns limit amount of user_ids.
-func search_user(search_term : String, limit : int = 10) -> void:
+func search_user(search_term : String, limit : int = 10) -> Dictionary:
 	var url := "https://matrix.org/_matrix/client/r0/user_directory/search"
 	var body := {
 		"limit" : limit,

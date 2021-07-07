@@ -104,17 +104,20 @@ func _on_SendMessage_pressed() -> void:
 	_send_message()
 
 
-# Necessary for being able to send via buttons and keypress.
-func _send_message() -> void:
-	var err := GodotMatrix.send_message(input_text)
-	if err:
-		push_error("Send message failed.")
-	chat_line.clear()
-
 # Updates the input text from the LineEdit in chat section
 func _on_ChatLine_text_changed(new_text):
 	print(new_text)
 	input_text = new_text
+
+
+# Send a message when enter is hit and ChatLine is in focus.
+func _on_ChatLine_text_entered(_new_text):
+	_send_message()
+
+
+# Search bar.
+func _on_LineEdit_text_changed(new_text):
+	GodotMatrix.search_user(new_text)
 
 
 # Updates which room we act upon via the left sidebar
@@ -135,9 +138,17 @@ func _on_Settings_create_room():
 	popup.find_node("CreateRoom").popup_centered()
 
 
+# Necessary for being able to send via buttons and keypress.
+func _send_message() -> void:
+	if chat_line.text.empty():
+		return
+	var err := GodotMatrix.send_message(input_text)
+	if err:
+		print("Send message failed.")
+	chat_line.clear()
+
+
 # Add rooms to our room list in the left navbar
-# TODO : This seems like it should store all the synced 
-#	data to a local database rather than present it directly.
 func _update_room_list(rooms : Array) -> void:
 	room_list.clear()
 	for room in rooms:
@@ -148,15 +159,6 @@ func _update_room_list(rooms : Array) -> void:
 func _update_chat_window(events : Array) -> void:
 	for event in events:
 		chat_window.add_message(event)
-
-
-func _on_ChatLine_text_entered(_new_text):
-	_send_message()
-
-
-#func _input(event):
-#	if event.is_action_pressed("Enter"):
-#		_send_message()
 
 
 func _ready():

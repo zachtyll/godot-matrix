@@ -128,7 +128,7 @@ func room_create(room_alias : String, room_name : String) -> void:
 
 
 # Invite to room by user ID.
-func room_invite(room_id : String, user : String) -> void:
+func room_invite(room_id : String, user : String) -> int:
 	var result = yield(mp.invite(room_id, user), "completed")
 	if result.has("error"):
 		return FAILED
@@ -137,20 +137,74 @@ func room_invite(room_id : String, user : String) -> void:
 		return OK
 
 
+# TODO : Tombstone?
 func room_delete(_room_id : String) -> void:
 	pass
 
 
-func room_leave(_room_id : String) -> void:
-	pass
+func room_join(room_id : String) -> int:
+	var result = yield(mp.room_join(room_id), "completed")
+	if result.has("error"):
+		return FAILED
+	else:
+		return OK
 
 
-func room_join(_room_id : String) -> void:
-	pass
+func room_ban(room_id : String, user_id : String, reason : String = "") -> int:
+	var result = yield(mp.room_ban(room_id, user_id, reason), "completed")
+	if result.has("error"):
+		return FAILED
+	else:
+		return OK
 
 
-func redact_message(_event_id : String) -> void:
-	pass
+func room_forget(room_id : String) -> int:
+	var result = yield(mp.room_forget(room_id), "completed")
+	if result.has("error"):
+		return FAILED
+	else:
+		return OK
+
+
+func room_kick(room_id : String, user_id : String, reason : String = "") -> int:
+	var result = yield(mp.room_kick(room_id, user_id, reason), "completed")
+	if result.has("error"):
+		return FAILED
+	else:
+		return OK
+
+
+func room_leave(room_id : String) -> int:
+	var result = yield(mp.room_leave(room_id), "completed")
+	if result.has("error"):
+		return FAILED
+	else:
+		return OK
+
+
+func room_unban(room_id : String, user_id : String) -> int:
+	var result = yield(mp.room_unban(room_id, user_id), "completed")
+	if result.has("error"):
+		return FAILED
+	else:
+		return OK
+
+
+func message_redact(room_id : String, event_id : String, transaction_id : String, reason : String = "") -> int:
+	var result = yield(mp.message_redact(room_id, event_id, transaction_id, reason), "completed")
+	if result.has("error"):
+		return FAILED
+	else:
+		return OK
+
+
+func search_user(search_term : String, limit : int = 10):
+	var result = yield(mp.search_user(search_term, limit), "completed")
+	if result.has("error"):
+		return FAILED
+	else:
+		print(JSON.print(result, "\t"))
+		return OK
 
 
 # Not found in spec.
@@ -160,13 +214,10 @@ func append_reaction(_event_id : String, _reaction) -> void:
 
 func send_message(message_text : String) -> int:
 	if current_room == null:
-		push_error("current_room == null.")
 		return FAILED
 	elif message_text.empty():
-		push_error("message_text is empty.")
 		return FAILED
 	elif message_text.begins_with(" "):
-		push_error("message_text begins with whitespace.")
 		return FAILED
 	else:
 		mp.send_message(current_room.room_id, message_text)
