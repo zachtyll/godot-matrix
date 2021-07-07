@@ -5,15 +5,15 @@ const default_room := preload("res://RoomListItem.tscn")
 
 signal room_selected
 
-var previous_room : Room
+var previous_room : RoomListItem = null
 
 onready var list := $VBoxContainer
 
 
 func add_room(room : Room) -> void:
 	var new_room := default_room.instance()
-	new_room.name = room.room_name # So we may find the right child.
 	new_room.room = room
+	new_room.index = list.get_child_count()
 	var err = new_room.connect("room_lmb_selected", self, "_on_room_selected")
 	if err:
 		push_warning("ERROR in RoomList: %s" % err)
@@ -26,7 +26,10 @@ func clear() -> void:
 		rooms.queue_free()
 
 
-func _on_room_selected(room : Room):
-	list.get_node(room.room_name)
-	previous_room = room
-	emit_signal("room_selected", room)
+func _on_room_selected(index : int):
+	var selected = list.get_child(index)
+	if not previous_room == null:
+		previous_room.message_selection()
+	selected.message_selection()
+	previous_room = selected
+	emit_signal("room_selected", selected.room)

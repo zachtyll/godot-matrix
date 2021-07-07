@@ -5,14 +5,12 @@ extends PanelContainer
 signal room_lmb_selected
 
 var room : Room
+var index := 0
 var selected := false
 
 onready var avatar := $HBoxContainer/Avatar
 onready var label_name := $HBoxContainer/VBoxContainer/Name
 onready var label_topic := $HBoxContainer/VBoxContainer/Topic
-
-
-
 
 
 func _gui_input(input_event):
@@ -22,8 +20,7 @@ func _gui_input(input_event):
 	match(input_event.get_button_index()):
 		BUTTON_LEFT:
 			if input_event.pressed:
-				emit_signal("room_lmb_selected", room)
-				message_selection()
+				emit_signal("room_lmb_selected", index)
 		BUTTON_RIGHT:
 			print("Right click!")
 
