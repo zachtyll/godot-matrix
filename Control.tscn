@@ -58,6 +58,7 @@ __meta__ = {
 [node name="CreateRoom" parent="PopUps" instance=ExtResource( 6 )]
 [connection signal="pressed" from="MainScreen/Screen/LeftSection/TopBarLeft/TopBarLeftHbox/Settings" to="." method="_on_Settings_pressed"]
 [connection signal="item_selected" from="MainScreen/Screen/LeftSection/ItemList" to="." method="_on_room_list_item_selected"]
+[connection signal="room_selected" from="MainScreen/Screen/LeftSection/RoomList" to="." method="_on_RoomList_room_selected"]
 [connection signal="pressed" from="MainScreen/Screen/MidSection/ChatInput/SendMessage" to="." method="_on_SendMessage_pressed"]
 [connection signal="pressed" from="MainScreen/Screen/RightSection/Preview" to="." method="_on_Preview_pressed"]
 [connection signal="pressed" from="MainScreen/Screen/RightSection/Thumbnail" to="." method="_on_Thumbnail_pressed"]

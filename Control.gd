@@ -8,6 +8,7 @@ var input_text := ""
 onready var channel_name := $MainScreen/Screen/MidSection/TopBarMid/TopBarMidHbox/ChannelLabels/ChannelName
 onready var topic := $MainScreen/Screen/MidSection/TopBarMid/TopBarMidHbox/ChannelLabels/Topic
 onready var room_list := $MainScreen/Screen/LeftSection/ItemList
+onready var room_list2 := $MainScreen/Screen/LeftSection/RoomList
 onready var chat_line := $MainScreen/Screen/MidSection/ChatInput/ChatLineStretcher/ChatLine
 onready var chat_window := $MainScreen/Screen/MidSection/ChatWindow
 onready var chat_history_list := null
@@ -28,7 +29,7 @@ func _on_Preview_pressed():
 
 
 func _on_Thumbnail_pressed():
-	var texture = yield(GodotMatrix.thumbnail(), "completed")
+	var texture = yield(GodotMatrix.thumbnail("2021-07-07_ssncDdKimLbDCoQG"), "completed")
 	sprite.texture = texture
 
 
@@ -118,6 +119,15 @@ func _on_LineEdit_text_changed(new_text):
 
 
 # Updates which room we act upon via the left sidebar
+func _on_RoomList_room_selected(room : Room):
+	chat_window.clear()
+	channel_name.text = room.room_name
+	topic.text = room.room_topic
+	_update_chat_window(room.timeline.events)
+
+
+
+# Updates which room we act upon via the left sidebar
 func _on_room_list_item_selected(index):
 	chat_window.clear()
 	GodotMatrix.set_current_room(index)
@@ -139,9 +149,11 @@ func _on_Settings_create_room():
 # TODO : This seems like it should store all the synced 
 #	data to a local database rather than present it directly.
 func _update_room_list(rooms : Array) -> void:
+	room_list2.clear()
 	room_list.clear()
 	for room in rooms:
 		room_list.add_item(room.room_name)
+		room_list2.add_room(room)
 
 
 # Updates the chat window when we click on a room in the left sidebar.
@@ -161,3 +173,4 @@ func _ready():
 	var _refresh_err := GodotMatrix.connect("incoming_events", self, "_update_chat_window")
 	var _create_room_err := GodotMatrix.connect("create_room", self, "_on_create_room")
 	var _logout_err := GodotMatrix.connect("logout", self, "_on_logout")
+

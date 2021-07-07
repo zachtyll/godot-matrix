@@ -78,10 +78,12 @@ enum RoomMembership {
 	KNOCK # Not used.
 }
 
+const MEDIA_ID_LENGTH = 17
+
 var room_id := ""
 var room_name := ""
 var room_alias := ""
-var room_avatar := ""
+var room_avatar_url := ""
 var room_topic := ""
 var room_membership := 0
 
@@ -101,8 +103,8 @@ func _init(username : String, new_room_id : String, new_room_data : Dictionary):
 	state = State.new(new_room_data["state"])
 	room_id = new_room_id
 	_get_room_name(username)
-	_get_room_avatar()
-	_get_room_topic()
+	room_avatar_url = _get_room_avatar()
+	room_topic = _get_room_topic()
 
 
 # Translate room_id into human-readable names.
@@ -132,15 +134,20 @@ func _get_room_name(username : String) -> void:
 
 
 # Finds the latest url to the avatar used for the room.
-func _get_room_avatar():
+# Also gets the image of the avatar url.
+func _get_room_avatar() -> String:
+	var url
+	# Must check state.events for rooms with a lot of message events.
+	for event in (timeline.events + state.events):
+		if event.type == "m.room.avatar":
+			url = event.content["url"]
+	return url
+
+
+func _get_room_topic() -> String:
+	var new_topic := ""
 	# Must check state.events for rooms with a lot of message events.
 	for event in (timeline.events + state.events):
 		if event.type == "m.room.topic":
-			room_avatar = event.content["topic"]
-
-
-func _get_room_topic():
-	# Must check state.events for rooms with a lot of message events.
-	for event in (timeline.events + state.events):
-		if event.type == "m.room.topic":
-			room_topic = event.content["topic"]
+			new_topic = event.content["topic"]
+	return new_topic

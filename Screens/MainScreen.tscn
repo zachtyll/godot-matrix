@@ -1,6 +1,7 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://ChatWindow.tscn" type="PackedScene" id=1]
+[ext_resource path="res://Screens/RoomList.gd" type="Script" id=2]
 
 [sub_resource type="StyleBoxFlat" id=1]
 bg_color = Color( 0.392157, 0.392157, 0.392157, 1 )
@@ -10,6 +11,7 @@ bg_color = Color( 0.392157, 0.392157, 0.392157, 1 )
 [node name="MainScreen" type="Panel"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+mouse_filter = 1
 size_flags_horizontal = 3
 size_flags_vertical = 3
 __meta__ = {
@@ -63,20 +65,30 @@ size_flags_vertical = 3
 size_flags_stretch_ratio = 3.0
 placeholder_text = "Search"
 
-[node name="RoomList" type="ScrollContainer" parent="Screen/LeftSection/TopBarLeft"]
-margin_right = 12.0
-margin_bottom = 12.0
+[node name="ItemList" type="ItemList" parent="Screen/LeftSection"]
+visible = false
+margin_top = 74.0
+margin_right = 203.0
+margin_bottom = 474.0
+rect_min_size = Vector2( 200, 400 )
+
+[node name="RoomList" type="ScrollContainer" parent="Screen/LeftSection"]
+margin_top = 74.0
+margin_right = 203.0
+margin_bottom = 600.0
+mouse_filter = 1
+size_flags_horizontal = 3
+size_flags_vertical = 3
+scroll_horizontal_enabled = false
+script = ExtResource( 2 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Screen/LeftSection/TopBarLeft/RoomList"]
-
-[node name="ItemList" type="ItemList" parent="Screen/LeftSection"]
-margin_top = 74.0
+[node name="VBoxContainer" type="VBoxContainer" parent="Screen/LeftSection/RoomList"]
 margin_right = 203.0
-margin_bottom = 600.0
-rect_min_size = Vector2( 200, 400 )
+margin_bottom = 526.0
+size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="MidSection" type="VBoxContainer" parent="Screen"]

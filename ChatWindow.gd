@@ -1,5 +1,6 @@
-extends ScrollContainer
 class_name ChatWindow
+extends ScrollContainer
+# Container for room events.
 
 const m_text := preload("res://MessageBoxes/RoomMessage.tscn")
 const m_rga := preload("res://MessageBoxes/RoomGuestAccess.tscn")

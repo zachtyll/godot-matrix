@@ -33,13 +33,25 @@ _global_script_classes=[ {
 "class": "Room",
 "language": "GDScript",
 "path": "res://CustomClasses/Room.gd"
+}, {
+"base": "ScrollContainer",
+"class": "RoomList",
+"language": "GDScript",
+"path": "res://Screens/RoomList.gd"
+}, {
+"base": "PanelContainer",
+"class": "RoomListItem",
+"language": "GDScript",
+"path": "res://RoomListItem.gd"
 } ]
 _global_script_class_icons={
 "ChatWindow": "",
 "Event": "",
 "MatrixProtocol": "",
 "MessagePanel": "",
-"Room": ""
+"Room": "",
+"RoomList": "",
+"RoomListItem": ""
 }
 
 [application]

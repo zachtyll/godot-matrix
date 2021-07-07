@@ -1,5 +1,6 @@
 extends Node
 
+const MEDIA_ID_LENGTH = 17
 const matrix_protocol = preload("Matrix.gd")
 
 
@@ -34,17 +35,21 @@ func preview_url():
 	print(JSON.print(test, "\t"))
 
 
-func thumbnail():
-	var thumbnail = yield(mp.get_thumbnail("2021-07-07_ssncDdKimLbDCoQG", 64, 64),  "completed")
+func thumbnail(media_id : String, min_width : int = 32, min_height : int = 32):
+	if media_id == null:
+		return
+	
 	var image = Image.new()
+	var texture = ImageTexture.new()
+	var thumbnail = yield(mp.get_thumbnail(media_id.right(MEDIA_ID_LENGTH), min_width, min_height),  "completed")
+
 	var image_error = image.load_png_from_buffer(thumbnail)
 	if image_error != OK:
 		print("An error occurred while trying to display the image.")
-	
-	var texture = ImageTexture.new()
 	texture.create_from_image(image)
 	
 	return texture
+
 
 func download():
 	var data = yield(mp.download("CkjpviDvtacypZqLsxkpPxJm"),  "completed")

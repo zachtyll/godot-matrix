@@ -67,4 +67,4 @@ func _on_MessagePanel_gui_input(input_event):
 			if input_event.pressed:
 				_message_selection()
 		BUTTON_RIGHT:
-			print("Left click!")
+			print("Right click!")

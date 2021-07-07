@@ -772,10 +772,10 @@ func _preview_url_completed(result : int, response_code : int, _headers : PoolSt
 func _get_thumbnail_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
 	var _err_result = _check_result(result)
 	var response = body
-#	var response: Dictionary = parse_json(body.get_string_from_utf8())
 	if response_code == 200:
 		pass
 	else:
+		response = parse_json(body.get_string_from_utf8())
 		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
 		push_warning(error_string)
 
