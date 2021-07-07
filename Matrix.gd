@@ -138,6 +138,7 @@ signal message_redact_completed
 signal who_am_i_completed
 signal search_user_completed
 signal get_displayname_completed
+signal get_thumbnail_completed
 
 
 # Logs a user into Matrix
@@ -433,6 +434,13 @@ func get_displayname(user_id : String) -> Dictionary:
 	return response
 
 
+func get_thumbnail(media_id : String, width : int, height : int, server : String = "matrix.org", method : String = "scale", allow_remote : bool = false):
+	var url := "https://matrix.org/_matrix/media/r0/thumbnail/%s/%s?width=%s&height=%s&method=%s&allow_remote=%s" % [server, media_id, width, height, method, (str(allow_remote).to_lower())]
+	_make_get_request(url, "_get_thumbnail_completed")
+	var response = yield(self, "get_thumbnail_completed")
+	return response
+
+
 # Called when the login request is completed.
 # Sets the access token that is used for all interactions with the server.
 # NOTE : Prints "response" for debugging via API playground at matrix.org
@@ -719,6 +727,17 @@ func _get_displayname_completed(result : int, response_code : int, _headers : Po
 
 	emit_signal("get_displayname_completed", response)
 
+
+func _get_thumbnail_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
+	var _err_result = _check_result(result)
+	var response: Dictionary = parse_json(body.get_string_from_utf8())
+	if response_code == 200:
+		pass
+	else:
+		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
+		push_warning(error_string)
+
+	emit_signal("get_thumbnail_completed", response)
 
 # HTTPRequest POST mode.
 # Connects a callback to functions in class for async behaviour.
