@@ -751,6 +751,9 @@ func _preview_url_completed(result : int, response_code : int, _headers : PoolSt
 	var response: Dictionary = parse_json(body.get_string_from_utf8())
 	if response_code == 200:
 		pass
+	elif response_code == 500:
+		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
+		print(error_string)
 	else:
 		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
 		push_warning(error_string)
