@@ -2,6 +2,9 @@ extends MessagePanel
 # Displays m.room.message in a message-box.
 
 
+const url_regex := "([\\w+]+:\/\/)?([\\w\\d-]+.)*[\\w-]+[.:]\\w+([\/?=&#.]?[\\w-]+)*\/?"
+
+
 onready var sender_name := $Padding/VBoxContainer/HBoxContainer/SenderName as RichTextLabel
 onready var time_stamp_text := $Padding/VBoxContainer/HBoxContainer/TimeStamp as RichTextLabel
 onready var message_body := $Padding/VBoxContainer/MessageBody as RichTextLabel
@@ -12,11 +15,16 @@ func _set_message_content():
 		"{body}".format(event.content)
 	)
 	var regex = RegEx.new()
-	regex.compile("(http|ftp|https):\/\/([\\w_-]+(?:(?:\\.[\\w_-]+)+))([\\w.,@?^=%&:/~+#-]*[\\w@?^=%&/~+#-])?")
+	regex.compile(url_regex)
 	var result = regex.search(body)
 	if result:
 #		print(result.get_string())
-		print(result.get_start() )
+		print(result.get_string() )
+		body = body.replace(result.get_string(), "[url]%s[/url]" % result.get_string())
+#		for string in result.get_string():
+#			print(string)
+#			body = body.replace(string, "[url]%s[/url]" % string)
+	
 	
 	# We skip the @ so people get unique colors.
 	if event.sender.length() >= 4:
