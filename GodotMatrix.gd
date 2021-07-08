@@ -30,9 +30,9 @@ signal room_invite
 #signal message
 
 
-func preview_url():
-	var test = yield(mp.preview_url("https://github.com/public-apis/public-apis"),  "completed")
-	print(JSON.print(test, "\t"))
+func preview_url(url : String):
+	var test = yield(mp.preview_url(url),  "completed")
+	return test
 
 
 func thumbnail(media_id : String, min_width : int = 32, min_height : int = 32):
@@ -47,7 +47,7 @@ func thumbnail(media_id : String, min_width : int = 32, min_height : int = 32):
 		return null
 	else:
 		var image_error = image.load_png_from_buffer(thumbnail)
-		if image_error != OK:
+		if image_error:
 			print("An error occurred while trying to display the image.")
 		texture.create_from_image(image)
 	
@@ -58,7 +58,7 @@ func download():
 	var data = yield(mp.download("CkjpviDvtacypZqLsxkpPxJm"),  "completed")
 	var image = Image.new()
 	var image_error = image.load_jpg_from_buffer(data)
-	if image_error != OK:
+	if image_error:
 		print("An error occurred while trying to display the image.")
 	
 	var texture = ImageTexture.new()
@@ -73,7 +73,8 @@ func _on_refresh_messages():
 	var event_data = yield(mp.get_messages(current_room.room_id, previous_batch, next_batch, "b", 1, ""), "completed")
 
 	if event_data.has("error"):
-		print(event_data["error"])
+		var error_string := "{errcode}: {error}".format(event_data)
+		push_error(error_string)
 		return
 
 	next_batch = event_data["start"]
@@ -86,6 +87,8 @@ func _on_refresh_messages():
 func login(username : String, password : String) -> int:
 	var result = yield(mp.login(username, password), "completed")
 	if result.has("error"):
+		var error_string := "{errcode}: {error}".format(result)
+		push_error(error_string)
 		emit_signal("login", result["error"])
 		return FAILED
 	else:
@@ -235,7 +238,6 @@ func set_text_input(new_text : String) -> void:
 
 func set_current_room(new_room : Room) -> void:
 	current_room = new_room
-	print(new_room.room_id)
 
 
 func get_room(index : int) -> Room:

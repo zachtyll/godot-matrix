@@ -24,7 +24,10 @@ onready var sprite := $MainScreen/Screen/RightSection/Sprite
 
 
 func _on_Preview_pressed():
-	GodotMatrix.preview_url()
+	var media_id = yield(GodotMatrix.preview_url("https://github.com/CorentinJ/Real-Time-Voice-Cloning"), "completed")
+	print(JSON.print(media_id, "\t"))
+	var texture = yield(GodotMatrix.thumbnail(media_id["og:image"]), "completed")
+	sprite.texture = texture
 
 
 func _on_Thumbnail_pressed():
@@ -106,7 +109,6 @@ func _on_SendMessage_pressed() -> void:
 
 # Updates the input text from the LineEdit in chat section
 func _on_ChatLine_text_changed(new_text):
-	print(new_text)
 	input_text = new_text
 
 

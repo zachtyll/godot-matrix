@@ -11,6 +11,12 @@ func _set_message_content():
 	body = (
 		"{body}".format(event.content)
 	)
+	var regex = RegEx.new()
+	regex.compile("(http|ftp|https):\/\/([\\w_-]+(?:(?:\\.[\\w_-]+)+))([\\w.,@?^=%&:/~+#-]*[\\w@?^=%&/~+#-])?")
+	var result = regex.search(body)
+	if result:
+#		print(result.get_string())
+		print(result.get_start() )
 	
 	# We skip the @ so people get unique colors.
 	if event.sender.length() >= 4:
