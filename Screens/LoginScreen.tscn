@@ -74,12 +74,3 @@ margin_right = 174.0
 margin_bottom = 118.0
 align = 1
 valign = 1
-
-[node name="Buttons" type="CenterContainer" parent="."]
-margin_left = 207.0
-margin_top = 500.0
-margin_right = 816.0
-margin_bottom = 600.0
-__meta__ = {
-"_edit_use_anchors_": false
-}

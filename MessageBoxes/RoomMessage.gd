@@ -14,15 +14,12 @@ func _set_message_content():
 	body = (
 		"{body}".format(event.content)
 	)
+	# Underline URL:s
 	var regex = RegEx.new()
 	regex.compile(url_regex)
 	var result = regex.search(body)
 	if result:
-		print(result.get_string())
 		body = body.replace(result.get_string(), "[url={%s}]%s[/url]" % [result.get_string(), result.get_string()])
-#		for string in result.get_string():
-#			print(string)
-#			body = body.replace(string, "[url]%s[/url]" % string)
 	
 	
 	# We skip the @ so people get unique colors.
