@@ -4,6 +4,7 @@ extends MessagePanel
 
 const url_regex := "([\\w+]+\\:\\/\\/)?([\\w\\d-]+\\.)*[\\w-]+[\\.\\:]\\w+([\\/\\?\\=\\&\\#\\.]?[\\w-]+)*\\/?"
 
+var preview_url := ""
 
 onready var sender_name := $Padding/VBoxContainer/HBoxContainer/SenderName as RichTextLabel
 onready var time_stamp_text := $Padding/VBoxContainer/HBoxContainer/TimeStamp as RichTextLabel
@@ -18,14 +19,30 @@ func _set_message_content():
 	# Underline URL:s
 	var regex = RegEx.new()
 	regex.compile(url_regex)
-	var result = regex.search(body)
-	if result:
-		body = body.replace(
-			result.get_string(),
-			"[url={%s}]%s[/url]" % [result.get_string(), result.get_string()]
-		)
-	
-	# We skip the @ so people get unique colors.
+	for result in regex.search_all(body):
+		if  result:
+#			body.erase(result.get_start(), result.get_string().length())
+			body = body.insert(
+				result.get_start(),
+				" AAAA "
+#				"[url={%s}]%s[/url] " % [result.get_string(), result.get_string()]
+			)
+#			body_url = body.replace(
+#				 result.get_string(),
+#				"[url={%s}%s]%s[/url]" % [result.get_string(), url_num, result.get_string()]
+#			)
+
+#	for word in word_list:
+#		print(word)
+#		var result = regex.search(word)
+#		if result:
+#			body = body.replace(
+#				result.get_string(),
+#				"[url={%s}]%s[/url]" % [word, word]
+#			)
+#			print(body)
+		
+	# We skip the @ so people get more unique colors.
 	if event.sender.length() >= 4:
 		red = event.sender.ord_at(1) * 2
 		green = event.sender.ord_at(2) * 2
@@ -41,6 +58,7 @@ func _ready():
 	_print_and_check(message_body, body)
 
 
+# If the user clicks a URL, we open a browser.
 func _on_MessageBody_meta_clicked(meta : String):
 	# Erase {} around URL.
 	meta.erase(0, 1)
