@@ -19,28 +19,30 @@ func _set_message_content():
 	# Underline URL:s
 	var regex = RegEx.new()
 	regex.compile(url_regex)
+	
+	var previous_match := 0
+	var string_index := 0
+	
+	var url_array := []
+	
 	for result in regex.search_all(body):
-		if  result:
-#			body.erase(result.get_start(), result.get_string().length())
-			body = body.insert(
-				result.get_start(),
-				" AAAA "
-#				"[url={%s}]%s[/url] " % [result.get_string(), result.get_string()]
-			)
-#			body_url = body.replace(
-#				 result.get_string(),
-#				"[url={%s}%s]%s[/url]" % [result.get_string(), url_num, result.get_string()]
-#			)
+		if result and url_array.count(result.get_string()) == 0:
+#			print("Result: %s | Array: %s" % [result.get_string(), url_array])
+			url_array.append(result.get_string())
+#			string_index = body.find(result.get_string(), previous_match)
+#			previous_match = string_index + result.get_string().length()
+#			var bbc_url = "(url=%s)" % result.get_string()
+#
+#			body = body.insert(string_index, bbc_url)
+#			body = body.insert(
+#				string_index
+#				+ bbc_url.length()
+#				+ result.get_string().length(),
+#				"(/url)"
+	print(url_array)
+	for url in url_array:
+		body = body.replace(url, "(url=%s)%s(/url)" % [url, url])
 
-#	for word in word_list:
-#		print(word)
-#		var result = regex.search(word)
-#		if result:
-#			body = body.replace(
-#				result.get_string(),
-#				"[url={%s}]%s[/url]" % [word, word]
-#			)
-#			print(body)
 		
 	# We skip the @ so people get more unique colors.
 	if event.sender.length() >= 4:
@@ -60,9 +62,6 @@ func _ready():
 
 # If the user clicks a URL, we open a browser.
 func _on_MessageBody_meta_clicked(meta : String):
-	# Erase {} around URL.
-	meta.erase(0, 1)
-	meta.erase(meta.length() -1, 1)
 	var url_err := OS.shell_open(meta)
 	if url_err:
 		push_warning("URL ERROR: %s" % url_err)
