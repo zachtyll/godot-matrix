@@ -81,3 +81,4 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 [connection signal="gui_input" from="." to="." method="_on_MessagePanel_gui_input"]
+[connection signal="meta_clicked" from="Padding/VBoxContainer/MessageBody" to="." method="_on_MessageBody_meta_clicked"]

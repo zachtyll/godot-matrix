@@ -14,13 +14,16 @@ func _set_message_content():
 	body = (
 		"{body}".format(event.content)
 	)
+	
 	# Underline URL:s
 	var regex = RegEx.new()
 	regex.compile(url_regex)
 	var result = regex.search(body)
 	if result:
-		body = body.replace(result.get_string(), "[url={%s}]%s[/url]" % [result.get_string(), result.get_string()])
-	
+		body = body.replace(
+			result.get_string(),
+			"[url={%s}]%s[/url]" % [result.get_string(), result.get_string()]
+		)
 	
 	# We skip the @ so people get unique colors.
 	if event.sender.length() >= 4:
@@ -36,3 +39,12 @@ func _ready():
 	_print_and_check(sender_name, sender_message)
 	_print_and_check(time_stamp_text, time_stamp)
 	_print_and_check(message_body, body)
+
+
+func _on_MessageBody_meta_clicked(meta : String):
+	# Erase {} around URL.
+	meta.erase(0, 1)
+	meta.erase(meta.length() -1, 1)
+	var url_err := OS.shell_open(meta)
+	if url_err:
+		push_warning("URL ERROR: %s" % url_err)
