@@ -39,7 +39,6 @@ margin_left = 74.0
 margin_right = 174.0
 margin_bottom = 24.0
 size_flags_horizontal = 3
-text = "kungpost"
 placeholder_text = "Username"
 
 [node name="LabelPassword" type="Label" parent="CenterContainer/VBoxContainer/GridContainer"]

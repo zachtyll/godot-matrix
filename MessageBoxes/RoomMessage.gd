@@ -2,7 +2,7 @@ extends MessagePanel
 # Displays m.room.message in a message-box.
 
 
-const url_regex := "([\\w+]+:\/\/)?([\\w\\d-]+.)*[\\w-]+[.:]\\w+([\/?=&#.]?[\\w-]+)*\/?"
+const url_regex := "([\\w+]+\\:\\/\\/)?([\\w\\d-]+\\.)*[\\w-]+[\\.\\:]\\w+([\\/\\?\\=\\&\\#\\.]?[\\w-]+)*\\/?"
 
 
 onready var sender_name := $Padding/VBoxContainer/HBoxContainer/SenderName as RichTextLabel
@@ -18,9 +18,8 @@ func _set_message_content():
 	regex.compile(url_regex)
 	var result = regex.search(body)
 	if result:
-#		print(result.get_string())
-		print(result.get_string() )
-		body = body.replace(result.get_string(), "[url]%s[/url]" % result.get_string())
+		print(result.get_string())
+		body = body.replace(result.get_string(), "[url={%s}]%s[/url]" % [result.get_string(), result.get_string()])
 #		for string in result.get_string():
 #			print(string)
 #			body = body.replace(string, "[url]%s[/url]" % string)

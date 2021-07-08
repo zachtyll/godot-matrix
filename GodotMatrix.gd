@@ -217,10 +217,13 @@ func append_reaction(_event_id : String, _reaction) -> void:
 
 func send_message(message_text : String) -> int:
 	if current_room == null:
+		print("current_room == null")
 		return FAILED
 	elif message_text.empty():
+		print("message_text.empty()")
 		return FAILED
 	elif message_text.begins_with(" "):
+		print("message_text.begins_with(whitespace)")
 		return FAILED
 	else:
 		mp.send_message(current_room.room_id, message_text)
