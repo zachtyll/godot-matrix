@@ -74,6 +74,8 @@ func _on_logout(error : int) -> void:
 	if error:
 		return
 	else:
+		chat_window.clear()
+		chat_line.clear()
 		room_list.clear()
 		modal.get_node("Settings").disappear()
 		login_status.text = "Logged out."

@@ -773,6 +773,7 @@ func _get_thumbnail_completed(result : int, response_code : int, _headers : Pool
 
 	emit_signal("get_thumbnail_completed", response)
 
+
 # HTTPRequest POST mode.
 # Connects a callback to functions in class for async behaviour.
 func _make_post_request(url : String, data_to_send, use_ssl : bool, response : String):

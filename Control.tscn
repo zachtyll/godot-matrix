@@ -17,8 +17,8 @@ __meta__ = {
 "_edit_lock_": true,
 "_edit_use_anchors_": false
 }
-user_username = "kungpost"
-user_password = "kungpost123"
+user_username = "zactyl"
+user_password = "GeMigMatrixNu!"
 
 [node name="MainScreen" parent="." instance=ExtResource( 2 )]
 
