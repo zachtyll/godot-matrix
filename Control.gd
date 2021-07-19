@@ -31,12 +31,12 @@ func _on_Preview_pressed():
 
 
 func _on_Thumbnail_pressed():
-	var texture = yield(GodotMatrix.thumbnail("mxc://matrix.org/2021-07-07_ssncDdKimLbDCoQG"), "completed")
+	var texture = yield(GodotMatrix.thumbnail("mxc://matrix.org/asYJxRRVUMCJYvKaMQEEjWsZ"), "completed")
 	sprite.texture = texture
 
 
 func _on_Download_pressed():
-	var texture = yield(GodotMatrix.download(), "completed")
+	var texture = yield(GodotMatrix.download("mxc://matrix.org/2021-07-19_qNhpSIwqFCosycDs"), "completed")
 	sprite.texture = texture
 
 

@@ -103,7 +103,7 @@ func _init(username : String, new_room_id : String, new_room_data : Dictionary):
 	state = State.new(new_room_data["state"])
 	room_id = new_room_id
 	_get_room_name(username)
-	room_avatar_url = _get_room_avatar()
+	room_avatar_url = _get_room_avatar_url()
 	room_topic = _get_room_topic()
 
 
@@ -134,13 +134,13 @@ func _get_room_name(username : String) -> void:
 
 
 # Finds the latest url to the avatar used for the room.
-# Also gets the image of the avatar url.
-func _get_room_avatar() -> String:
+func _get_room_avatar_url() -> String:
 	var url
 	# Must check state.events for rooms with a lot of message events.
 	for event in (timeline.events + state.events):
 		if event.type == "m.room.avatar":
 			url = event.content["url"]
+	print(url)
 	return url
 
 

@@ -30,11 +30,14 @@ signal room_invite
 #signal message
 
 
+# Checks a for info
 func preview_url(url : String):
 	var test = yield(mp.preview_url(url),  "completed")
 	return test
 
 
+# Returns a Texture as a PoolByteArray.
+# Adjustable size, so smaller than downloads.
 func thumbnail(media_id : String, min_width : int = 32, min_height : int = 32):
 	if media_id == null:
 		return
@@ -54,13 +57,13 @@ func thumbnail(media_id : String, min_width : int = 32, min_height : int = 32):
 	return texture
 
 
-func download():
-	var data = yield(mp.download("CkjpviDvtacypZqLsxkpPxJm"),  "completed")
+# Returns a Texture as a PoolByteArray
+func download(media_id : String):
+	var data = yield(mp.download(media_id.right(MEDIA_ID_LENGTH)),  "completed")
 	var image = Image.new()
-	var image_error = image.load_jpg_from_buffer(data)
+	var image_error = image.load_png_from_buffer(data)
 	if image_error:
 		print("An error occurred while trying to display the image.")
-	
 	var texture = ImageTexture.new()
 	texture.create_from_image(image)
 	
@@ -145,6 +148,7 @@ func room_delete(_room_id : String) -> void:
 	pass
 
 
+# Join room by room ID.
 func room_join(room_id : String) -> int:
 	var result = yield(mp.room_join(room_id), "completed")
 	if result.has("error"):
