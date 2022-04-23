@@ -18,10 +18,20 @@ func add_room(room : Room):
 	var err = new_room.connect("room_lmb_selected", self, "_on_room_selected")
 	if err:
 		push_warning("ERROR in RoomList: %s" % err)
+	
+	print(room.room_avatar_url)
+	
 	if not room.room_avatar_url == null:
+		
+		
+		
 		var response = yield(GodotMatrix.download(room.room_avatar_url), "completed")
-		if response.has("error"):
+		
+		print(response)
+		
+		if response is Dictionary:
 			push_warning(response["error"])
+			return response
 		else:
 			room_texture = response
 	else:

@@ -42,44 +42,46 @@ func preview_url(url : String) -> void:
 func thumbnail(media_id : String, min_width : int = 64, min_height : int = 64):
 	if media_id == null:
 		return
-	
-	var image = Image.new()
-	var texture = ImageTexture.new()
-	var _request = mp.get_thumbnail(media_id.right(MEDIA_ID_LENGTH), min_width, min_height)
-	var thumbnail = yield(mp, "thumbnail_completed")
 
-	if not thumbnail:
-		return {"error": "Null"}
-	elif thumbnail is Dictionary:
-		return {"error": "Is dictionary"}
-	else:
-		# TODO: Figure out how to check for image file type.
-		var image_error = image.load_jpg_from_buffer(thumbnail)
-		if image_error:
-			return {"error": "An error occurred while trying to display the image."}
-		else:
-			texture.create_from_image(image)
-	
-	return texture
+	var data = yield(mp.get_thumbnail(media_id.right(MEDIA_ID_LENGTH), min_width, min_height), "completed")
+
+	if not data:
+		return {"error": "No data"}
+	elif data is Dictionary:
+		return data
+
+	return _resolve_image(data)
 
 
 # Returns a Texture as a PoolByteArray
 func download(media_id : String):
+	if media_id == null:
+		return
+
 	var data = yield(mp.download(media_id.right(MEDIA_ID_LENGTH)), "completed")
 
 	if not data:
 		return {"error": "No data"}
+	elif data is Dictionary:
+		return data
+	
+	return _resolve_image(data)
+	
+	
+func _resolve_image(data : PoolByteArray):
 	var image = Image.new()
-	
-	# TODO: Figure out how to check for image file type.
-#	var image_error = image.load_png_from_buffer(data)
-	var image_error = image.load_jpg_from_buffer(data)
-	
-	if image_error:
-		return {"error": "An error occurred while trying to display the image."}
 	var texture = ImageTexture.new()
-	texture.create_from_image(image)
-	
+
+	# TODO: Figure out how to check for image file type.
+	var not_jpg = image.load_jpg_from_buffer(data)
+	var not_png = image.load_png_from_buffer(data)
+	if not not_jpg:
+		texture.create_from_image(image)
+	elif not not_png:
+		texture.create_from_image(image)
+	else:
+		return {"error": "An error occurred while trying to display the image."}
+		
 	return texture
 
 

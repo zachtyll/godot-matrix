@@ -69,12 +69,11 @@ func _add_preview_image() -> void:
 			print("Error: {error}".format(image_data))
 		elif image_data.has("og:image"):
 #			var texture = GodotMatrix.thumbnail(image_data["og:image"], 64, 64)
-			var request = GodotMatrix.thumbnail(image_data["og:image"], 64, 64)
-			var texture = yield(GodotMatrix, "thumbnail_completed")
-			if yield(request, "completed"):
-				print(request["error"])
+			var response = yield(GodotMatrix.thumbnail(image_data["og:image"], 64, 64), "completed")
+			if response is Dictionary:
+				print(response["error"])
 			else:
-				preview.texture = texture
+				preview.texture = response
 				preview.show()
 	_adjust_for_image()
 

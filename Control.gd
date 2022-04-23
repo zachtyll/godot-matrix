@@ -19,10 +19,6 @@ onready var popup := $PopUps
 onready var sprite := $MainScreen/Screen/RightSection/Sprite
 
 
-
-
-
-
 func _on_Preview_pressed():
 	var response = yield(GodotMatrix.preview_url("https://www.matrix.org/"), "completed")
 	if response.has("error"):
@@ -33,9 +29,12 @@ func _on_Preview_pressed():
 
 
 func _on_Thumbnail_pressed():
-	var m_uri := "mxc://matrix.org/2022-04-23_ZFCUGJXNDSEcuZIS"
+	var m_uri := "mxc://matrix.org/asYJxRRVUMCJYvKaMQEEjWsZ"
 	var response = yield(GodotMatrix.thumbnail(m_uri), "completed")
-	sprite.texture = response
+	if response is Dictionary:
+		print(response.error)
+	else:
+		sprite.texture = response
 
 
 func _on_Download_pressed():
