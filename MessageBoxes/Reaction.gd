@@ -9,8 +9,8 @@ onready var message_body := $Padding/VBoxContainer/MessageBody as RichTextLabel
 
 
 func _set_message_content() -> void:
-	sender_message = "Implement reaction:"
-	body = "[center]{content}[/center]".format(event)
+	sender_message = event.sender
+	body = "Implement reaction."
 
 
 func _ready():

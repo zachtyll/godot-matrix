@@ -63,16 +63,23 @@ bbcode_enabled = true
 bbcode_text = "[right][/right]"
 selection_enabled = true
 
-[node name="MessageBody" type="RichTextLabel" parent="Padding/VBoxContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="Padding/VBoxContainer"]
 margin_top = 24.0
 margin_right = 984.0
-margin_bottom = 112.0
+margin_bottom = 290.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MessageBody" type="RichTextLabel" parent="Padding/VBoxContainer/MarginContainer"]
+margin_right = 984.0
+margin_bottom = 266.0
 rect_clip_content = false
 focus_mode = 2
 mouse_filter = 1
 size_flags_vertical = 3
 size_flags_stretch_ratio = 0.2
 bbcode_enabled = true
+text = "TEst"
 scroll_active = false
 selection_enabled = true
 __meta__ = {
@@ -80,7 +87,7 @@ __meta__ = {
 }
 
 [node name="LinkPreview" type="HBoxContainer" parent="Padding/VBoxContainer"]
-margin_top = 116.0
+margin_top = 294.0
 margin_right = 984.0
 margin_bottom = 560.0
 size_flags_horizontal = 3
@@ -89,7 +96,7 @@ custom_constants/separation = 16
 
 [node name="Preview" type="TextureRect" parent="Padding/VBoxContainer/LinkPreview"]
 margin_right = 223.0
-margin_bottom = 444.0
+margin_bottom = 266.0
 size_flags_horizontal = 11
 size_flags_vertical = 3
 size_flags_stretch_ratio = 0.3
@@ -99,7 +106,7 @@ stretch_mode = 5
 [node name="VBoxContainer" type="VBoxContainer" parent="Padding/VBoxContainer/LinkPreview"]
 margin_left = 239.0
 margin_right = 984.0
-margin_bottom = 444.0
+margin_bottom = 266.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
@@ -126,5 +133,5 @@ bbcode_enabled = true
 scroll_active = false
 selection_enabled = true
 [connection signal="gui_input" from="." to="." method="_on_MessagePanel_gui_input"]
-[connection signal="meta_clicked" from="Padding/VBoxContainer/MessageBody" to="." method="_on_meta_clicked"]
+[connection signal="meta_clicked" from="Padding/VBoxContainer/MarginContainer/MessageBody" to="." method="_on_meta_clicked"]
 [connection signal="meta_clicked" from="Padding/VBoxContainer/LinkPreview/VBoxContainer/Header" to="." method="_on_meta_clicked"]

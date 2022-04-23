@@ -27,7 +27,7 @@ onready var event : Event setget set_event, get_event
 # NOTE: We don't care about more than integer precision.
 func _adjust_for_lines() -> void:
 	line_count = ceil(body.length() / float(LINE_LENGTH))
-	set_custom_minimum_size(Vector2(LINE_LENGTH * TEXT_WIDTH, (line_count * TEXT_HEIGHT) + HEADER_SIZE + FOOTER_SIZE))
+	set_custom_minimum_size(Vector2(LINE_LENGTH * TEXT_WIDTH, (line_count * LINE_SPACE) + (line_count * TEXT_HEIGHT) + HEADER_SIZE + FOOTER_SIZE))
 
 
 func _print_and_check(label : RichTextLabel, message : String) -> void:

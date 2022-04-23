@@ -36,7 +36,7 @@ func message_selection() -> void:
 
 
 func _get_avatar_texture(url : String):
-	avatar.texture = GodotMatrix.download(url)
+	avatar.texture = yield(GodotMatrix.download(url), "completed")
 
 
 # Called when the node enters the scene tree for the first time.

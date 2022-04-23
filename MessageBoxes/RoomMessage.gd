@@ -10,10 +10,10 @@ var preview_data := {}
 
 onready var sender_name := $Padding/VBoxContainer/HBoxContainer/SenderName as RichTextLabel
 onready var time_stamp_text := $Padding/VBoxContainer/HBoxContainer/TimeStamp as RichTextLabel
-onready var message_body := $Padding/VBoxContainer/MessageBody as RichTextLabel
-onready var preview_image := $Padding/VBoxContainer/LinkPreview/Preview
-onready var preview_header := $Padding/VBoxContainer/LinkPreview/VBoxContainer/Header
-onready var preview_body := $Padding/VBoxContainer/LinkPreview/VBoxContainer/Body
+onready var message_body := $Padding/VBoxContainer/MarginContainer/MessageBody as RichTextLabel
+onready var preview_image := $Padding/VBoxContainer/LinkPreview/Preview as TextureRect
+onready var preview_header := $Padding/VBoxContainer/LinkPreview/VBoxContainer/Header as RichTextLabel
+onready var preview_body := $Padding/VBoxContainer/LinkPreview/VBoxContainer/Body as RichTextLabel
 
 
 # If the user clicks a URL, we open a browser.
@@ -72,22 +72,24 @@ func _add_preview() -> void:
 		if preview_data.has("error"):
 			print("Error: {error}".format(preview_data))
 			return
+		# Set preview image
 		elif preview_data.has("og:image"):
 			var response = yield(GodotMatrix.thumbnail(preview_data["og:image"]), "completed")
 			if response is Dictionary:
 				print(response["error"])
 			else:
+				_adjust_for_image()
 				preview_image.texture = response
 				preview_image.show()
-		_adjust_for_image()
-	
+		
+		# Set title and desc.
 		if preview_data.has("og:site_name"):
-			var message = ("[url=%s]%s[/url] \n-%s") % [preview_data["og:url"], preview_data["og:title"], preview_data["og:site_name"]]
-			preview_header.append_bbcode(message)
+			var message = [preview_data["og:url"], preview_data["og:title"], preview_data["og:site_name"]]
+			var _err = preview_header.append_bbcode(("[url=%s]%s[/url] \n-%s") % message)
 			
-		if preview_data.has("og:description"):
+		if preview_data.has("og:description") and not preview_data["og:description"] == null:
 			var message = preview_data["og:description"]
-			preview_body.append_bbcode(message)
+			var _err = preview_body.append_bbcode(message)
 
 
 func _ready():

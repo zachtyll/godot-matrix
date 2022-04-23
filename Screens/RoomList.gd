@@ -18,17 +18,8 @@ func add_room(room : Room):
 	var err = new_room.connect("room_lmb_selected", self, "_on_room_selected")
 	if err:
 		push_warning("ERROR in RoomList: %s" % err)
-	
-	print(room.room_avatar_url)
-	
 	if not room.room_avatar_url == null:
-		
-		
-		
 		var response = yield(GodotMatrix.download(room.room_avatar_url), "completed")
-		
-		print(response)
-		
 		if response is Dictionary:
 			push_warning(response["error"])
 			return response
@@ -48,9 +39,10 @@ func clear() -> void:
 
 
 func _on_room_selected(index : int):
-	var selected = list.get_child(index)
-	if not previous_room == null:
+	# Deselect previously selected room.
+	if is_instance_valid(previous_room):
 		previous_room.message_selection()
+	var selected = list.get_child(index)
 	selected.message_selection()
 	previous_room = selected
 	emit_signal("room_selected", selected.room)
