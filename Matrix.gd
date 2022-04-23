@@ -139,7 +139,7 @@ signal who_am_i_completed
 signal search_user_completed
 signal get_displayname_completed
 signal download_completed
-signal get_thumbnail_completed
+signal thumbnail_completed
 signal preview_url_completed
 
 
@@ -427,21 +427,21 @@ func get_displayname(user_id : String) -> Dictionary:
 
 
 func download(media_id : String, allow_remote : bool = false, server : String = "matrix.org"):
-	var url := "https://matrix.org/_matrix/media/r0/download/%s/%s?allow_remote=%s" % [server, media_id, (str(allow_remote).to_lower())]
+	var url := "https://matrix.org/_matrix/media/v3/download/%s/%s?allow_remote=%s" % [server, media_id, (str(allow_remote).to_lower())]
 	_make_get_request(url, "_download_completed")
 	var response = yield(self, "download_completed")
 	return response
 
 
-func get_thumbnail(media_id : String, width : int, height : int, server : String = "matrix.org", method : String = "scale", allow_remote : bool = false):
-	var url := "https://matrix.org/_matrix/media/r0/thumbnail/%s/%s?width=%s&height=%s&method=%s&allow_remote=%s" % [server, media_id, width, height, method, (str(allow_remote).to_lower())]
+func get_thumbnail(media_id : String, width : int = 64, height : int = 64, server : String = "matrix.org", method : String = "scale", allow_remote : bool = false):
+	var url := "https://matrix.org/_matrix/media/v3/thumbnail/%s/%s?width=%s&height=%s&method=%s&allow_remote=%s" % [server, media_id, width, height, method, (str(allow_remote).to_lower())]
 	_make_get_request(url, "_get_thumbnail_completed")
-	var response = yield(self, "get_thumbnail_completed")
+	var response = yield(self, "thumbnail_completed")
 	return response
 
 
 func preview_url(preview_url : String, ts : int = 0) -> Dictionary:
-	var url := "https://matrix.org/_matrix/media/r0/preview_url?url=%s&ts=%s" % [preview_url, ts]
+	var url := "https://matrix.org/_matrix/media/v3/preview_url?url=%s&ts=%s" % [preview_url, ts]
 	_make_get_request(url, "_preview_url_completed")
 	var response = yield(self, "preview_url_completed")
 	return response
@@ -734,9 +734,9 @@ func _get_displayname_completed(result : int, response_code : int, _headers : Po
 	emit_signal("get_displayname_completed", response)
 
 
-func _download_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
+func _download_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray):
 	var _err_result = _check_result(result)
-	var response := body
+	var response = body # Raw image data
 	if response_code == 200:
 		pass
 	else:
@@ -749,29 +749,30 @@ func _download_completed(result : int, response_code : int, _headers : PoolStrin
 func _preview_url_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
 	var _err_result = _check_result(result)
 	var response: Dictionary = parse_json(body.get_string_from_utf8())
+#	print(JSON.print(response, "\t"))
 	if response_code == 200:
 		pass
 	elif response_code == 500:
 		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
 		print(error_string)
 	else:
-		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
-		push_warning(error_string)
+		var _error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
+#		push_warning(error_string)
 
 	emit_signal("preview_url_completed", response)
 
 
+# This function has unicode errors in response.
 func _get_thumbnail_completed(result : int, response_code : int, _headers : PoolStringArray, body : PoolByteArray) -> void:
 	var _err_result = _check_result(result)
-	var response = body
+	var response = body # Raw image data
 	if response_code == 200:
 		pass
 	else:
-		response = parse_json(body.get_string_from_utf8())
 		var error_string := "Error %s: " % response_code + "{errcode} : {error}".format(response)
 		push_warning(error_string)
 
-	emit_signal("get_thumbnail_completed", response)
+	emit_signal("thumbnail_completed", response)
 
 
 # HTTPRequest POST mode.

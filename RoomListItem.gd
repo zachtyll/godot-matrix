@@ -7,8 +7,9 @@ signal room_lmb_selected
 var room : Room
 var index := 0
 var selected := false
+var avatar_texture : ImageTexture
 
-onready var avatar := $HBoxContainer/Avatar
+onready var avatar := $HBoxContainer/CenterContainer/Avatar
 onready var label_name := $HBoxContainer/VBoxContainer/Name
 onready var label_topic := $HBoxContainer/VBoxContainer/Topic
 
@@ -35,7 +36,7 @@ func message_selection() -> void:
 
 
 func _get_avatar_texture(url : String):
-	avatar.texture = yield(GodotMatrix.download(url), "completed")
+	avatar.texture = GodotMatrix.download(url)
 
 
 # Called when the node enters the scene tree for the first time.

@@ -30,50 +30,67 @@ signal room_invite
 #signal message
 
 
-# Checks a for info
-func preview_url(url : String):
-	var test = yield(mp.preview_url(url),  "completed")
-	return test
-
+# Checks a url for info.
+func preview_url(url : String) -> void:
+	var response = yield(mp.preview_url(url), "completed")
+	if response is GDScriptFunctionState:
+		response = yield(response, "completed")
+	return response
 
 # Returns a Texture as a PoolByteArray.
 # Adjustable size, so smaller than downloads.
-func thumbnail(media_id : String, min_width : int = 32, min_height : int = 32):
+func thumbnail(media_id : String, min_width : int = 64, min_height : int = 64):
 	if media_id == null:
 		return
 	
 	var image = Image.new()
 	var texture = ImageTexture.new()
-	var thumbnail = yield(mp.get_thumbnail(media_id.right(MEDIA_ID_LENGTH), min_width, min_height),  "completed")
+	var _request = mp.get_thumbnail(media_id.right(MEDIA_ID_LENGTH), min_width, min_height)
+	var thumbnail = yield(mp, "thumbnail_completed")
 
-	if thumbnail is Dictionary:
-		return null
+	if not thumbnail:
+		return {"error": "Null"}
+	elif thumbnail is Dictionary:
+		return {"error": "Is dictionary"}
 	else:
-		var image_error = image.load_png_from_buffer(thumbnail)
+		# TODO: Figure out how to check for image file type.
+		var image_error = image.load_jpg_from_buffer(thumbnail)
 		if image_error:
-			print("An error occurred while trying to display the image.")
-		texture.create_from_image(image)
+			return {"error": "An error occurred while trying to display the image."}
+		else:
+			texture.create_from_image(image)
 	
 	return texture
 
 
 # Returns a Texture as a PoolByteArray
 func download(media_id : String):
-	var data = yield(mp.download(media_id.right(MEDIA_ID_LENGTH)),  "completed")
+	var data = yield(mp.download(media_id.right(MEDIA_ID_LENGTH)), "completed")
+
+	if not data:
+		return {"error": "No data"}
 	var image = Image.new()
-	var image_error = image.load_png_from_buffer(data)
+	
+	# TODO: Figure out how to check for image file type.
+#	var image_error = image.load_png_from_buffer(data)
+	var image_error = image.load_jpg_from_buffer(data)
+	
 	if image_error:
-		print("An error occurred while trying to display the image.")
+		return {"error": "An error occurred while trying to display the image."}
 	var texture = ImageTexture.new()
 	texture.create_from_image(image)
 	
 	return texture
 
+
 func _on_refresh_messages():
 	if current_room == null:
 		return
 
-	var event_data = yield(mp.get_messages(current_room.room_id, previous_batch, next_batch, "b", 1, ""), "completed")
+	var event_data = mp.get_messages(current_room.room_id, previous_batch, next_batch, "b", 1, "")
+
+	if event_data is GDScriptFunctionState:
+		event_data = yield(event_data, "completed")
 
 	if event_data.has("error"):
 		var error_string := "{errcode}: {error}".format(event_data)
@@ -214,7 +231,7 @@ func search_user(search_term : String, limit : int = 10):
 		return OK
 
 
-# Not found in spec.
+# NOTE : Not found in spec.
 func append_reaction(_event_id : String, _reaction) -> void:
 	pass
 
@@ -273,8 +290,11 @@ func _notify_user() -> void:
 
 
 func _ready():
+	
 	timer.wait_time = 3
 	self.add_child(timer)
 	timer.connect("timeout", self, "_on_refresh_messages")
 	mp = matrix_protocol.new() as MatrixProtocol
 	self.add_child(mp)
+# warning-ignore:return_value_discarded
+#	mp.connect("preview_url_completed", self, "_preview_url_completed")

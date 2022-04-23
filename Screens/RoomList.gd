@@ -6,17 +6,28 @@ const default_room := preload("res://RoomListItem.tscn")
 signal room_selected
 
 var previous_room : RoomListItem = null
+var room_texture : ImageTexture
 
 onready var list := $VBoxContainer
 
 
-func add_room(room : Room) -> void:
+func add_room(room : Room):
 	var new_room := default_room.instance()
 	new_room.room = room
 	new_room.index = list.get_child_count()
 	var err = new_room.connect("room_lmb_selected", self, "_on_room_selected")
 	if err:
 		push_warning("ERROR in RoomList: %s" % err)
+	if not room.room_avatar_url == null:
+		var response = yield(GodotMatrix.download(room.room_avatar_url), "completed")
+		if response.has("error"):
+			push_warning(response["error"])
+		else:
+			room_texture = response
+	else:
+		# TODO : Implement placeholder texture
+		pass
+	new_room.avatar_texture = room_texture
 	list.add_child(new_room)
 
 

@@ -5,7 +5,7 @@ extends Node
 
 # Container for all recorded events in a room.
 class Timeline:
-	var events := []
+	var timeline_events := []
 	
 	
 	func _init(new_timeline : Dictionary):
@@ -16,42 +16,46 @@ class Timeline:
 
 	func event_append(event : Event) -> void:
 		if event is Event:
-			events.append(event)
+			timeline_events.append(event)
 		else:
 			push_error("Timeline rejects: %s" % event)
 	
 	
-	func get_content(index) -> Dictionary:
-		return events[index]["content"]
+	func content(index) -> Dictionary:
+		return timeline_events[index]["content"]
 	
 	
-	func get_origin_server_ts(index) -> int:
-		return events[index]["origin_server_ts"]
+	func origin_server_ts(index) -> int:
+		return timeline_events[index]["origin_server_ts"]
 	
 	
-	func get_sender(index) -> String:
-		return events[index]["sender"]
+	func sender(index) -> String:
+		return timeline_events[index]["sender"]
 	
 	
-	func get_state_key(index) -> String:
-		return events[index]["state_key"]
+	func state_key(index) -> String:
+		return timeline_events[index]["state_key"]
 	
 	
-	func get_event_type(index) -> String:
-		return events[index]["type"]
+	func event_type(index) -> String:
+		return timeline_events[index]["type"]
 	
 	
-	func get_unsigned(index) -> Dictionary:
-		return events[index]["unsigned"]
+	func unsigned(index) -> Dictionary:
+		return timeline_events[index]["unsigned"]
 	
 	
-	func get_event_id(index) -> String:
-		return events[index]["event_id"]
+	func event_id(index) -> String:
+		return timeline_events[index]["event_id"]
+	
+	
+	func events() -> Array:
+		return timeline_events
 
 
 # Container for all recorded state updates of a room
 class State:
-	var events := []
+	var state_events := []
 
 
 	func _init(new_state : Dictionary):
@@ -62,15 +66,20 @@ class State:
 
 	func event_append(event : Event) -> void:
 		if event is Event:
-			events.append(event)
+			state_events.append(event)
 		else:
 			push_error("Timeline rejects: %s" % event)
 
 
-	func get_event(index : int) -> Event:
-		return events[index]
+	func event(index : int) -> Event:
+		return state_events[index]
 
 
+	func events() -> Array:
+		return state_events
+
+
+## Room variables.
 enum RoomMembership {
 	LEAVE,
 	INVITE,
@@ -88,7 +97,7 @@ var room_topic := ""
 var room_membership := 0
 
 # Events that are availiable from sync.
-var timeline : Timeline = null
+var room_timeline : Timeline = null
 # Room state events not included in timeline.
 var state : State = null
 var account_data
@@ -99,7 +108,7 @@ var org_matrix_msc2654_unread_count
 
 
 func _init(username : String, new_room_id : String, new_room_data : Dictionary):
-	timeline = Timeline.new(new_room_data["timeline"])
+	room_timeline = Timeline.new(new_room_data["timeline"])
 	state = State.new(new_room_data["state"])
 	room_id = new_room_id
 	_get_room_name(username)
@@ -111,7 +120,7 @@ func _init(username : String, new_room_id : String, new_room_data : Dictionary):
 func _get_room_name(username : String) -> void:
 	var room_member_name := ""
 	# Must check state.events for rooms with a lot of message events.
-	for event in (timeline.events + state.events):
+	for event in (room_timeline.events() + state.events()):
 		match(event.type):
 			"m.room.name":
 				room_name = event.content["name"]
@@ -137,17 +146,42 @@ func _get_room_name(username : String) -> void:
 func _get_room_avatar_url() -> String:
 	var url
 	# Must check state.events for rooms with a lot of message events.
-	for event in (timeline.events + state.events):
+	for event in (room_timeline.events() + state.events()):
 		if event.type == "m.room.avatar":
 			url = event.content["url"]
-	print(url)
+#	print(url)
 	return url
 
 
 func _get_room_topic() -> String:
 	var new_topic := ""
 	# Must check state.events for rooms with a lot of message events.
-	for event in (timeline.events + state.events):
+	for event in (room_timeline.events() + state.events()):
 		if event.type == "m.room.topic":
 			new_topic = event.content["topic"]
 	return new_topic
+
+
+## Declarative functions.
+func display_name() -> String:
+	return room_name
+
+
+func alias() -> String:
+	return room_alias
+
+
+func id() -> String:
+	return room_id
+
+
+func topic() -> String:
+	return room_topic
+
+
+func avatar_url() -> String:
+	return room_avatar_url
+
+
+func timeline() -> Timeline:
+	return room_timeline

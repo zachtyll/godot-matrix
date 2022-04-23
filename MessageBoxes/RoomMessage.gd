@@ -52,22 +52,30 @@ func _set_message_content():
 
 func _adjust_for_image() -> void:
 	if image_data.has("og:image:height"):
-		print(image_data["og:image:height"] / 2)
+#		print("Image height is: %s" % str(image_data["og:image:height"] / 2))
 		set_custom_minimum_size(Vector2(LINE_LENGTH * TEXT_WIDTH, (line_count * TEXT_HEIGHT) + HEADER_SIZE + FOOTER_SIZE + (image_data["og:image:height"] / 2)))
 
 
+# This function is a little broken.
+# The preview is async, so when we delete instances of self,
+# we get an error due to yielding in a deleted/freed node.
 func _add_preview_image() -> void:
 	if not preview_url.matchn("http*"):
 		pass
 	else:
-		image_data = yield(GodotMatrix.preview_url(preview_url.http_escape()), "completed")
-#		print(JSON.print(result, "\t"))
+		var image_data = yield(GodotMatrix.preview_url(preview_url.http_escape()), "completed")
+		
 		if image_data.has("error"):
 			print("Error: {error}".format(image_data))
 		elif image_data.has("og:image"):
-			texture = yield(GodotMatrix.thumbnail(image_data["og:image"], 64, 64), "completed")
-			preview.texture = texture
-			preview.show()
+#			var texture = GodotMatrix.thumbnail(image_data["og:image"], 64, 64)
+			var request = GodotMatrix.thumbnail(image_data["og:image"], 64, 64)
+			var texture = yield(GodotMatrix, "thumbnail_completed")
+			if yield(request, "completed"):
+				print(request["error"])
+			else:
+				preview.texture = texture
+				preview.show()
 	_adjust_for_image()
 
 

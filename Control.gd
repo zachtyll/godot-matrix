@@ -24,23 +24,24 @@ onready var sprite := $MainScreen/Screen/RightSection/Sprite
 
 
 func _on_Preview_pressed():
-	var media_id = yield(GodotMatrix.preview_url("https://github.com/CorentinJ/Real-Time-Voice-Cloning"), "completed")
-	print(JSON.print(media_id, "\t"))
-	var texture = yield(GodotMatrix.thumbnail(media_id["og:image"]), "completed")
+	var response = yield(GodotMatrix.preview_url("https://www.matrix.org/"), "completed")
+	if response.has("error"):
+		print(response["error"])
+		return
+	var texture = yield(GodotMatrix.thumbnail(response["og:image"]), "completed")
 	sprite.texture = texture
 
 
 func _on_Thumbnail_pressed():
-	var texture = yield(GodotMatrix.thumbnail("mxc://matrix.org/asYJxRRVUMCJYvKaMQEEjWsZ"), "completed")
-	sprite.texture = texture
+	var m_uri := "mxc://matrix.org/2022-04-23_ZFCUGJXNDSEcuZIS"
+	var response = yield(GodotMatrix.thumbnail(m_uri), "completed")
+	sprite.texture = response
 
 
 func _on_Download_pressed():
-	var texture = yield(GodotMatrix.download("mxc://matrix.org/2021-07-19_qNhpSIwqFCosycDs"), "completed")
-	sprite.texture = texture
-
-
-
+	var m_uri := "mxc://matrix.org/2022-04-23_ZFCUGJXNDSEcuZIS"
+	var response = yield(GodotMatrix.download(m_uri), "completed")
+	sprite.texture = response
 
 
 # Login a user
@@ -128,9 +129,9 @@ func _on_LineEdit_text_changed(new_text):
 func _on_RoomList_room_selected(room : Room):
 	chat_window.clear()
 	GodotMatrix.set_current_room(room)
-	channel_name.text = room.room_name
-	topic.text = room.room_topic
-	_update_chat_window(room.timeline.events)
+	channel_name.text = room.display_name()
+	topic.text = room.topic()
+	_update_chat_window(room.timeline().events())
 
 
 func _on_Settings_close_settings():
