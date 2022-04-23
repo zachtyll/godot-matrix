@@ -32,9 +32,12 @@ signal room_invite
 
 # Checks a url for info.
 func preview_url(url : String) -> void:
+	if url == null:
+		return
+	
 	var response = yield(mp.preview_url(url), "completed")
-	if response is GDScriptFunctionState:
-		response = yield(response, "completed")
+#	if response is GDScriptFunctionState:
+#		response = yield(response, "completed")
 	return response
 
 # Returns a Texture as a PoolByteArray.
@@ -72,16 +75,17 @@ func _resolve_image(data : PoolByteArray):
 	var image = Image.new()
 	var texture = ImageTexture.new()
 
-	# TODO: Figure out how to check for image file type.
-	var not_jpg = image.load_jpg_from_buffer(data)
-	var not_png = image.load_png_from_buffer(data)
-	if not not_jpg:
+	# TODO: Figure out how to check for image file type better.
+	# Magic number for png files.
+	if data[0] == 137:
+		image.load_png_from_buffer(data)
 		texture.create_from_image(image)
-	elif not not_png:
+	# Magic number for jpg .
+	elif data[0] == 255:
+		image.load_jpg_from_buffer(data)
 		texture.create_from_image(image)
 	else:
 		return {"error": "An error occurred while trying to display the image."}
-		
 	return texture
 
 

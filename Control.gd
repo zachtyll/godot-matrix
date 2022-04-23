@@ -20,7 +20,7 @@ onready var sprite := $MainScreen/Screen/RightSection/Sprite
 
 
 func _on_Preview_pressed():
-	var response = yield(GodotMatrix.preview_url("https://www.matrix.org/"), "completed")
+	var response = yield(GodotMatrix.preview_url("https://stackoverflow.com/questions/3770630/c-detect-whether-a-file-is-png-or-jpeg"), "completed")
 	if response.has("error"):
 		print(response["error"])
 		return
@@ -40,7 +40,10 @@ func _on_Thumbnail_pressed():
 func _on_Download_pressed():
 	var m_uri := "mxc://matrix.org/2022-04-23_ZFCUGJXNDSEcuZIS"
 	var response = yield(GodotMatrix.download(m_uri), "completed")
-	sprite.texture = response
+	if response is Dictionary:
+		print(response.error)
+	else:
+		sprite.texture = response
 
 
 # Login a user
