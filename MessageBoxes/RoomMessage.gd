@@ -1,6 +1,7 @@
 extends MessagePanel
 # Displays m.room.message in a message-box.
 
+# TODO: Create loading picture for previews.
 
 const url_regex := "([\\w+]+\\:\\/\\/)?([\\w\\d-]+\\.)*[\\w-]+[\\.\\:]\\w+([\\/\\?\\=\\&\\#\\.]?[\\w-]+)*\\/?"
 
@@ -68,12 +69,22 @@ func _add_preview() -> void:
 		pass
 	else:
 		preview_data = yield(GodotMatrix.preview_url(preview_url.http_escape()), "completed")
-		
+		# Guard statement
 		if preview_data.has("error"):
 			print("Error: {error}".format(preview_data))
 			return
+		
+		# Set title and desc.
+		if preview_data.has("og:site_name"):
+			var message = [preview_data["og:url"], preview_data["og:title"], preview_data["og:site_name"]]
+			var _err = preview_header.append_bbcode(("[url=%s]%s[/url] \n-%s") % message)
+		
+		if preview_data.has("og:description") and not preview_data["og:description"] == null:
+			var message = preview_data["og:description"]
+			var _err = preview_body.append_bbcode(message)
+
 		# Set preview image
-		elif preview_data.has("og:image"):
+		if preview_data.has("og:image"):
 			var response = yield(GodotMatrix.thumbnail(preview_data["og:image"]), "completed")
 			if response is Dictionary:
 				print(response["error"])
@@ -81,15 +92,6 @@ func _add_preview() -> void:
 				_adjust_for_image()
 				preview_image.texture = response
 				preview_image.show()
-		
-		# Set title and desc.
-		if preview_data.has("og:site_name"):
-			var message = [preview_data["og:url"], preview_data["og:title"], preview_data["og:site_name"]]
-			var _err = preview_header.append_bbcode(("[url=%s]%s[/url] \n-%s") % message)
-			
-		if preview_data.has("og:description") and not preview_data["og:description"] == null:
-			var message = preview_data["og:description"]
-			var _err = preview_body.append_bbcode(message)
 
 
 func _ready():

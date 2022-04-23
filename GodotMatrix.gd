@@ -93,10 +93,7 @@ func _on_refresh_messages():
 	if current_room == null:
 		return
 
-	var event_data = mp.get_messages(current_room.room_id, previous_batch, next_batch, "b", 1, "")
-
-	if event_data is GDScriptFunctionState:
-		event_data = yield(event_data, "completed")
+	var event_data = yield(mp.get_messages(current_room.room_id, previous_batch, next_batch, "b", 1, ""), "completed")
 
 	if event_data.has("error"):
 		var error_string := "{errcode}: {error}".format(event_data)
@@ -253,6 +250,7 @@ func send_message(message_text : String) -> int:
 		print("message_text.begins_with(whitespace)")
 		return FAILED
 	else:
+		# No need for yielding here.
 		mp.send_message(current_room.room_id, message_text)
 		return OK
 

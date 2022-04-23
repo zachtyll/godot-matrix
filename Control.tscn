@@ -22,6 +22,50 @@ user_password = "kungpost123"
 
 [node name="MainScreen" parent="." instance=ExtResource( 2 )]
 
+[node name="LeftSection" parent="MainScreen/Screen" index="0"]
+margin_right = 255.0
+
+[node name="TopBarLeft" parent="MainScreen/Screen/LeftSection" index="0"]
+margin_right = 255.0
+
+[node name="LineEdit" parent="MainScreen/Screen/LeftSection/TopBarLeft/TopBarLeftHbox" index="1"]
+margin_right = 255.0
+
+[node name="RoomList" parent="MainScreen/Screen/LeftSection" index="1"]
+margin_right = 255.0
+
+[node name="VBoxContainer" parent="MainScreen/Screen/LeftSection/RoomList" index="0"]
+margin_right = 255.0
+
+[node name="MidSection" parent="MainScreen/Screen" index="1"]
+margin_left = 259.0
+margin_right = 1024.0
+
+[node name="TopBarMid" parent="MainScreen/Screen/MidSection" index="0"]
+margin_right = 765.0
+
+[node name="TopBarMidHbox" parent="MainScreen/Screen/MidSection/TopBarMid" index="0"]
+margin_right = 758.0
+
+[node name="ChatWindow" parent="MainScreen/Screen/MidSection" index="1"]
+margin_right = 765.0
+
+[node name="ChatInput" parent="MainScreen/Screen/MidSection" index="2"]
+margin_right = 765.0
+
+[node name="ChatLineStretcher" parent="MainScreen/Screen/MidSection/ChatInput" index="0"]
+margin_right = 608.0
+
+[node name="ChatLine" parent="MainScreen/Screen/MidSection/ChatInput/ChatLineStretcher" index="0"]
+margin_right = 608.0
+
+[node name="SendMessage" parent="MainScreen/Screen/MidSection/ChatInput" index="1"]
+margin_left = 612.0
+margin_right = 765.0
+
+[node name="RightSection" parent="MainScreen/Screen" index="2"]
+visible = false
+
 [node name="LoginScreen" parent="." instance=ExtResource( 3 )]
 
 [node name="Modal" type="ColorRect" parent="."]
