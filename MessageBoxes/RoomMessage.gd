@@ -6,15 +6,18 @@ const url_regex := "([\\w+]+\\:\\/\\/)?([\\w\\d-]+\\.)*[\\w-]+[\\.\\:]\\w+([\\/\
 
 var preview_url := ""
 var texture
-var image_data := {}
+var preview_data := {}
 
 onready var sender_name := $Padding/VBoxContainer/HBoxContainer/SenderName as RichTextLabel
 onready var time_stamp_text := $Padding/VBoxContainer/HBoxContainer/TimeStamp as RichTextLabel
 onready var message_body := $Padding/VBoxContainer/MessageBody as RichTextLabel
-onready var preview := $Padding/VBoxContainer/Preview
+onready var preview_image := $Padding/VBoxContainer/LinkPreview/Preview
+onready var preview_header := $Padding/VBoxContainer/LinkPreview/VBoxContainer/Header
+onready var preview_body := $Padding/VBoxContainer/LinkPreview/VBoxContainer/Body
+
 
 # If the user clicks a URL, we open a browser.
-func _on_MessageBody_meta_clicked(meta : String):
+func _on_meta_clicked(meta : String):
 	var url_err := OS.shell_open(meta)
 	if url_err:
 		push_warning("URL ERROR: %s" % url_err)
@@ -50,37 +53,45 @@ func _set_message_content():
 	sender_message = "[color=#%s]%s[/color]" % [sender_color, event.sender]
 
 
+# TODO: Improve layout.
 func _adjust_for_image() -> void:
-	if image_data.has("og:image:height"):
-#		print("Image height is: %s" % str(image_data["og:image:height"] / 2))
-		set_custom_minimum_size(Vector2(LINE_LENGTH * TEXT_WIDTH, (line_count * TEXT_HEIGHT) + HEADER_SIZE + FOOTER_SIZE + (image_data["og:image:height"] / 2)))
+	if preview_data.has("og:image:height"):
+#		print("Image height is: %s" % str(preview_data["og:image:height"] / 2))
+		set_custom_minimum_size(Vector2(LINE_LENGTH * TEXT_WIDTH, (line_count * TEXT_HEIGHT) + HEADER_SIZE + FOOTER_SIZE + (preview_data["og:image:height"] / 4)))
 
 
 # This function is a little broken.
 # The preview is async, so when we delete instances of self,
 # we get an error due to yielding in a deleted/freed node.
-func _add_preview_image() -> void:
+func _add_preview() -> void:
 	if not preview_url.matchn("http*"):
 		pass
 	else:
-		var image_data = yield(GodotMatrix.preview_url(preview_url.http_escape()), "completed")
+		preview_data = yield(GodotMatrix.preview_url(preview_url.http_escape()), "completed")
 		
-		if image_data.has("error"):
-			print("Error: {error}".format(image_data))
-		elif image_data.has("og:image"):
-#			var texture = GodotMatrix.thumbnail(image_data["og:image"], 64, 64)
-			var response = yield(GodotMatrix.thumbnail(image_data["og:image"], 64, 64), "completed")
+		if preview_data.has("error"):
+			print("Error: {error}".format(preview_data))
+			return
+		elif preview_data.has("og:image"):
+			var response = yield(GodotMatrix.thumbnail(preview_data["og:image"]), "completed")
 			if response is Dictionary:
 				print(response["error"])
 			else:
-				preview.texture = response
-				preview.show()
-	_adjust_for_image()
+				preview_image.texture = response
+				preview_image.show()
+		_adjust_for_image()
+	
+		if preview_data.has("og:site_name"):
+			var message = ("[url=%s]%s[/url] \n-%s") % [preview_data["og:url"], preview_data["og:title"], preview_data["og:site_name"]]
+			preview_header.append_bbcode(message)
+			
+		if preview_data.has("og:description"):
+			var message = preview_data["og:description"]
+			preview_body.append_bbcode(message)
 
 
 func _ready():
-	_add_preview_image()
+	_add_preview()
 	_print_and_check(sender_name, sender_message)
 	_print_and_check(time_stamp_text, time_stamp)
 	_print_and_check(message_body, body)
-

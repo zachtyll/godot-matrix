@@ -5,6 +5,7 @@ extends Panel
 const HEADER_SIZE := 50
 const FOOTER_SIZE := 20
 const LINE_LENGTH := 100
+const LINE_SPACE := 0
 const TEXT_WIDTH := 4
 const TEXT_HEIGHT := 16
 

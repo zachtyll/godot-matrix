@@ -79,13 +79,52 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Preview" type="TextureRect" parent="Padding/VBoxContainer"]
+[node name="LinkPreview" type="HBoxContainer" parent="Padding/VBoxContainer"]
 margin_top = 116.0
 margin_right = 984.0
 margin_bottom = 560.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
+custom_constants/separation = 16
+
+[node name="Preview" type="TextureRect" parent="Padding/VBoxContainer/LinkPreview"]
+margin_right = 223.0
+margin_bottom = 444.0
+size_flags_horizontal = 11
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.3
 expand = true
 stretch_mode = 5
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Padding/VBoxContainer/LinkPreview"]
+margin_left = 239.0
+margin_right = 984.0
+margin_bottom = 444.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Header" type="RichTextLabel" parent="Padding/VBoxContainer/LinkPreview/VBoxContainer"]
+margin_right = 745.0
+margin_bottom = 56.0
+rect_min_size = Vector2( 0, 56 )
+focus_mode = 2
+bbcode_enabled = true
+bbcode_text = "
+"
+text = "
+"
+scroll_active = false
+selection_enabled = true
+
+[node name="Body" type="RichTextLabel" parent="Padding/VBoxContainer/LinkPreview/VBoxContainer"]
+margin_top = 60.0
+margin_right = 745.0
+margin_bottom = 116.0
+rect_min_size = Vector2( 0, 56 )
+focus_mode = 2
+bbcode_enabled = true
+scroll_active = false
+selection_enabled = true
 [connection signal="gui_input" from="." to="." method="_on_MessagePanel_gui_input"]
-[connection signal="meta_clicked" from="Padding/VBoxContainer/MessageBody" to="." method="_on_MessageBody_meta_clicked"]
+[connection signal="meta_clicked" from="Padding/VBoxContainer/MessageBody" to="." method="_on_meta_clicked"]
+[connection signal="meta_clicked" from="Padding/VBoxContainer/LinkPreview/VBoxContainer/Header" to="." method="_on_meta_clicked"]
