@@ -1,7 +1,10 @@
 extends Node
 
-const MEDIA_ID_LENGTH = 17
-const matrix_protocol = preload("Matrix.gd")
+const MEDIA_ID_LENGTH := 17
+const matrix_protocol := preload("Matrix.gd")
+
+const PNG_MAGIC_NUM := 137
+const JPG_MAGIC_NUM := 255
 
 
 var mp : MatrixProtocol
@@ -77,15 +80,15 @@ func _resolve_image(data : PoolByteArray):
 
 	# TODO: Figure out how to check for image file type better.
 	# Magic number for png files.
-	if data[0] == 137:
-		image.load_png_from_buffer(data)
-		texture.create_from_image(image)
-	# Magic number for jpg .
-	elif data[0] == 255:
-		image.load_jpg_from_buffer(data)
-		texture.create_from_image(image)
-	else:
-		return {"error": "An error occurred while trying to display the image."}
+	match(data[0]):
+		PNG_MAGIC_NUM:
+			image.load_png_from_buffer(data)
+			texture.create_from_image(image)
+		JPG_MAGIC_NUM:
+			image.load_jpg_from_buffer(data)
+			texture.create_from_image(image)
+		_:
+			return {"error": "An error occurred while trying to display the image."}
 	return texture
 
 
