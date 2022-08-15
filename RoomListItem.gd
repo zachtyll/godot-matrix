@@ -4,7 +4,7 @@ extends PanelContainer
 
 signal room_lmb_selected
 
-var room : Room
+var room : MatrixRoom
 var index := 0
 var selected := false
 var avatar_texture : ImageTexture

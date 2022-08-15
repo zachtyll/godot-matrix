@@ -42,7 +42,6 @@ class PreviousRoom:
 			"room_id" : new_room_id,
 			"event_id" : new_event_id,
 		}
-		
 
 
 class PowerLevelEventContent:

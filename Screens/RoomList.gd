@@ -11,7 +11,7 @@ var room_texture : ImageTexture
 onready var list := $VBoxContainer
 
 
-func add_room(room : Room):
+func add_room(room : MatrixRoom):
 	var new_room := default_room.instance()
 	new_room.room = room
 	new_room.index = list.get_child_count()

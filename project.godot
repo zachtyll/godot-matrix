@@ -24,15 +24,15 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://Matrix.gd"
 }, {
+"base": "Node",
+"class": "MatrixRoom",
+"language": "GDScript",
+"path": "res://CustomClasses/MatrixRoom.gd"
+}, {
 "base": "Panel",
 "class": "MessagePanel",
 "language": "GDScript",
 "path": "res://MessageBoxes/MessagePanel.gd"
-}, {
-"base": "Node",
-"class": "Room",
-"language": "GDScript",
-"path": "res://CustomClasses/Room.gd"
 }, {
 "base": "ScrollContainer",
 "class": "RoomList",
@@ -48,8 +48,8 @@ _global_script_class_icons={
 "ChatWindow": "",
 "Event": "",
 "MatrixProtocol": "",
+"MatrixRoom": "",
 "MessagePanel": "",
-"Room": "",
 "RoomList": "",
 "RoomListItem": ""
 }
@@ -68,7 +68,7 @@ GodotMatrix="*res://GodotMatrix.gd"
 
 Enter={
 "deadzone": 0.5,
-"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":16777221,"unicode":0,"echo":false,"script":null)
+"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":16777221,"physical_scancode":0,"unicode":0,"echo":false,"script":null)
  ]
 }
 

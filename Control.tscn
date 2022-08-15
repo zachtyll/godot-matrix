@@ -100,6 +100,7 @@ __meta__ = {
 }
 
 [node name="CreateRoom" parent="PopUps" instance=ExtResource( 6 )]
+
 [connection signal="pressed" from="MainScreen/Screen/LeftSection/TopBarLeft/TopBarLeftHbox/Settings" to="." method="_on_Settings_pressed"]
 [connection signal="text_changed" from="MainScreen/Screen/LeftSection/TopBarLeft/TopBarLeftHbox/LineEdit" to="." method="_on_LineEdit_text_changed"]
 [connection signal="room_selected" from="MainScreen/Screen/LeftSection/RoomList" to="." method="_on_RoomList_room_selected"]
@@ -116,5 +117,4 @@ __meta__ = {
 [connection signal="logout" from="Modal/Settings" to="." method="_on_Settings_logout"]
 
 [editable path="MainScreen"]
-
 [editable path="LoginScreen"]

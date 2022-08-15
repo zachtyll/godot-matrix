@@ -6,9 +6,8 @@ const matrix_protocol := preload("Matrix.gd")
 const PNG_MAGIC_NUM := 137
 const JPG_MAGIC_NUM := 255
 
-
 var mp : MatrixProtocol
-var current_room : Room setget set_current_room
+var current_room : MatrixRoom setget set_current_room
 var input_text := ""
 var next_batch := "" setget set_next_batch
 var previous_batch := ""
@@ -267,11 +266,11 @@ func set_text_input(new_text : String) -> void:
 	input_text = new_text
 
 
-func set_current_room(new_room : Room) -> void:
+func set_current_room(new_room : MatrixRoom) -> void:
 	current_room = new_room
 
 
-func get_room(index : int) -> Room:
+func get_room(index : int) -> MatrixRoom:
 	return rooms_array[index]
 
 
@@ -284,9 +283,9 @@ func sync_to_server() -> void:
 	var sync_data = yield(mp.sync_events(), "completed")
 	for room_id in sync_data["rooms"]["join"].keys():
 		var room_data = sync_data["rooms"]["join"][room_id]
-		rooms_array.append(Room.new(user_username, room_id, room_data))
+		rooms_array.append(MatrixRoom.new(user_username, room_id, room_data))
 		# Always gets the last created room.
-		rooms_array.back().room_membership = Room.RoomMembership.JOIN
+		rooms_array.back().room_membership = MatrixRoom.RoomMembership.JOIN
 	rooms_array.sort()
 	emit_signal("rooms_joined", rooms_array)
 

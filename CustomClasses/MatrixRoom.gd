@@ -1,4 +1,4 @@
-class_name Room
+class_name MatrixRoom
 extends Node
 # Model for a Matrix room.
 

@@ -10,7 +10,7 @@ onready var topic := $MainScreen/Screen/MidSection/TopBarMid/TopBarMidHbox/Chann
 onready var room_list := $MainScreen/Screen/LeftSection/RoomList
 onready var chat_line := $MainScreen/Screen/MidSection/ChatInput/ChatLineStretcher/ChatLine
 onready var chat_window := $MainScreen/Screen/MidSection/ChatWindow
-onready var chat_history_list := null
+onready var chat_history_list = null
 onready var login_status := $LoginScreen/CenterContainer/VBoxContainer/LoginStatus
 onready var username := $LoginScreen/CenterContainer/VBoxContainer/GridContainer/Username
 onready var password := $LoginScreen/CenterContainer/VBoxContainer/GridContainer/Password
@@ -128,7 +128,7 @@ func _on_LineEdit_text_changed(new_text):
 
 
 # Updates which room we act upon via the left sidebar
-func _on_RoomList_room_selected(room : Room):
+func _on_RoomList_room_selected(room : MatrixRoom):
 	chat_window.clear()
 	GodotMatrix.set_current_room(room)
 	channel_name.text = room.display_name()
@@ -149,7 +149,7 @@ func _on_Settings_create_room():
 func _send_message() -> void:
 	if chat_line.text.empty():
 		return
-	var err := GodotMatrix.send_message(input_text)
+	var err = GodotMatrix.send_message(input_text)
 	if err:
 		print("Send message failed.")
 	chat_line.clear()
@@ -169,9 +169,9 @@ func _update_chat_window(events : Array) -> void:
 
 
 func _ready():
-	var _login_err := GodotMatrix.connect("login", self, "_on_login")
-	var _rooms_joined_err := GodotMatrix.connect("rooms_joined", self, "_update_room_list")
-	var _refresh_err := GodotMatrix.connect("incoming_events", self, "_update_chat_window")
-	var _create_room_err := GodotMatrix.connect("create_room", self, "_on_create_room")
-	var _logout_err := GodotMatrix.connect("logout", self, "_on_logout")
+	var _login_err = GodotMatrix.connect("login", self, "_on_login")
+	var _rooms_joined_err = GodotMatrix.connect("rooms_joined", self, "_update_room_list")
+	var _refresh_err = GodotMatrix.connect("incoming_events", self, "_update_chat_window")
+	var _create_room_err = GodotMatrix.connect("create_room", self, "_on_create_room")
+	var _logout_err = GodotMatrix.connect("logout", self, "_on_logout")
 

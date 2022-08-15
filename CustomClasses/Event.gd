@@ -7,9 +7,7 @@ var origin_server_ts := 0
 var sender := ""
 var state_key := ""
 var type := ""
-var unsigned := {
-				age = 0,
-			}
+var unsigned := {age = 0,}
 var event_id := ""
 var user_id := ""
 var age := -1
